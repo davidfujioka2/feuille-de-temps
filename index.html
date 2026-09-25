@@ -643,6 +643,7 @@ button{cursor:pointer}
     <header class="top">
       <div class="ttl"><b id="calProj"></b><small>Journal de chantier</small></div>
       <nav class="seg"><a id="lnkFdt" href="./feuille.html">Feuille de temps</a><button class="on" type="button">Journal de chantier</button></nav>
+      <button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
       <button class="btn out" data-go="ph">📷 Photos</button>
       <button class="btn out" data-go="prm">⚙ Paramètres</button>
     </header>
@@ -919,6 +920,7 @@ $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){S.project=p.dataset.proj;save();renderCal();return}
   const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;go(locked()?'read':'entry')}
 });
+$('#exAll').onclick=()=>prepareAll();
 $('#mPrev').onclick=()=>{const a=parse(S.month);S.month=fmt(new Date(a.getFullYear(),a.getMonth()-1,1));save();renderCal()};
 $('#mNext').onclick=()=>{const a=parse(S.month);S.month=fmt(new Date(a.getFullYear(),a.getMonth()+1,1));save();renderCal()};
 
@@ -1498,7 +1500,7 @@ $('#spNext').onclick=()=>{U.spread++;renderRead()};
 $('#readSide').addEventListener('click',e=>{
   if(e.target.id==='savePdf'){saveReportPdf();return}
   if(e.target.id==='saveQuit'){save();go('cal');toast('Journal enregistré')}
-  else if(e.target.id==='approve'){if(!U.sigInk){toast('Signer d’abord');return}const D=day();D.sig=$('#sigpad2').toDataURL('image/png');D.status='approved';D.approvedAt=Date.now();save();renderRead();toast('Journal approuvé et verrouillé')}
+  else if(e.target.id==='approve'){if(!U.sigInk){toast('Signer d’abord');return}const D=day();D.sig=$('#sigpad2').toDataURL('image/png');D.status='approved';D.approvedAt=Date.now();save();renderRead();toast('Journal approuvé');setTimeout(storeFinalPdf,300)}
   else if(e.target.id==='newRev'){const D=day();D.history.push({rev:D.rev,at:D.approvedAt});D.rev++;D.status='draft';D.sig=null;D.approvedAt=null;save();go('entry');toast('Révision '+D.rev+' ouverte')}
 });
 function openSig(){
@@ -1551,22 +1553,41 @@ async function pdfLibs(){
   if(!window.html2canvas)await loadScript('./lib/html2canvas.min.js').catch(()=>loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
 }
 function saveFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
+async function reportPdfBlob(){
+  await pdfLibs();
+  const ip=$('#ipad'),z=ip.style.zoom;ip.style.zoom=1;
+  const canvas=await html2canvas($('#paper'),{scale:2,backgroundColor:'#ffffff',useCORS:true});ip.style.zoom=z;
+  const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait'});
+  const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),sliceH=Math.floor(canvas.width*ph/pw);
+  for(let y=0,i=0;y<canvas.height;y+=sliceH,i++){const c=document.createElement('canvas');c.width=canvas.width;c.height=Math.min(sliceH,canvas.height-y);c.getContext('2d').drawImage(canvas,0,y,c.width,c.height,0,0,c.width,c.height);if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,c.height*pw/c.width)}
+  return pdf.output('blob');
+}
+const pdfName=(proj,date,final)=>`${slug(proj)}__Rapports__${date}${final?'':'__brouillon'}.pdf`;
 async function saveReportPdf(){
   const D=day(),ok=D.status==='approved';toast('Création du PDF…');
-  try{
-    await pdfLibs();
-    const ip=$('#ipad'),z=ip.style.zoom;ip.style.zoom=1;
-    const paper=$('#paper'),canvas=await html2canvas(paper,{scale:2,backgroundColor:'#ffffff',useCORS:true});ip.style.zoom=z;
-    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait'});
-    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),sliceH=Math.floor(canvas.width*ph/pw);
-    for(let y=0,i=0;y<canvas.height;y+=sliceH,i++){
-      const c=document.createElement('canvas');c.width=canvas.width;c.height=Math.min(sliceH,canvas.height-y);c.getContext('2d').drawImage(canvas,0,y,c.width,c.height,0,0,c.width,c.height);
-      if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,c.height*pw/c.width);
-    }
-    const name=`${slug(S.project)}__Rapports__${U.date}${ok?'':'__brouillon'}.pdf`;
-    saveFile(pdf.output('blob'),name);toast('PDF enregistré : '+name);
-  }catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
+  try{const b=await reportPdfBlob();saveFile(b,pdfName(S.project,U.date,ok));toast('PDF prêt')}catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
 }
+async function storeFinalPdf(){try{const k=dk(),b=await reportPdfBlob();await putBlob('pdf|'+k,b);const D=day();D.pdfStored=true;D.pdfExported=false;save()}catch(e){}}
+/* --- tout enregistrer : un seul partage --- */
+async function prepareAll(){
+  toast('Préparation…');const files=[],marks=[];
+  for(const [k,D] of Object.entries(S.days)){if(D.pdfStored&&!D.pdfExported){const b=await getBlob('pdf|'+k);if(b){const [p,d]=k.split('|');files.push(new File([b],pdfName(p,d,true),{type:'application/pdf'}));marks.push(()=>{D.pdfExported=true})}}}
+  for(const m of S.media.filter(x=>x.status==='arch'&&!x.exported)){const b=await getBlob(m.id);if(!b)continue;const t=new Date(m.at);
+    files.push(new File([b],`${slug(m.project||'Sans projet')}__${m.type==='photo'?'Photos':MTL[m.type].replace(/\s+/g,'-')}__${slug(m.zone||'sans-zone')}__${m.date}_${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.jpg`,{type:'image/jpeg'}));marks.push(()=>{m.exported=true})}
+  const data={app:'Chantier',version:1,exported:new Date().toISOString(),journal:S,feuilleDeTemps:(()=>{try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'null')}catch(e){return null}})()};
+  files.push(new File([JSON.stringify(data)],`Sauvegardes__Chantier__${fmt(new Date())}.json`,{type:'application/json'}));marks.push(()=>{S.lastBackup=Date.now()});
+  U.exportFiles=files;U.exportMarks=marks;
+  const ov=$('#ovl');ov.hidden=false;
+  ov.innerHTML=`<div class="sigbox"><h2>Tout enregistrer</h2><p>${files.length} fichier${files.length>1?'s':''} prêt${files.length>1?'s':''} : rapports approuvés, photos archivées et sauvegarde (seulement ce qui est nouveau).</p><div class="row"><button class="btn" id="exCancel">Annuler</button><button class="btn go" id="exGo" style="min-width:220px">Envoyer vers Fichiers / OneDrive</button></div></div>`;
+  ov.onclick=async e=>{
+    if(e.target.id==='exCancel'){ov.hidden=true;return}
+    if(e.target.id==='exGo'){const fs=U.exportFiles;
+      try{if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title:'Chantier'});U.exportMarks.forEach(f=>f());save();ov.hidden=true;toast('Enregistré');render()}
+        else{for(const x of fs){saveFile(x,x.name);await new Promise(r=>setTimeout(r,600))}U.exportMarks.forEach(f=>f());save();ov.hidden=true;toast('Fichiers téléchargés');render()}}
+      catch(err){if(err&&err.name==='AbortError'){toast('Annulé')}else toast('Partage impossible ici')}}
+  };
+}
+
 async function savePhotos(list){
   if(!list.length)return;toast('Enregistrement de '+list.length+' photo'+(list.length>1?'s':'')+'…');
   for(const m of list){const b=await getBlob(m.id);if(!b)continue;const t=new Date(m.at);

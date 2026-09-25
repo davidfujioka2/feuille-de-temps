@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -764,7 +764,7 @@ function go(p){if(p!=='entry'&&$('#win'))$('#win').hidden=true;
   $('#ovl').hidden=true;render();
 }
 function render(){({cal:renderCal,entry:renderEntry,photos:renderPhotos,read:renderRead,prm:renderPrm})[U.page]();fit()}
-function fit(){const el=$('#ipad');const s=Math.min(1,(document.documentElement.clientWidth-8)/IPAD_W);el.style.zoom=s}
+function fit(){if(window.__fit)return window.__fit();const el=$('#ipad');const s=Math.min(1,(document.documentElement.clientWidth-8)/IPAD_W,(window.innerHeight-8)/820);el.style.zoom=s}
 window.addEventListener('resize',fit);
 let tT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),1900)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.preventDefault();go(b.dataset.go)}});
@@ -1414,6 +1414,26 @@ go('cal');
 })();
 </script>
 
+<style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
+html.phone .stage{padding:0!important;min-height:100%;align-items:center}
+html.phone .ipad{border-radius:0!important;box-shadow:none!important;margin:0 auto!important}
+html.phone body{display:flex;justify-content:center;align-items:center}</style>
+<div id="safeProbe" style="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)"></div>
+<script>
+window.__fit=function(){const el=document.getElementById('ipad'),app=document.getElementById('app'),fdt=app&&!document.querySelector('.stage');if(!el&&!app)return;
+  const cs=getComputedStyle(document.getElementById('safeProbe'));
+  const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
+  const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820);
+  if(fdt){
+    if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
+    else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
+  }else if(el)el.style.zoom=s;
+  document.body.style.padding=phone?(T+'px '+R+'px '+B+'px '+L+'px'):'';};
+function fitIpad(){window.__fit()}
+addEventListener('resize',window.__fit);addEventListener('orientationchange',()=>setTimeout(window.__fit,200));
+addEventListener('load',window.__fit);window.__fit();
+</script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}

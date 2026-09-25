@@ -774,6 +774,7 @@ button{cursor:pointer}
     <header class="top">
       <button class="back" id="prmBack">‹ Retour</button>
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
+      <span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="bkBtn">💾 Sauvegarde</button>
     </header>
     <div class="prm">
       <nav class="prm-nav" id="prmNav"></nav>
@@ -1468,10 +1469,11 @@ function renderRead(){
   $('#paper').innerHTML=html;fillBurned($('#paper'));
   $('#readSide').innerHTML=ok?`<span class="lbl">Rapport approuvé</span><p>Signé par ${SUP} le ${esc(stamp(D.approvedAt))}. Le rapport est final et ne peut plus être modifié.</p>
       ${D.history.length?`<p>${D.history.map(h=>'Rév. '+h.rev+' approuvée le '+esc(stamp(h.at))).join('<br>')}</p>`:''}
-      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px"><button class="btn go" data-go="cal">Retour au calendrier</button></div>`
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px"><button class="btn out" id="savePdf">📄 Enregistrer le PDF</button><button class="btn go" data-go="cal">Retour au calendrier</button></div>`
     :`<span class="lbl">Rapport</span>
       <button class="btn rs" data-go="entry">Modifier</button>
       <button class="btn rs" id="saveQuit">Enregistrer</button>
+      <button class="btn" id="savePdf" style="height:40px;font-size:13px">📄 PDF brouillon</button>
       <button class="btn go rs" id="approve" disabled>Approuver</button>
       <span class="lbl" style="margin-top:8px">Signature</span>
       <canvas class="sigpad2" id="sigpad2"></canvas>
@@ -1494,6 +1496,7 @@ $('#spread').addEventListener('click',e=>{const l=e.target.closest('[data-edit]'
 $('#spPrev').onclick=()=>{U.spread=Math.max(0,U.spread-1);renderRead()};
 $('#spNext').onclick=()=>{U.spread++;renderRead()};
 $('#readSide').addEventListener('click',e=>{
+  if(e.target.id==='savePdf'){saveReportPdf();return}
   if(e.target.id==='saveQuit'){save();go('cal');toast('Journal enregistré')}
   else if(e.target.id==='approve'){if(!U.sigInk){toast('Signer d’abord');return}const D=day();D.sig=$('#sigpad2').toDataURL('image/png');D.status='approved';D.approvedAt=Date.now();save();renderRead();toast('Journal approuvé et verrouillé')}
   else if(e.target.id==='newRev'){const D=day();D.history.push({rev:D.rev,at:D.approvedAt});D.rev++;D.status='draft';D.sig=null;D.approvedAt=null;save();go('entry');toast('Révision '+D.rev+' ouverte')}
@@ -1515,7 +1518,7 @@ function openSig(){
 
 /* ---------- paramètres ---------- */
 function renderPrm(){
-  const L=lists(),k=U.prmKey;
+  const L=lists(),k=U.prmKey;$('#bkInfo').textContent=S.lastBackup?'Dernière sauvegarde : '+stamp(S.lastBackup):'Aucune sauvegarde';
   if(k==='phasemap'){
     $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${x==='phasemap'?'':L[x].filter(i=>!i.off).length}</small></button>`).join('');
     $('#prmTitle').textContent='Phases des sous-traitants';$('#prmStats').textContent='toucher une phase pour placer ou retirer le sous-traitant';
@@ -1536,9 +1539,46 @@ $('#prmItems').onclick=e=>{const pm=e.target.closest('[data-pm]');if(pm){const c
   if(x){const it=L.find(i=>i.label===x.dataset.po);S.off[U.prmKey+'|'+it.label]=!it.off;save();renderPrm()}};
 $('#prmAdd').onclick=()=>{const t=$('#prmNew').value.trim();if(!t)return;(S.added[U.prmKey==='phasemap'?'st':U.prmKey] ||= []).push(t);$('#prmNew').value='';save();renderPrm();toast('Ajouté à '+LIST_LBL[U.prmKey])};
 $('#prmNew').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#prmAdd').click()}};
+$('#bkBtn').onclick=saveBackup;
 $('#prmBack').onclick=()=>go(U.prmFrom==='prm'?'cal':U.prmFrom);
 
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+/* ===================== ENREGISTRER (dossier OneDrive de Safari) ===================== */
+const slug=t=>String(t||'').replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim();
+function loadScript(src){return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+async function pdfLibs(){
+  if(!window.jspdf)await loadScript('./lib/jspdf.umd.min.js').catch(()=>loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
+  if(!window.html2canvas)await loadScript('./lib/html2canvas.min.js').catch(()=>loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
+}
+function saveFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
+async function saveReportPdf(){
+  const D=day(),ok=D.status==='approved';toast('Création du PDF…');
+  try{
+    await pdfLibs();
+    const ip=$('#ipad'),z=ip.style.zoom;ip.style.zoom=1;
+    const paper=$('#paper'),canvas=await html2canvas(paper,{scale:2,backgroundColor:'#ffffff',useCORS:true});ip.style.zoom=z;
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait'});
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),sliceH=Math.floor(canvas.width*ph/pw);
+    for(let y=0,i=0;y<canvas.height;y+=sliceH,i++){
+      const c=document.createElement('canvas');c.width=canvas.width;c.height=Math.min(sliceH,canvas.height-y);c.getContext('2d').drawImage(canvas,0,y,c.width,c.height,0,0,c.width,c.height);
+      if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,c.height*pw/c.width);
+    }
+    const name=`${slug(S.project)}__Rapports__${U.date}${ok?'':'__brouillon'}.pdf`;
+    saveFile(pdf.output('blob'),name);toast('PDF enregistré : '+name);
+  }catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
+}
+async function savePhotos(list){
+  if(!list.length)return;toast('Enregistrement de '+list.length+' photo'+(list.length>1?'s':'')+'…');
+  for(const m of list){const b=await getBlob(m.id);if(!b)continue;const t=new Date(m.at);
+    const name=`${slug(m.project||'Sans projet')}__${m.type==='photo'?'Photos':MTL[m.type].replace(/\s+/g,'-')}__${slug(m.zone||'sans-zone')}__${m.date}_${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.jpg`;
+    saveFile(b,name);await new Promise(r=>setTimeout(r,700))}
+}
+function saveBackup(){
+  const data={app:'Chantier',version:1,exported:new Date().toISOString(),journal:S,feuilleDeTemps:(()=>{try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'null')}catch(e){return null}})()};
+  const name=`Sauvegardes__Chantier__${fmt(new Date())}.json`;
+  saveFile(new Blob([JSON.stringify(data)],{type:'application/json'}),name);S.lastBackup=Date.now();save();toast('Sauvegarde enregistrée');renderPrm();
+}
+
 /* ===================== MODULE PHOTOS ===================== */
 S.media=S.media||[];
 const MTYPES=[['photo','Photo de chantier'],['bon','Bon de livraison'],['facture','Facture'],['ref','Référence']];
@@ -1678,11 +1718,11 @@ function renderGal(){
   const vals=k=>[...new Set(base.map(m=>m[k]).filter(Boolean))].sort(byFr);
   const months=[...new Set(base.map(m=>monthKey(m.date)))].sort().reverse();
   const grp=(label,k,arr,fmtv)=>arr.length?`<div class="gl">${label}</div><div class="pchips">${arr.map(v=>`<button class="chip ${F[k]===v?'on':''}" data-gk="${k}" data-gv="${esc(v)}">${esc(fmtv?fmtv(v):v)}</button>`).join('')}</div>`:'';
-  $('#galF').innerHTML=grp('Projet','project',vals('project'))+grp('Mois','month',months,v=>MONTHS[Number(v.slice(5))-1]+' '+v.slice(0,4))+grp('Type','type',vals('type'),v=>MTL[v])+grp('Zone','zone',vals('zone'))+grp('Travaux','act',vals('act'))+grp('Sous-traitant / fournisseur','sub',vals('sub'))+(Object.keys(F).length>1?'<button class="btn" id="galClear" style="margin-top:8px">Effacer les filtres</button>':'');
+  $('#galF').innerHTML=grp('Projet','project',vals('project'))+grp('Mois','month',months,v=>MONTHS[Number(v.slice(5))-1]+' '+v.slice(0,4))+grp('Type','type',vals('type'),v=>MTL[v])+grp('Zone','zone',vals('zone'))+grp('Travaux','act',vals('act'))+grp('Sous-traitant / fournisseur','sub',vals('sub'))+(Object.keys(F).length>1?'<button class="btn" id="galClear" style="margin-top:8px">Effacer les filtres</button>':'')+(sel.length?`<button class="btn out" id="galSave" style="margin-top:8px">⬇ Enregistrer ces photos (${sel.length})</button>`:'');U.galSel=sel;
   $('#galG').innerHTML=sel.length?sel.map(m=>`<button class="gcell" data-gid="${m.id}"><i data-th="${m.id}"></i><span>${esc([m.zone,m.act||MTL[m.type],shortDate(m.date)].filter(Boolean).join(' · '))}</span></button>`).join(''):'<div class="empty-ph" style="grid-column:1/-1">Aucune photo pour ces filtres.</div>';
   fillThumbs($('#galG'));
 }
-$('#galF').addEventListener('click',e=>{if(e.target.id==='galClear'){U.gf={status:U.gf.status};renderGal();return}const c=e.target.closest('[data-gk]');if(!c)return;const k=c.dataset.gk,v=c.dataset.gv;if(U.gf[k]===v)delete U.gf[k];else U.gf[k]=v;renderGal()});
+$('#galF').addEventListener('click',e=>{if(e.target.id==='galSave'){savePhotos(U.galSel||[]);return}if(e.target.id==='galClear'){U.gf={status:U.gf.status};renderGal();return}const c=e.target.closest('[data-gk]');if(!c)return;const k=c.dataset.gk,v=c.dataset.gv;if(U.gf[k]===v)delete U.gf[k];else U.gf[k]=v;renderGal()});
 $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gid]');if(!c)return;const m=S.media.find(x=>x.id===c.dataset.gid);if(!m)return;
   const ov=$('#ovl');ov.hidden=false;const b=await getBlob(m.id);
   ov.innerHTML=`<div class="viewer"><div class="big"><img src="${b?URL.createObjectURL(b):''}" alt="Photo"></div><div class="side"><b style="font-size:16px">${esc(MTL[m.type])}</b>

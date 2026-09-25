@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installer Chantier sur l’iPad</title>
+<meta name="theme-color" content="#2f8a57">
+<link rel="icon" href="./icon-192.png">
+<style>
+:root{--g:#2f8a57;--gd:#236b43;--deep:#173d2d;--line:#dfe4e1;--muted:#5b6470;--bg:#f3f5f4;--txt:#17202a;--hl:#f2b705}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:28px;margin:6px 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.url{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px}
+section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px;margin:0 0 16px}
+h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px}
+h2 .n{width:34px;height:34px;border-radius:17px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+ol{margin:0 0 14px;padding-left:22px}ol li{margin:6px 0}
+b.btn{display:inline-block;padding:0 8px;border-radius:6px;background:#eef6f1;border:1px solid #b9ddc7;color:var(--deep)}
+.warn{background:#fdf6ec;border:1px solid #f1c48f;border-radius:10px;padding:10px 12px;font-size:15px;margin-top:10px}
+.shots{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.cap{font-size:13px;color:var(--muted);text-align:center;margin-top:6px}
+/* iPad illustré */
+.ipad{width:380px;max-width:100%;aspect-ratio:1180/820;background:#1d1d1f;border-radius:22px;padding:12px;position:relative}
+.scr{width:100%;height:100%;background:#fff;border-radius:12px;overflow:hidden;position:relative;font-size:10px}
+.hl{outline:3px solid var(--hl);outline-offset:2px;border-radius:6px;position:relative}
+.tap:after{content:"";position:absolute;right:-10px;bottom:-12px;width:22px;height:22px;border-radius:11px;background:rgba(242,183,5,.55);border:2px solid var(--hl)}
+/* Safari */
+.sbar{height:26px;background:#f2f2f7;display:flex;align-items:center;gap:6px;padding:0 8px;border-bottom:1px solid #ddd}
+.sbar .addr{flex:1;height:16px;background:#e3e3e8;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#333}
+.ico{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#0a84ff}
+.page{padding:8px;display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.page i{height:18px;background:#eef1ef;border-radius:3px}
+.sheet{position:absolute;right:8px;top:30px;width:52%;background:#f2f2f7;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.25);padding:6px;display:flex;flex-direction:column;gap:3px}
+.sheet div{background:#fff;border-radius:6px;padding:5px 7px;font-size:9px;display:flex;justify-content:space-between}
+.dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:62%;background:#f2f2f7;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.25);overflow:hidden}
+.dlg .top{display:flex;justify-content:space-between;padding:6px 8px;font-size:9px;border-bottom:1px solid #ddd;background:#fff}
+.dlg .top span{color:#0a84ff}
+.dlg .row{display:flex;align-items:center;gap:6px;padding:7px 8px;background:#fff;margin:6px;border-radius:6px;font-size:9px}
+.dlg .row img{width:22px;height:22px;border-radius:5px}
+.sw{margin-left:auto;width:24px;height:14px;border-radius:7px;background:#34c759;position:relative}.sw:after{content:"";position:absolute;right:1px;top:1px;width:12px;height:12px;border-radius:6px;background:#fff}
+.sw.off{background:#d1d1d6}.sw.off:after{right:auto;left:1px}
+/* Accueil */
+.home{background:linear-gradient(160deg,#6a8fb3,#2c4a6b);height:100%;padding:16px;display:grid;grid-template-columns:repeat(8,1fr);gap:12px;align-content:start}
+.app{display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;font-size:7px}
+.app i{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.35);display:block}
+.app img{width:30px;height:30px;border-radius:8px}
+/* Réglages */
+.set{display:grid;grid-template-columns:34% 1fr;height:100%}
+.set .l{background:#f2f2f7;padding:8px 6px;display:flex;flex-direction:column;gap:3px;border-right:1px solid #ddd}
+.set .l div{padding:4px 6px;border-radius:5px;font-size:9px}.set .l .on{background:#0a84ff;color:#fff}
+.set .r{padding:10px 10px;display:flex;flex-direction:column;gap:5px;background:#f2f2f7}
+.set .r .t{font-size:12px;font-weight:700}
+.set .r div.it{background:#fff;border-radius:6px;padding:6px 8px;font-size:9px;display:flex;align-items:center}
+/* App Chantier */
+.appv{height:100%;background:#f3f5f4;padding:8px;display:flex;flex-direction:column;gap:6px}
+.appv .hd{height:16px;background:#fff;border-radius:4px}
+.appv .gr{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.appv .gr i{background:#fff;border-radius:3px}
+.plane{position:absolute;right:10px;top:6px;font-size:10px;color:#fff;background:#ff9f0a;border-radius:4px;padding:0 4px}
+/* OneDrive */
+.od{height:100%;background:#fff}
+.od .h{background:#0364b8;color:#fff;padding:6px 8px;font-size:10px;font-weight:700}
+.od .f{display:flex;align-items:center;gap:6px;padding:7px 8px;border-bottom:1px solid #eee;font-size:9px}
+.od .f i{width:16px;height:12px;background:#f6c343;border-radius:2px}
+.od .f span.d{margin-left:auto;color:#666;font-size:12px}
+.menu{position:absolute;right:10px;top:42px;width:55%;background:#fff;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.25);overflow:hidden}
+.menu div{padding:6px 8px;font-size:9px;border-bottom:1px solid #eee}
+.note{font-size:12.5px;color:var(--muted);margin-top:22px}
+@media print{body{background:#fff}section{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<h1>Installer « Chantier » sur l’iPad</h1>
+<p class="sub">Journal de chantier et feuille de temps · Beaudoin Capital · adresse : <span class="url">davidfujioka2.github.io/feuille-de-temps</span></p>
+
+<section>
+<h2><span class="n">1</span>Vérifier les réglages de l’iPad</h2>
+<ol>
+<li>Ouvrir <b class="btn">Réglages</b>.</li>
+<li>Toucher <b class="btn">Apps</b> › <b class="btn">Safari</b>.</li>
+<li>Désactiver <b class="btn">Bloquer tous les cookies</b>.</li>
+<li>Toucher <b class="btn">Général</b> › <b class="btn">Stockage de l’iPad</b> : garder au moins 2 Go libres.</li>
+<li>Ouvrir le Centre de contrôle (glisser du coin en haut à droite) : désactiver le <b class="btn">verrouillage de la rotation</b>.</li>
+<li>Se connecter au Wi-Fi.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="set"><div class="l"><div>Général</div><div>Écran et luminosité</div><div class="on">Apps</div><div>Batterie</div></div><div class="r"><div class="t">Safari</div><div class="it">Moteur de recherche</div><div class="it hl">Bloquer tous les cookies<span class="sw off"></span></div><div class="it">Avancé</div></div></div></div></div><div class="cap">Réglages › Apps › Safari · « Bloquer tous les cookies » désactivé</div></div>
+</div>
+</section>
+
+<section>
+<h2><span class="n">2</span>Ouvrir le site dans Safari</h2>
+<ol>
+<li>Ouvrir <b class="btn">Safari</b>.</li>
+<li>Taper l’adresse : <span class="url">davidfujioka2.github.io/feuille-de-temps</span></li>
+<li>Attendre que le calendrier du Journal de chantier s’affiche.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="sbar"><span class="ico">‹</span><div class="addr hl">davidfujioka2.github.io/feuille-de-temps</div><span class="ico">⬆︎</span><span class="ico">•••</span></div><div class="page"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="cap">Taper l’adresse dans la barre de Safari</div></div>
+</div>
+</section>
+
+<section>
+<h2><span class="n">3</span>Ajouter l’app à l’écran d’accueil</h2>
+<ol>
+<li>Toucher le bouton <b class="btn">Partager</b> (carré avec une flèche vers le haut). S’il n’est pas visible : toucher <b class="btn">•••</b>, puis <b class="btn">Partager</b>.</li>
+<li>Toucher <b class="btn">Afficher plus</b>.</li>
+<li>Toucher <b class="btn">Sur l’écran d’accueil</b>.</li>
+<li>Vérifier que <b class="btn">Ouvrir en tant qu’app web</b> est activé (vert).</li>
+<li>Laisser le nom <b class="btn">Chantier</b>.</li>
+<li>Toucher <b class="btn">Ajouter</b>.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="sbar"><span class="ico">‹</span><div class="addr">davidfujioka2.github.io</div><span class="ico hl tap">⬆︎</span><span class="ico">•••</span></div><div class="page"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="cap">a) Toucher Partager</div></div>
+  <div><div class="ipad"><div class="scr"><div class="sbar"><span class="ico">‹</span><div class="addr">davidfujioka2.github.io</div><span class="ico">⬆︎</span><span class="ico">•••</span></div><div class="sheet"><div>Copier</div><div>Ajouter aux signets</div><div class="hl tap">Sur l’écran d’accueil<span>⊞</span></div><div>Afficher plus</div></div></div></div><div class="cap">b) Afficher plus › Sur l’écran d’accueil</div></div>
+  <div><div class="ipad"><div class="scr" style="background:#e9ecea"><div class="dlg"><div class="top"><span>Annuler</span><b>Sur l’écran d’accueil</b><span class="hl tap">Ajouter</span></div><div class="row"><img src="./apple-touch-icon.png" alt="">Chantier</div><div class="row hl">Ouvrir en tant qu’app web<span class="sw"></span></div></div></div></div><div class="cap">c) Interrupteur vert, puis Ajouter</div></div>
+</div>
+</section>
+
+<section>
+<h2><span class="n">4</span>Premier lancement (avec internet)</h2>
+<ol>
+<li>Retourner à l’écran d’accueil.</li>
+<li>Toucher l’icône <b class="btn">Chantier</b>.</li>
+<li>Attendre que le calendrier s’affiche (l’app se copie sur l’iPad).</li>
+<li>Fermer l’app, puis la rouvrir une fois avec l’icône.</li>
+<li>À la première photo, toucher <b class="btn">Autoriser</b> pour l’appareil photo.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="home"><div class="app"><i></i>Photos</div><div class="app"><i></i>Safari</div><div class="app"><i></i>Réglages</div><div class="app"><i></i>OneDrive</div><div class="app hl tap"><img src="./apple-touch-icon.png" alt="">Chantier</div></div></div></div><div class="cap">Toujours ouvrir avec l’icône Chantier</div></div>
+</div>
+</section>
+
+<section>
+<h2><span class="n">5</span>Vérifier que l’app marche sans internet</h2>
+<ol>
+<li>Ouvrir le Centre de contrôle, activer le <b class="btn">mode Avion</b>.</li>
+<li>Toucher l’icône <b class="btn">Chantier</b>.</li>
+<li>Le calendrier doit s’afficher.</li>
+<li>Désactiver le mode Avion.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="appv"><div class="hd"></div><div class="gr"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="plane">✈︎</span></div></div><div class="cap">En mode Avion, le calendrier s’ouvre quand même</div></div>
+</div>
+</section>
+
+<section>
+<h2><span class="n">6</span>Tous les jours</h2>
+<ol>
+<li>Ouvrir l’app avec l’icône <b class="btn">Chantier</b>, jamais dans Safari.</li>
+<li>Journal de chantier : choisir la journée dans le calendrier.</li>
+<li>Feuille de temps : onglet <b class="btn">Feuille de temps</b> en haut du calendrier.</li>
+<li>Mises à jour : ouvrir l’app une fois avec internet ; la nouvelle version s’affiche au lancement suivant.</li>
+</ol>
+<div class="warn"><b>Ne jamais supprimer l’icône Chantier</b> : les données sont gardées dans l’iPad et seraient effacées.</div>
+</section>
+
+<section>
+<h2><span class="n">7</span>OneDrive : documents du bureau hors connexion</h2>
+<ol>
+<li>Ouvrir l’<b class="btn">App Store</b>, installer <b class="btn">Microsoft OneDrive</b>.</li>
+<li>Ouvrir OneDrive, se connecter avec le compte de travail (@coreholdings.ca).</li>
+<li>Trouver le dossier du projet.</li>
+<li>Toucher <b class="btn">•••</b> à côté du dossier.</li>
+<li>Toucher <b class="btn">Rendre disponible hors connexion</b>.</li>
+<li>Avant d’aller au chantier : ouvrir OneDrive sur le Wi-Fi quelques secondes pour recevoir les derniers fichiers.</li>
+<li>Icône nuage = pas téléchargé. Coche = disponible sans internet.</li>
+</ol>
+<div class="shots">
+  <div><div class="ipad"><div class="scr"><div class="od"><div class="h">OneDrive — Mes fichiers</div><div class="f"><i></i>Documents<span class="d">•••</span></div><div class="f hl"><i></i>2565 Aird — Chantier<span class="d">•••</span></div><div class="f"><i></i>Photos<span class="d">•••</span></div></div><div class="menu"><div>Partager</div><div class="hl tap">Rendre disponible hors connexion</div><div>Déplacer</div></div></div></div><div class="cap">••• › Rendre disponible hors connexion</div></div>
+</div>
+<div class="warn">Si « Rendre disponible hors connexion » est gris : le dossier demande un compte de travail ou Microsoft 365. Avertir le bureau.</div>
+</section>
+
+<p class="note">Illustrations simplifiées : les écrans réels de l’iPad peuvent varier légèrement selon la version d’iPadOS.</p>
+</main></body></html>

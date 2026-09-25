@@ -625,6 +625,13 @@ button{cursor:pointer}
 .gcell{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;padding:0;text-align:left}
 .gcell i{display:block;aspect-ratio:4/3;background:#dfe4e1 center/cover no-repeat}
 .gcell span{display:block;padding:4px 7px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mqin{width:62px;height:40px;border:1.5px solid var(--line);border-radius:10px;text-align:center;font-size:18px;font-weight:900;color:var(--green-dark);background:#fff;padding:0;-moz-appearance:textfield}
+.mqin::-webkit-outer-spin-button,.mqin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.mrow.has .mqin{border-color:var(--green)}
+.up3{position:relative;width:28px;height:36px;border:0;background:transparent;padding:0;flex-shrink:0}
+.up3 svg{position:absolute;inset:0;width:100%;height:100%}
+.up3 span{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:9.5px;letter-spacing:-.3px;font-weight:900;color:var(--green-dark)}
+.up3:active svg path{fill:var(--green-soft)}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
@@ -1109,7 +1116,7 @@ function renderLiv(){
       <div class="c3l">${pill}
         <div class="pan">
           <div class="gl">Matériaux</div>
-          <div class="scroll" style="flex:1;min-height:0">${descs.length?`<div class="mlist two" style="grid-template-rows:repeat(${Math.max(1,Math.ceil(descs.length/2))},auto)">${descs.map(d=>{const q=(V.items.find(x=>x.mat===d)||{}).qty||0;return `<div class="mrow ${q?'has':''}"><span class="mname">${esc(d)}</span><span class="mq">${q||''}</span>${[1,5,10].map(n=>`<div class="stp2"><button class="up" data-fa="lvadd" data-v="${esc(d)}" data-d="${n}" aria-label="Ajouter ${n} ${esc(d)}"><span>${n}</span></button><button class="dn" data-fa="lvadd" data-v="${esc(d)}" data-d="-${n}" aria-label="Retirer ${n} ${esc(d)}" ${q?'':'disabled'}>▼</button></div>`).join('')}</div>`}).join('')}</div>`:'<span class="empty-t">Aucun matériel encore : en ajouter un ci-dessous.</span>'}</div>
+          <div class="scroll" style="flex:1;min-height:0">${descs.length?`<div class="mlist two" style="grid-template-rows:repeat(${Math.max(1,Math.ceil(descs.length/2))},auto)">${descs.map(d=>{const q=(V.items.find(x=>x.mat===d)||{}).qty||0;return `<div class="mrow ${q?'has':''}"><span class="mname">${esc(d)}</span><input class="mqin" type="number" inputmode="numeric" min="0" data-mq="${esc(d)}" value="${q||''}" placeholder="0" aria-label="Quantité ${esc(d)}">${[1,5,10].map(n=>`<button class="up3" data-fa="lvadd" data-v="${esc(d)}" data-d="${n}" aria-label="Ajouter ${n} ${esc(d)}"><svg viewBox="0 0 28 34" aria-hidden="true"><path d="M14 2 L26 15 H21 V32 H7 V15 H2 Z" fill="#fff" stroke="#236b43" stroke-width="2.4" stroke-linejoin="round"/></svg><span>${n}</span></button>`).join('')}</div>`}).join('')}</div>`:'<span class="empty-t">Aucun matériel encore : en ajouter un ci-dessous.</span>'}</div>
           <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Nouveau matériel" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div>
         </div>
       </div>
@@ -1317,6 +1324,7 @@ $('#flow').addEventListener('click',e=>{
   else if(a==='new'){const inp=$('#fNew'),t=(inp.value||'').trim(),k=b.dataset.k;if(!t)return;(S.added[k] ||= []).push(t);save();pick(k,t)}
   else if(a==='add')addEntry();
 });
+$('#flow').addEventListener('change',e=>{const m=e.target.closest&&e.target.closest('[data-mq]');if(!m||!U.V)return;const mat=m.dataset.mq,q=Math.max(0,parseInt(m.value,10)||0),V=U.V,ex=V.items.find(x=>x.mat===mat);if(ex){if(q)ex.qty=q;else V.items.splice(V.items.indexOf(ex),1)}else if(q)V.items.push({mat,qty:q});renderLiv()});
 $('#flow').addEventListener('keydown',e=>{if(e.key!=='Enter')return;
   if(e.target.id==='fNew'){e.preventDefault();const b=$('#flow [data-fa="new"],#flow [data-fa="stnew"],#flow [data-fa="lvnew"],#flow [data-fa="runewwho"],#flow [data-fa="runewsub"],#flow [data-fa="evnewwho"],#flow [data-fa="evnewtype"]');if(b)b.click()}
   if(e.target.id==='lvNewDesc'){e.preventDefault();$('#flow [data-fa="lvdescadd"]').click()}

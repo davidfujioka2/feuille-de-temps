@@ -1,21 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"><style>
-.apphdr{position:fixed;left:0;right:0;top:0;height:58px;z-index:50;background:#fff;border-bottom:1px solid #dfe4e1;display:flex;align-items:center;gap:8px;padding:0 max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));font-family:-apple-system,"Segoe UI",sans-serif;box-sizing:border-box}
-.hbs{display:flex;gap:4px;flex:1;min-width:0}
-.hb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:78px;height:50px;padding:0 8px;border-radius:12px;text-decoration:none;color:#236b43}
-.hb svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.hb span{font-size:10.5px;font-weight:800;white-space:nowrap}
-.hb.on{background:#2f8a57;color:#fff}
-.hdr-right{width:170px;display:flex;justify-content:flex-end}
-.hdr-done{height:44px;padding:0 22px;border:0;border-radius:12px;background:#173d2d;color:#fff;font-size:15px;font-weight:850;font-family:inherit;cursor:pointer}
-body{padding-top:58px!important;box-sizing:border-box}
-.appnav{display:none!important}
-#finish{display:none!important}
-#pgCal .seg{display:none!important}
-@media (max-width:760px){.hb{min-width:0;padding:0 6px}.hb span{display:none}.hdr-right{width:auto}}
-</style>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -661,15 +647,24 @@ button{cursor:pointer}
 .phase-btn small{display:none}
 .chip.bc{border-width:2.5px!important}
 .chip:disabled,.cm-item:disabled{opacity:.45}
+/* menu d'icônes dans la rangée d'en-tête */
+.top{gap:8px!important;padding:0 12px!important}
+.tnav{display:flex;gap:2px;flex-shrink:0}
+.tnav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:82px;height:52px;border-radius:12px;text-decoration:none;color:var(--green-dark);cursor:pointer}
+.tnav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tnav span{font-size:9.5px;font-weight:800;white-space:nowrap;letter-spacing:-.1px}
+.tnav a.on{background:var(--green);color:#fff}
+.top .ttl{margin-left:8px;padding-left:12px;border-left:1px solid var(--line)}
+.top .ttl b{font-size:14px}.top .ttl small{font-size:11px}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<header class="apphdr"><nav class="hbs"><a class="hb on" href="./#cal" data-hk="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendrier</span></a><a class="hb" href="./feuille.html" data-hk="fdt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Feuille de temps</span></a><a class="hb" href="./#journal" data-hk="jou"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/></svg><span>Journal de chantier</span></a><a class="hb" href="./materiaux.html" data-hk="liv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/></svg><span>Livraison</span></a><a class="hb" href="./echeancier.html" data-hk="pla"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/></svg><span>Planification</span></a><a class="hb" href="./#prm" data-hk="prm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><span>Paramètres</span></a></nav><div class="hdr-right" id="hdrRight"><button class="hdr-done" id="hdrDone" hidden>Terminé</button></div></header><div class="stage"><div id="ipad" class="ipad">
+<div class="stage"><div id="ipad" class="ipad">
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
-    <header class="top">
+    <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b id="calProj"></b><small>Journal de chantier</small></div>
       <nav class="seg"><a id="lnkFdt" href="./feuille.html">Feuille de temps</a><button class="on" type="button">Journal de chantier</button><a href="./echeancier.html">Échéancier</a><a href="./materiaux.html">Matériaux</a><a href="./aide.html">Aide</a></nav>
       <button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
@@ -693,8 +688,7 @@ button{cursor:pointer}
 
   <!-- ============ SAISIE ============ -->
   <section id="pgEntry" class="page" hidden>
-    <header class="top">
-      <button class="back" data-go="cal">‹ Retour</button>
+    <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Journal de chantier</b><small id="entrySub"></small></div>
       <button class="btn out" data-go="photos" id="toPhotos">📷 Photos</button>
       <button class="btn ico" data-go="prm" aria-label="Paramètres">⚙</button>
@@ -710,7 +704,7 @@ button{cursor:pointer}
 
   <!-- ============ PHOTOS ============ -->
   <section id="pgPhotos" class="page" hidden>
-    <header class="top">
+    <header class="top"><nav class="tnav"></nav>
       <button class="back" data-go="entry">‹ Retour</button>
       <div class="ttl"><b>Photos du jour</b><small id="photoSub"></small></div>
       <button class="btn" data-go="read">Vue lecture</button>
@@ -740,8 +734,7 @@ button{cursor:pointer}
 
   <!-- ============ LECTURE ============ -->
   <section id="pgRead" class="page" hidden>
-    <header class="top">
-      <button class="back" data-go="cal">‹ Retour</button>
+    <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Journal de chantier · vue lecture</b><small id="readSub"></small></div>
     </header>
     <div class="read">
@@ -755,8 +748,7 @@ button{cursor:pointer}
 
   <!-- ============ PHOTOS : ACCUEIL ============ -->
   <section id="pgPh" class="page" hidden>
-    <header class="top">
-      <button class="back" data-go="cal">‹ Retour</button>
+    <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Photos</b><small>Prendre, trier et archiver les photos du chantier</small></div>
       <label class="btn out filebtn">Importer des photos<input type="file" accept="image/*" multiple id="phImport"></label>
       <button class="btn pri" id="phCamBtn">📷 Prendre des photos</button>
@@ -783,7 +775,7 @@ button{cursor:pointer}
 
   <!-- ============ PHOTOS : TRI ============ -->
   <section id="pgRev" class="page" hidden>
-    <header class="top">
+    <header class="top"><nav class="tnav"></nav>
       <button class="back" data-go="ph">‹ Retour</button>
       <div class="ttl"><b>Trier les photos</b><small id="revSub"></small></div>
       <span class="revhelp">→ classer et archiver · ↑ supprimer · ↓ garder pour moi</span>
@@ -793,7 +785,7 @@ button{cursor:pointer}
 
   <!-- ============ PHOTOS : ARCHIVE ============ -->
   <section id="pgGal" class="page" hidden>
-    <header class="top">
+    <header class="top"><nav class="tnav"></nav>
       <button class="back" data-go="ph">‹ Retour</button>
       <div class="ttl"><b id="galTitle">Archive</b><small id="galSub"></small></div>
     </header>
@@ -802,8 +794,7 @@ button{cursor:pointer}
 
   <!-- ============ PARAMÈTRES ============ -->
   <section id="pgPrm" class="page" hidden>
-    <header class="top">
-      <button class="back" id="prmBack">‹ Retour</button>
+    <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
       <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="bkBtn">💾 Sauvegarde</button>
     </header>
@@ -923,7 +914,7 @@ function go(p){if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typ
   U.page=p;Object.entries(PAGES).forEach(([k,s])=>$(s).hidden=k!==p);
   $('#ovl').hidden=true;render();
 }
-function render(){({cal:renderCal,entry:renderEntry,photos:renderPhotos,read:renderRead,prm:renderPrm,ph:renderPh,cam:renderCam,rev:renderRev,gal:renderGal})[U.page]();fit()}
+function render(){drawTnav();({cal:renderCal,entry:renderEntry,photos:renderPhotos,read:renderRead,prm:renderPrm,ph:renderPh,cam:renderCam,rev:renderRev,gal:renderGal})[U.page]();fit()}
 function fit(){if(window.__fit)return window.__fit();const el=$('#ipad');const s=Math.min(1,(document.documentElement.clientWidth-8)/IPAD_W,(window.innerHeight-8)/820);el.style.zoom=s}
 window.addEventListener('resize',fit);
 let tT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),1900)}
@@ -1574,7 +1565,7 @@ $('#prmItems').onclick=e=>{const pm=e.target.closest('[data-pm]');if(pm){const c
 $('#prmAdd').onclick=()=>{const t=$('#prmNew').value.trim();if(!t)return;(S.added[U.prmKey==='phasemap'?'st':U.prmKey] ||= []).push(t);$('#prmNew').value='';save();renderPrm();toast('Ajouté à '+LIST_LBL[U.prmKey])};
 $('#prmNew').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#prmAdd').click()}};
 $('#bkBtn').onclick=saveBackup;
-$('#prmBack').onclick=()=>go(U.prmFrom==='prm'?'cal':U.prmFrom);
+if($('#prmBack'))$('#prmBack').onclick=()=>go(U.prmFrom==='prm'?'cal':U.prmFrom);
 
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
 /* ===================== ENREGISTRER (dossier OneDrive de Safari) ===================== */
@@ -1631,6 +1622,14 @@ function saveBackup(){
   const name=`Sauvegardes__Chantier__${fmt(new Date())}.json`;
   saveFile(new Blob([JSON.stringify(data)],{type:'application/json'}),name);S.lastBackup=Date.now();save();toast('Sauvegarde enregistrée');renderPrm();
 }
+
+/* ===================== MENU D'ICÔNES (rangée d'en-tête) ===================== */
+const TNAV_ICO={cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',fdt:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',jou:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/>',liv:'<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/>',pla:'<path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/>',prm:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'};
+const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'],['jou','Journal',null],['liv','Livraison','./materiaux.html'],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
+const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'jou',prm:'prm',ph:'jou',cam:'jou',rev:'jou',gal:'jou'};
+function drawTnav(){const act=TNAV_ACTIVE[U.page]||'';const h=TNAV.map(([k,l,href])=>`<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
+  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
 
 /* ===================== MODULE PHOTOS ===================== */
 S.media=S.media||[];
@@ -1801,7 +1800,7 @@ window.__fit=function(){const el=document.getElementById('ipad'),app=document.ge
   const cs=getComputedStyle(document.getElementById('safeProbe'));
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
   const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
-  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m-58)/820);
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820);
   if(fdt){
     if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
     else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
@@ -1816,18 +1815,3 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 </script>
 </html>
-<script>
-(function(){
-  const hb=document.getElementById('hdrDone');
-  function sync(){const pg=document.getElementById('pgEntry');hb.hidden=!(pg&&!pg.hidden)}
-  hb.onclick=()=>{const f=document.getElementById('finish');if(f)f.click()};
-  setInterval(sync,400);sync();
-  if(location.pathname.endsWith('/')||location.pathname.endsWith('index.html')){
-    const route=()=>{const h=location.hash;document.querySelectorAll('.hb').forEach(a=>a.classList.remove('on'));
-      const k=h==='#journal'?'jou':h==='#prm'?'prm':'cal';const a=document.querySelector('.hb[data-hk="'+k+'"]');if(a)a.classList.add('on');
-      if(window.__route)window.__route(h)};
-    addEventListener('hashchange',route);addEventListener('load',route);
-    document.querySelectorAll('.hb[href^="./#"]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href').slice(1);if(location.hash===h){e.preventDefault();route()}}));
-  }
-})();
-</script>

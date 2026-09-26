@@ -662,11 +662,26 @@ button{cursor:pointer}
 .top .pribbon.hdr button:first-child{flex:0 0 auto}
 .daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
 .jtag.plan{border:1.5px dashed var(--green)!important;background:#fff!important;color:var(--green-dark)!important;padding:0 14px!important;cursor:pointer}
+.grid{width:100%;display:flex;flex-direction:column;gap:6px}
+.grow{display:grid;grid-template-columns:118px repeat(var(--n),minmax(0,1fr));gap:6px;align-items:stretch}
+.gl2{display:flex;align-items:center;font-size:13px;font-weight:850;color:var(--deep);padding-left:4px}
+.gh{border:2px solid var(--green);border-radius:16px;background:#fff;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.gh b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;color:var(--deep)}
+.gh span{font-size:11.5px;font-weight:800;color:var(--muted)}.gh span.ok{color:var(--green-dark)}.gh span.wip{color:var(--amber)}
+.gh .btn.sm{min-height:32px;padding:0 12px;font-size:12.5px}
+.gcell{border:1.5px solid var(--green-line);border-radius:14px;background:#fff;padding:6px;display:flex;flex-direction:column;gap:5px;min-height:92px;min-width:0;cursor:pointer}
+.gcell.lk{background:#f5fbf7;cursor:default}
+.gtag{border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:11.5px;font-weight:750;padding:5px 9px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.gtag b{font-size:10px;color:var(--green)}
+.gtag.plan{border-style:dashed}
+.gadd{margin-top:auto;align-self:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:18px;font-weight:800}
+.gfdt{border:2px solid var(--green);border-radius:14px;background:#fff;color:var(--deep);font-size:14px;font-weight:850;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.gfdt small{font-size:11px;color:var(--muted);font-weight:700}.gfdt.ok{background:#f5fbf7;color:var(--green-dark)}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 15 h 38</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-12</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 17 h 39</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-13</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -834,6 +849,7 @@ const ST_FAV=['Les Habitations Leblanc','Desrosiers Électrique Inc.','Plomberie
 const ST_OTH=['MultiGestion JP','Refratec','CleanConcept','Les Drains Francis','Forage Gareau','Serruriers Sirois Inc'];
 const FOUR_FAV=['Lefebvre & Benoit','Patrick Morin','Rona','Multi Recyclage'], FOUR_OTH=['Échafauds Plus','Simplex','Canac','Home Dépôt','Lou-Tech','RempliGo','Conteneurs Experts','Wesco'];
 const BASE={
+  proj:PROJECTS.map(n=>o(n,0,'Projets')),
   st:[...ST_FAV.map(n=>o(n,1,'Sous-traitants')),...ST_OTH.map(n=>o(n,0,'Sous-traitants'))],
   trav:['Démolition','Retrait de gypse','Mur temporaire porteur','Rough-in plomberie','Rough-in électrique','Cloisons intérieures','Fond de clouage','Isolation','Pose de gypse','Tirage de joints','Peinture','Planchers','Maçonnerie','Réparation','Finition','Nettoyage','Retrait des débris'].map((n,i)=>o(n,0,'Travaux')),
   zones:ZG.flatMap(([g,zs])=>zs.map(z=>o(z,0,g))),
@@ -847,7 +863,7 @@ const BASE={
   evtwho:[...['Surintendant','Menuisiers','Manœuvres'].map(n=>o(n,0,'Équipe interne')),...ST_FAV.map(n=>o(n,0,'Sous-traitants')),...['Client','Architecte','Inspecteur','Visiteur','Public'].map(n=>o(n,0,'Autres'))],
   evtdet:['Rapport d’accident rempli','Premiers soins donnés','Travail repris','Travaux arrêtés','Sous-traitant avisé','Bureau avisé','Suivi requis','Réglé sur place','Photo à prendre'].map(n=>o(n,0,'Détails'))
 };
-const LIST_LBL={phasemap:'Phases des sous-traitants',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
+const LIST_LBL={proj:'Projets (actifs / inactifs)',phasemap:'Phases des sous-traitants',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
 const SECS={
   st:{n:2,label:'Sous-traitants',sub:'Travaux réalisés par les sous-traitants',tables:[['st','Sous-traitant'],['trav','Travaux'],['zones','Zone']]},
   liv:{n:3,label:'Livraisons des fournisseurs',sub:'Matériel reçu au chantier',tables:[['four','Fournisseur'],['mat','Matériel livré'],['etat','Commande']]},
@@ -869,6 +885,7 @@ Object.values(S.days).forEach(D=>{D.entries=(D.entries||[]).map(e=>{if(e.sec)ret
   if(['Incident','Accident','Visite'].includes(T))return {id:e.id,sec:'evt',a:T,b:f('who'),c:su,text:e.note||''};
   if(['Question','Coordination'].includes(T))return {id:e.id,sec:'reu',a:f('who'),b:T==='Question'?'Question technique':'Rencontre de coordination',c:su,text:e.note||''};
   return {id:e.id,sec:'st',a:f('who'),b:f('act'),c:f('zones'),text:e.note||''}})});
+const ACTIVE=()=>{const a=PROJECTS.filter(p=>!S.off['proj|'+p]);return a.length?a:PROJECTS.slice(0,1)};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Stockage plein — exporter les photos')}}
 const U={page:'cal',date:fmt(today),sec:null,vals:{},step:0,text:'',editIndex:null,labour:false,justAdded:false,last:null,spread:0,prmKey:'phasemap',prmFrom:'cal',linkEntry:null};
 const dk=()=>S.project+'|'+U.date;
@@ -938,13 +955,13 @@ function pickProject(then){
 }
 function renderCal(){
   $('#calProj').textContent=S.project;
-  $('#projBar').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj="__all">Tous</button>`+PROJECTS.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj="${esc(p)}">${esc(p)}</button>`).join('');
+  $('#projBar').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj="${esc(p)}">${esc(p)}</button>`).join('');
   const a=parse(S.month);$('#monthTitle').textContent=MONTHS[a.getMonth()]+' '+a.getFullYear();
   const start=new Date(a);start.setDate(1-a.getDay());
   let h=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map((w,i)=>`<div class="cal-wd ${i===0||i===6?'we':''}">${w}</div>`).join('');
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);
-    const Ds=(S.viewAll?PROJECTS:[S.project]).map(p=>S.days[p+'|'+ds]).filter(Boolean),D=S.viewAll?null:Ds[0];
+    const Ds=(S.viewAll?ACTIVE():[S.project]).map(p=>S.days[p+'|'+ds]).filter(Boolean),D=S.viewAll?null:Ds[0];
     const n=Ds.reduce((t,x)=>t+x.entries.length,0),np=Ds.reduce((t,x)=>t+x.photos.length,0),has=n||np;
     const anyDraft=Ds.some(x=>x.status!=='approved'&&(x.entries.length||x.photos.length)),anyOk=Ds.some(x=>x.status==='approved');
     const st=anyDraft?'draft':anyOk?'ok':'';
@@ -957,7 +974,7 @@ function renderCal(){
 $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
   const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
-    if(S.viewAll){pickProject(()=>go(locked()?'read':'entry'));return}
+    if(S.viewAll){go('entry');return}
     go(locked()?'read':'entry')}
 });
 
@@ -982,8 +999,28 @@ function openWin(){$('#win').hidden=false;drawTnav()}
 function closeWin(){resetDraft();$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
+function renderGrid(){
+  const P=ACTIVE(),cur=S.project,out=[];
+  const cellTags=(p,k)=>{S.project=p;const D=day();let h='';
+    D.entries.forEach((e,i)=>{if(e.sec!==k)return;h+=`<button class="gtag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${e.phase?`<b>${esc(PH_SHORT[e.phase])}</b> `:''}${esc(tagText(e))}</button>`});
+    if(k==='st'&&D.status!=='approved')plannedToday().forEach(x=>{h+=`<button class="gtag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</button>`});
+    return h};
+  const head=P.map(p=>{S.project=p;const D=day(),n=D.entries.length,ok=D.status==='approved';
+    return `<div class="gh"><b>${esc(p)}</b><span class="${ok?'ok':n?'wip':''}">${ok?'✓ Approuvé':n?n+' entrée'+(n>1?'s':''):'Vide'}</span><button class="btn ${ok?'out':'pri'} sm" data-grep="${esc(p)}">${ok?'Voir le rapport':'Rapport'}</button></div>`}).join('');
+  const anyF=P.some(p=>(S.days[p+'|'+U.date]||{}).fdt);
+  let body=`<div class="grow"><div class="gl2">Employés</div><button class="gfdt ${anyF?'ok':''}" data-gfdt="1" style="grid-column:2 / span ${P.length}">${anyF?'✓ Feuille de temps remplie':'Feuille de temps de la journée — tous les projets'}<small>Approuvée à la semaine</small></button></div>`;
+  JROWS.filter(r=>r[0]!=='fdt').forEach(([k,,label])=>{
+    body+=`<div class="grow"><div class="gl2">${label}</div>${P.map(p=>{const t=cellTags(p,k),lk=(S.days[p+'|'+U.date]||{}).status==='approved';
+      return `<div class="gcell ${lk?'lk':''}" data-cp="${esc(p)}">${t}${lk?'':`<button class="gadd" data-row="${k}" aria-label="Ajouter · ${esc(p)}">＋</button>`}</div>`}).join('')}</div>`});
+  S.project=cur;
+  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow ghead"><div class="gl2"></div>${head}</div>${body}</div>`;
+  $('#finish').hidden=true;
+}
 function renderEntry(){
-  $('#projBar2').innerHTML=`<button data-proj2="__all">Tous</button>`+PROJECTS.map(p=>`<button class="${p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
+  if(!ACTIVE().includes(S.project))S.project=ACTIVE()[0];
+  $('#projBar2').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj2="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
+  $('#finish').hidden=false;
+  if(S.viewAll){$('#dayLbl').textContent=dayLbl(U.date)+' · tous les projets actifs';renderGrid();if(!$('#win').hidden)renderWin();return}
   const D=day();
   $('#entrySub').textContent=S.project+' · '+dayLbl(U.date)+(D.rev?' · révision '+D.rev:'');
   $('#dayLbl').textContent=dayLbl(U.date)+(D.photos.length?' · '+D.photos.length+' photo'+(D.photos.length>1?'s':''):'');
@@ -1015,8 +1052,11 @@ function tagText(e){
 }
 const fmtH=h=>String(Math.round((h||0)*10)/10).replace('.',',');
 
-$('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj2]');if(!b)return;if(b.dataset.proj2==='__all'){S.viewAll=true;save();go('cal');return}S.project=b.dataset.proj2;S.viewAll=false;save();resetDraft();renderEntry()});
+$('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj2]');if(!b)return;if(b.dataset.proj2==='__all'){S.viewAll=true;save();resetDraft();renderEntry();return}S.project=b.dataset.proj2;S.viewAll=false;save();resetDraft();if(locked())go('read');else renderEntry()});
 $('#rows').addEventListener('click',e=>{
+  const gf=e.target.closest('[data-gfdt]');if(gf){location.href='./feuille.html';return}
+  const gr=e.target.closest('[data-grep]');if(gr){S.project=gr.dataset.grep;S.viewAll=false;save();U.spread=0;go('read');return}
+  const cp=e.target.closest('[data-cp]');if(cp){S.project=cp.dataset.cp;if(locked()){S.viewAll=false;save();go('read');return}}
   const pb=e.target.closest('[data-plan]');if(pb){const x=plannedToday().find(p=>p.id===pb.dataset.plan);if(!x)return;
     saveEntry({sec:'st',a:x.st,b:x.ac,phase:PH_MAP[x.phase]||'rough',workers:1,hours:8,c:x.z||'',text:x.cm||'',planId:x.id});renderEntry();toast('Activité planifiée ajoutée');return}
   if(e.target.id==='demo'){loadDemo();return}
@@ -1050,7 +1090,7 @@ function saveEntry(e){
 
 function renderWin(){
   const k=U.winSec,row=JROWS.find(r=>r[0]===k);
-  $('#winTitle').textContent=(U.editIndex!=null?'Modifier · ':'')+row[2];
+  $('#winTitle').textContent=(U.editIndex!=null?'Modifier · ':'')+row[2]+(S.viewAll?' — '+S.project:'');
   if(k==='fdt'){$('#winSent').textContent='';const D=day();
     $('#flow').innerHTML=`<div class="fcol cur" style="flex:1;width:auto"><div class="labour"><b>Employés — feuille de temps du ${esc(dayLbl(U.date))}</b><p>Remplir la feuille de temps (employés, heures, projets, zones et travaux). Une fois terminée, confirmer ici : l’étiquette « Feuille de temps remplie » apparaît dans la rangée.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn out" style="display:flex;align-items:center;text-decoration:none;height:64px;font-size:16px;padding:0 24px" href="./feuille.html">Ouvrir la feuille de temps ›</a><button class="bigbtn" style="width:auto;padding:0 30px" data-fa="fdtok">${D.fdt?'Marquer comme non remplie':'✓ Feuille de temps remplie'}</button></div></div></div>`;return}
   if(k==='st'){renderSt();return}
@@ -1713,7 +1753,7 @@ function camSideHtml(){
   const L=lists(),zs=L.zones.filter(x=>!x.off),acts=L.trav.filter(x=>!x.off),sts=L.st.filter(x=>!x.off);
   let g=null,buf=[],zb='';const flush=()=>{if(buf.length)zb+=`<div class="zrow"><span>${esc(g)}</span><div class="chips">${buf.join('')}</div></div>`;buf=[]};
   zs.forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${U.phZone===x.label?'on':''}" data-cz="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
-  $('#camSide').innerHTML=`<div class="gl">Projet</div><div class="pchips">${PROJECTS.map(p=>`<button class="chip ${S.project===p?'on':''}" data-cp="${esc(p)}">${esc(p)}</button>`).join('')}</div>
+  $('#camSide').innerHTML=`<div class="gl">Projet</div><div class="pchips">${ACTIVE().map(p=>`<button class="chip ${S.project===p?'on':''}" data-cp="${esc(p)}">${esc(p)}</button>`).join('')}</div>
     <div class="gl">Zone — toucher pour changer en marchant</div><div class="zgrid"><button class="chip zc ${!U.phZone?'on':''}" data-cz="" style="margin-bottom:4px">Sans zone</button>${zb}</div>
     <div class="gl">Travaux (facultatif)</div><select class="sel" id="camAct"><option value="">—</option>${acts.map(a=>`<option ${U.phAct===a.label?'selected':''}>${esc(a.label)}</option>`).join('')}</select>
     <div class="gl">Sous-traitant (facultatif)</div><select class="sel" id="camSub"><option value="">—</option>${sts.map(a=>`<option ${U.phSub===a.label?'selected':''}>${esc(a.label)}</option>`).join('')}</select>`;
@@ -1758,7 +1798,7 @@ function renderRev(){
   const L=lists(),opt=(arr,cur)=>'<option value="">—</option>'+arr.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join('');
   const photo=m.type==='photo';
   $('#revSide').innerHTML=`<div class="gl">Type</div><div class="tseg">${MTYPES.map(([k,l])=>`<button class="${m.type===k?'on':''}" data-rt="${k}">${l}</button>`).join('')}</div>
-    <div class="gl">Projet</div><select class="sel" data-rf="project">${opt(PROJECTS,m.project)}</select>
+    <div class="gl">Projet</div><select class="sel" data-rf="project">${opt(ACTIVE(),m.project)}</select>
     ${photo?`<div class="gl">Zone</div><select class="sel" data-rf="zone">${opt(L.zones.filter(x=>!x.off).map(x=>x.label),m.zone)}</select>
     <div class="gl">Travaux</div><select class="sel" data-rf="act">${opt(L.trav.filter(x=>!x.off).map(x=>x.label),m.act)}</select>
     <div class="gl">Sous-traitant</div><select class="sel" data-rf="sub">${opt(L.st.filter(x=>!x.off).map(x=>x.label),m.sub)}</select>`

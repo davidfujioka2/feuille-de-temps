@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f8a57">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Chantier">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<title>Aide · Chantier</title><style>.appnav{max-width:1100px;margin:10px auto 0;display:flex;gap:4px;background:#fff;border:1px solid #d9dedb;border-radius:999px;padding:4px;font-family:-apple-system,Segoe UI,sans-serif}.appnav a{flex:1;text-align:center;padding:10px 6px;border-radius:999px;text-decoration:none;color:#236b43;font-weight:800;font-size:14px}.appnav a.on{background:#2f8a57;color:#fff}</style><style>body{margin:0;background:#f3f5f4;color:#17202a;font:15px/1.55 -apple-system,Segoe UI,sans-serif}main{max-width:900px;margin:0 auto;padding:10px 16px 60px}
+section{background:#fff;border:1px solid #dfe4e1;border-radius:16px;padding:18px;margin:14px 0}h1{font-size:24px;margin:8px 0}h2{font-size:17px;margin:18px 0 6px;color:#236b43}
+.big{display:flex;gap:10px;flex-wrap:wrap}.big a{display:inline-flex;align-items:center;height:52px;padding:0 20px;border-radius:12px;background:#2f8a57;color:#fff;text-decoration:none;font-weight:800}.big a.o{background:#fff;color:#236b43;border:1px solid #2f8a57}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}th,td{border-bottom:1px solid #e5e9e7;padding:6px;text-align:left;vertical-align:top}th{font-size:12px;text-transform:uppercase;color:#5b6470}</style>
+<style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style></head><body><nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="on" href="./aide.html">Aide</a></nav><main>
+<section><h1>Guide d'installation</h1><p>Installer l'app sur l'iPad ou l'iPhone, étape par étape.</p><div class="big"><a href="./instructions.html">Ouvrir le guide</a><a class="o" href="./instructions.pdf">Guide en PDF</a></div></section>
+<section><h1>Field App — document du projet</h1><p>Field App Setup: Superintendent iPad App</p>
+<p>Architecture and requirements summary for continuing development in a</p>
+<p>new session.</p>
+<p>Status: design agreed, ready for prototype</p>
+<h2>1. Overview</h2>
+<p>The app is an HTML web app hosted on GitHub Pages and installed on the</p>
+<p>superintendent&#x27;s iPad as a Progressive Web App (PWA). After one initial</p>
+<p>load with internet, it runs fully offline from the copy stored on the</p>
+<p>iPad. All of his working data (lists, favorites, drafts, signed reports)</p>
+<p>lives on the iPad. Documents are exchanged manually through a shared</p>
+<p>OneDrive folder that syncs with the office.</p>
+<table><tr><th>Component</th><th>Where it lives</th><th>How it moves</th></tr><tr><td>App code (HTML/JS)</td><td>GitHub Pages; cached on iPad</td><td>Downloaded once; updates install on next online launch</td></tr><tr><td>Base setup (starting lists)</td><td>Bundled with the app</td><td>Loaded on first launch only</td></tr><tr><td>His lists, favorites, activities</td><td>iPad (app storage)</td><td>Stays on device; manual backup to OneDrive</td></tr><tr><td>Drafts and approved reports</td><td>iPad (app storage)</td><td>Final PDF sent manually via Share sheet</td></tr><tr><td>Reference documents / drawings</td><td>Shared OneDrive folder (offline)</td><td>He imports manually into the app</td></tr><tr><td>Outgoing files (PDFs, sketches)</td><td>iPad, then OneDrive folder</td><td>Share &gt; Save to Files &gt; OneDrive; syncs later</td></tr></table>
+<h2>2. Key decisions</h2>
+<ul>
+<li><b>Offline first.</b> No SharePoint or Microsoft Graph API integration.</li>
+</ul>
+<p>The app never waits on the network.</p>
+<ul>
+<li><b>PWA, not native.</b> Not a native app. Accepted trade-off: the app</li>
+</ul>
+<p>cannot write into the OneDrive folder automatically; transfers are</p>
+<p>manual through the Share sheet and file picker.</p>
+<ul>
+<li><b>GitHub for code only.</b> Data is not stored on GitHub. GitHub hosts</li>
+</ul>
+<p>the code only.</p>
+<ul>
+<li><b>He owns his lists.</b> The office provides the base setup once. After</li>
+</ul>
+<p>that, the superintendent maintains his own lists; the office does not</p>
+<p>edit them.</p>
+<ul>
+<li><b>Office controls documents.</b> The only shared, office-managed content</li>
+</ul>
+<p>is the document folder in OneDrive.</p>
+<h2>3. Installation on the iPad</h2>
+<ol>
+<li>Open the GitHub Pages URL in Safari while connected to the internet.</li>
+</ol>
+<ol>
+<li>The service worker caches all app files on the iPad.</li>
+</ol>
+<ol>
+<li>Tap Share &gt; Add to Home Screen.</li>
+</ol>
+<ol>
+<li>Always launch from the Home Screen icon, not a Safari tab. Home</li>
+</ol>
+<p>Screen apps are exempt from Safari&#x27;s automatic data clearing, and</p>
+<p>their storage is separate from normal browsing.</p>
+<p>Note: a PWA runs on Safari&#x27;s engine but shows no browser interface.</p>
+<p>Opening a local HTML file from the Files app does not work (JavaScript</p>
+<p>does not run in the preview), so the PWA method is required.</p>
+<h2>4. Lists, favorites and activities</h2>
+<ul>
+<li><b>First-run seeding.</b> On first launch the app loads the bundled base</li>
+</ul>
+<p>setup (contractors, activities, favorites). Later app updates never</p>
+<p>overwrite his changes.</p>
+<ul>
+<li><b>Instant saving.</b> Adding activities, reordering favorites and</li>
+</ul>
+<p>marking items inactive save instantly on the device, with no Save</p>
+<p>button needed.</p>
+<ul>
+<li><b>Active / inactive.</b> Items are marked inactive, never deleted, so</li>
+</ul>
+<p>older reports still display correctly. Inactive items are hidden from</p>
+<p>pick lists.</p>
+<ul>
+<li><b>Hidden IDs.</b> Every list item has a hidden unique ID so renaming an</li>
+</ul>
+<p>item does not break links in old reports.</p>
+<ul>
+<li><b>Future additions.</b> Build in a way to merge new default items into</li>
+</ul>
+<p>his lists later without touching his edits.</p>
+<h2>5. Report workflow</h2>
+<p>Stage 1: Draft</p>
+<ul>
+<li>Save Progress button stores the report on the iPad; auto-save every</li>
+</ul>
+<p>few seconds as a safety net.</p>
+<ul>
+<li>A drafts list lets him reopen and continue any report.</li>
+</ul>
+<ul>
+<li>Draft printouts carry a DRAFT watermark.</li>
+</ul>
+<p>Stage 2: Sign and approve</p>
+<ul>
+<li>Approve opens a signature pad (finger or Apple Pencil).</li>
+</ul>
+<ul>
+<li>Signature is stamped with his name, date and time.</li>
+</ul>
+<ul>
+<li>The final PDF is generated on the iPad, offline.</li>
+</ul>
+<p>Stage 3: Final (locked)</p>
+<ul>
+<li>Status becomes Approved; editing is disabled and the report is</li>
+</ul>
+<p>view-only.</p>
+<ul>
+<li>Send options: Share &gt; Save to Files &gt; OneDrive folder, or Share &gt;</li>
+</ul>
+<p>Mail (queued in Outbox until signal).</p>
+<ul>
+<li>Corrections create a new revision (Rev 1, Rev 2) instead of unlocking</li>
+</ul>
+<p>the original, preserving an audit trail.</p>
+<ul>
+<li>Optional: stamp a unique fingerprint (hash code) on the PDF so later</li>
+</ul>
+<p>tampering can be detected.</p>
+<h2>6. Documents and sketches</h2>
+<ul>
+<li>The office maintains a shared OneDrive folder of documents (drawings,</li>
+</ul>
+<p>specs, photos). This is a manual upload and download process.</p>
+<ul>
+<li>He taps Add Document; the iPad file picker opens, showing OneDrive.</li>
+</ul>
+<p>The app stores its own copy so it stays available offline.</p>
+<ul>
+<li>Documents can be attached to reports or used as backgrounds for</li>
+</ul>
+<p>sketches.</p>
+<ul>
+<li>The app does not auto-refresh documents. If the office updates a file,</li>
+</ul>
+<p>he re-adds it. Use revision numbers in file names, e.g.</p>
+<p>A-101_Rev3.pdf.</p>
+<ul>
+<li>The app should show stored documents and let him remove old ones to</li>
+</ul>
+<p>manage space.</p>
+<h2>7. OneDrive requirements</h2>
+<ul>
+<li>In the OneDrive app, tap the three dots next to the shared folder and</li>
+</ul>
+<p>choose Make Available Offline. Included with work/school accounts;</p>
+<p>personal accounts need Microsoft 365.</p>
+<ul>
+<li>Open the OneDrive app briefly on Wi-Fi before going to the field so it</li>
+</ul>
+<p>pulls the latest files. iPadOS limits background syncing.</p>
+<ul>
+<li>A cloud icon next to a file means it is not downloaded; no icon or a</li>
+</ul>
+<p>checkmark means it is available offline.</p>
+<p>Suggested folder structure:</p>
+<p>Field App/</p>
+<p>Documents/ (office-managed: drawings, specs, references)</p>
+<p>Reports/ (approved PDFs he saves)</p>
+<p>Sketches/ (exported sketches)</p>
+<p>Backups/ (his app backup files)</p>
+<h2>8. Backup and restore</h2>
+<p>Because his data lives only on the iPad, losing or resetting the iPad,</p>
+<p>or deleting the Home Screen icon, would erase it.</p>
+<ul>
+<li>Export Backup button: saves one file with all lists, favorites and</li>
+</ul>
+<p>reports to OneDrive/Backups.</p>
+<ul>
+<li>Import Backup button: restores from that file. Also used to move his</li>
+</ul>
+<p>setup to a new iPad.</p>
+<ul>
+<li>Show a Last backed up date in the app as a reminder.</li>
+</ul>
+<h2>9. Known limitations</h2>
+<ul>
+<li>First launch requires internet.</li>
+</ul>
+<ul>
+<li>The PWA cannot read or write the OneDrive folder automatically; every</li>
+</ul>
+<p>transfer goes through the file picker or Share sheet.</p>
+<ul>
+<li>No background activity; the app works only while open.</li>
+</ul>
+<ul>
+<li>Only documents already imported into the app open offline.</li>
+</ul>
+<ul>
+<li>Large photo and drawing sets use iPad storage; compress photos.</li>
+</ul>
+<ul>
+<li>Once a PDF leaves the iPad, others could edit it with PDF software;</li>
+</ul>
+<p>the fingerprint only detects changes.</p>
+<h2>10. Technical notes for development</h2>
+<table><tr><th>Need</th><th>Suggested technology</th></tr><tr><td>Offline app</td><td>Service worker with cache of all app files; web app manifest for Home Screen install</td></tr><tr><td>Local data</td><td>IndexedDB (lists, drafts, reports, imported documents as blobs)</td></tr><tr><td>Keep data from being cleared</td><td>navigator.storage.persist(); launch from Home Screen</td></tr><tr><td>Import documents</td><td>&lt;input type=&quot;file&quot;&gt; opens the iPad Files picker, including OneDrive</td></tr><tr><td>Export / send</td><td>Web Share API (navigator.share with files) opens the Share sheet</td></tr><tr><td>Signature and sketches</td><td>HTML canvas with pointer events (finger and Apple Pencil)</td></tr><tr><td>PDF generation</td><td>pdf-lib or jsPDF, loaded from a pinned CDN version and cached</td></tr><tr><td>Tamper fingerprint</td><td>SHA-256 via Web Crypto API, printed on the PDF</td></tr><tr><td>Backup file</td><td>Single JSON file (plus embedded files) exported/imported via Share sheet and file picker</td></tr></table>
+<p>Next step: build a working prototype of the draft &gt; sign &gt; locked PDF</p>
+<p>flow and test it on the iPad.</p></section>
+</main><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script></body></html>

@@ -1,5 +1,5 @@
-const CACHE='chantier-2026-09-26-10';
-const FILES=['./','./index.html','./feuille.html','./instructions.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./echeancier.html','./materiaux.html','./aide.html','./instructions.pdf','./lib/jspdf.umd.min.js','./lib/html2canvas.min.js'];
+const CACHE='chantier-2026-09-26-11';
+const FILES=['./','./index.html','./feuille.html','./instructions.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./echeancier.html','./materiaux.html','./aide.html','./p_feuille.html','./p_echeancier.html','./p_materiaux.html','./p_aide.html','./instructions.pdf','./lib/jspdf.umd.min.js','./lib/html2canvas.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"><meta name="theme-color" content="#2f8a57"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chantier"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./apple-touch-icon.png"><style>.appnav{max-width:1100px;margin:10px auto 0;display:flex;gap:4px;background:#fff;border:1px solid #d9dedb;border-radius:999px;padding:4px;font-family:-apple-system,Segoe UI,sans-serif}.appnav a{flex:1;text-align:center;padding:10px 6px;border-radius:999px;text-decoration:none;color:#236b43;font-weight:800;font-size:14px}.appnav a.on{background:#2f8a57;color:#fff}</style>
+<title>Échéancier · 2575 Aird</title>
+<style>
+  html,body{margin:0;background:#E8E6E0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  #w{max-width:1100px;margin:0 auto;padding:12px}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .rowhit{transition:fill .15s}.rowhit:hover{fill:rgba(47,138,87,.10)}
+  .tag:hover{stroke:#236b43;stroke-width:2.5px}
+  .chip rect{transition:stroke .12s}.chip:hover rect{stroke:#236b43;stroke-width:2px}
+  .dcol:hover{fill:rgba(47,138,87,.06)}.navar:hover rect{fill:#eaf6ef}
+  input,textarea,button{font-family:inherit;border:1px solid #B4B2A9;border-radius:8px;background:#fff;color:#2C2C2A}
+  input,textarea{padding:0 8px}
+  button{cursor:pointer;color:#236b43;border-color:#236b43;font-weight:500}
+  button:hover{background:#eaf6ef}
+</style>
+<style>#w{max-width:none!important;padding:0!important}#w>svg{height:100vh!important;width:auto!important;max-width:100%;margin:0 auto}</style><style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style></head>
+<body>
+<h1 class="sr-only">Échéancier 2575 Aird</h1>
+<nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="on" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="" href="./aide.html">Aide</a></nav>
+<div id="w"></div>
+<script>
+const D0=Date.UTC(2026,8,15),DAY=864e5;
+const dt=i=>new Date(D0+i*DAY);
+const key=i=>dt(i).toISOString().slice(0,10);
+const hol=new Set(['2026-10-12','2027-03-26']);
+for(let t=Date.UTC(2026,11,21);t<=Date.UTC(2027,0,1);t+=DAY)hol.add(new Date(t).toISOString().slice(0,10));
+const work=i=>{const w=dt(i).getUTCDay();return w!==0&&w!==6&&!hol.has(key(i))};
+const add=(i,n)=>{let c=0;for(;;i++){if(work(i)&&++c===n)return i}};
+const nxt=i=>{i++;while(!work(i))i++;return i};
+const prv=i=>{i--;while(!work(i))i--;return i};
+const S=13,W0=6;
+const PH=[{n:'Démo',f:'#8A5A36',t:'#FFFFFF',s:'none',d:'#5C3A20'},{n:'Rough',f:'#639922',t:'#FFFFFF',s:'none',d:'#3B6D11'},{n:'Systèmes int.',f:'#F2EBDA',t:'#633806',s:'#C9BC98',d:'#633806'},{n:'Finition',f:'#378ADD',t:'#FFFFFF',s:'none',d:'#236b43'}];
+const MN=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],JN=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const ZN=['Sous-sol garage','Sous-sol existant','Rez-de-chaussée','Deuxième étage','Troisième étage','Extérieur'];
+const CATS=[
+ {k:'st',n:'Sous-traitants',it:['Beaudoin Capital','Les Habitations Leblanc','Desrosiers Électrique Inc.','Plomberie JG','Gypse DJS Inc.','Isolation FP','Planchers GSM','MultiGestion JP']},
+ {k:'ac',n:'Activités',it:['Démolition intérieure','Retrait des débris','Plomberie brute','Électricité brute','Ventilation','Isolation','Pose de gypse','Tirage de joints','Peinture','Pose de plancher','Nettoyage'],add:'Nouvelle activité'},
+ {k:'fo',n:'Fournisseurs',it:['Patrick Morin','Lefebvre & Benoit']},
+ {k:'ma',n:'Matériaux',it:['Conteneur','Tuyauterie','Filage','Gypse','Isolant','Composé à joints','Peinture','Plancher'],add:'Nouveau matériau'}];
+const CAT=k=>CATS.find(c=>c.k===k);
+const WT=[{k:'zo',n:'Zones',it:ZN},{k:'st',n:'Sous-traitants',it:CAT('st').it},{k:'fo',n:'Fournisseurs',it:CAT('fo').it},{k:'ac',n:'Actions',it:CAT('ac').it},{k:'cm',n:'Commentaires'}];
+const blank=()=>({st:[],ac:[],fo:[],ma:[]});
+let rows=ZN.map((z,ri)=>{const o=[0,5,10,15,20,0][ri];let s=add(S,o+1),r=[];for(let p=0;p<4;p++){const e=add(s,15);r.push({s,e:e+1,res:blank()});s=nxt(e)}return{z,t:r}});
+rows[0].t[0].res={st:['Les Habitations Leblanc','Beaudoin Capital'],ac:['Démolition intérieure','Retrait des débris'],fo:[],ma:['Conteneur']};
+rows[0].t[1].res={st:['Plomberie JG','Desrosiers Électrique Inc.'],ac:['Plomberie brute','Électricité brute'],fo:['Lefebvre & Benoit'],ma:['Tuyauterie','Filage']};
+rows[5].t[0].res={st:['MultiGestion JP'],ac:['Retrait des débris'],fo:['Patrick Morin'],ma:['Conteneur']};
+const N=Math.max(...rows.map(r=>r.t[3].e))+5;
+const VG=[6.5,N],VZ=[W0-0.5,W0+22];
+let mode='w',edit=false,view=[...VG],raf=null,det=null,u=0,araf=null,vals={ac:'',ma:'',cm:''},err={},wu=1;
+let wk=13,dsel=14,exp={},pick={zo:null,st:null,fo:null,ac:null},esel=null;
+const approved=new Set([13]);
+let entries=[
+ {z:'Sous-sol garage',st:'Les Habitations Leblanc',fo:null,ac:'Démolition intérieure',cm:'Début de la démo, conteneur livré',s:13,e:14},
+ {z:'Extérieur',st:'MultiGestion JP',fo:'Patrick Morin',ac:'Retrait des débris',cm:'',s:14,e:17},
+ {z:'Sous-sol garage',st:'Beaudoin Capital',fo:null,ac:'Démolition intérieure',cm:'',s:14,e:16}];
+const H=42,DH=84,X0=30,X1=1004,OY=84,RT=OY+H+12,Y1=RT+H+10,TB=22,RH=Math.round((TB+H)/0.9),PAD=(RH-TB-H)/2,G='#639922',GD='#3B6D11',B='#236b43',DANGER='#A32D2D';
+const SW=(X1-X0-3*8)/4,IP=14,IW=SW-2*IP,W5=(X1-X0-4*8)/5;
+const cnt=t=>CATS.reduce((n,c)=>n+t.res[c.k].length,0);
+const lerp=(a,b,q)=>a+(b-a)*q;
+const cw=l=>Math.min(l.length*6.3+20,IW);
+const fd=i=>`${dt(i).getUTCDate()} ${MN[dt(i).getUTCMonth()]}`;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function fit(l,maxw,fs){const cwd=fs*0.56;if(l.length*cwd+22<=maxw)return l;const n=Math.max(3,Math.floor((maxw-22)/cwd)-1);return l.slice(0,n)+'…'}
+function ico(k,cx,cy){
+  const st='fill="none" stroke="#444441" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
+  let g=`<g transform="translate(${cx.toFixed(1)},${cy})" pointer-events="none"><circle r="9" fill="#FFFFFF" stroke="#888780"/><g transform="scale(0.9)">`;
+  if(k===0)g+=`<path d="M-5 6 V0 Q-5 -4 -1 -4 H6" ${st}/><path d="M-7 3 H-3 M2 -6.5 V-1.5" ${st}/>`;
+  if(k===1){g+=`<rect x="-5.5" y="-5.5" width="11" height="11" rx="1" ${st}/>`;for(const a of[-2.5,2.5])for(const b of[-2.5,2.5])g+=`<circle cx="${a}" cy="${b}" r="0.9" fill="#444441"/>`}
+  if(k===2)g+=`<rect x="-6" y="-6.5" width="10" height="4.5" rx="1.5" ${st}/><path d="M4 -4.2 H6 V0 H0 V6" ${st}/>`;
+  return g+'</g></g>';
+}
+function handle(cx,cy,d,col,act){const r=H/2-5;
+  return `<g data-act="${act}" style="cursor:pointer"><circle cx="${cx.toFixed(1)}" cy="${cy}" r="${r}" fill="#FFFFFF" stroke="${col}" stroke-width="1.5"/><path d="M${(cx-7*d).toFixed(1)} ${cy} H${(cx+7*d).toFixed(1)} M${(cx+2.5*d).toFixed(1)} ${cy-4.5} L${(cx+7*d).toFixed(1)} ${cy} L${(cx+2.5*d).toFixed(1)} ${cy+4.5}" fill="none" stroke="${B}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`}
+function flow(items,x0,x1,y0,wf,step,mk){let cx=x0,cy=y0,out='';for(const it of items){const w=wf(it.l);if(cx+w>x1&&cx>x0){cx=x0;cy+=step}out+=mk(it,cx,cy,w);cx+=w+6}return{out,bottom:items.length?cy+step-6:y0}}
+function chip(act,x,y,w,h,fs,l,f,s,t){return `<g class="chip"${act?` data-act="${act}" style="cursor:pointer"`:' pointer-events="none"'}><rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${h/2}" fill="${f}" stroke="${s}" stroke-width="1"/><text x="${(x+w/2).toFixed(1)}" y="${(y+h/2+fs*0.36).toFixed(1)}" font-size="${fs}" text-anchor="middle" fill="${t}" pointer-events="none">${l}</text></g>`}
+function actFull(t,x0,y0,P,on,draw){
+  let y=y0+36,out='';const cf=on?'#FFFFFF':'#F1EFE8',cs=P.s!=='none'&&on?P.s:'none',ct=on?P.d:'#2C2C2A',lc=on?P.t:P.d;
+  CATS.forEach(c=>{const L=t.res[c.k];if(!L.length)return;
+    out+=`<text x="${x0+IP}" y="${y+10}" font-size="11" font-weight="500" fill="${lc}" pointer-events="none">${c.n}</text>`;y+=16;
+    const f=flow(L.map((l,ix)=>({l,ix})),x0+IP,x0+SW-IP,y,cw,27,(it,cx,cy,w)=>chip(on?`rem:${c.k}:${it.ix}`:'',cx,cy,w,22,11,it.l,cf,cs,ct));
+    out+=f.out;y=f.bottom+10});
+  return{out:draw?out:'',h:Math.max(DH,y-y0+4)};
+}
+function actPreview(t,x0,y0){const all=[];CATS.forEach(c=>t.res[c.k].forEach(l=>all.push(l)));if(!all.length)return'';
+  let cx=x0+IP,out='',n=0;const lim=x0+SW-IP-34;
+  for(const l of all){const w=cw(l);if(cx+w>lim&&n>0)break;if(cx+w>x0+SW-IP)break;out+=chip('',cx,y0+44,w,22,11,l,'#F1EFE8','none','#2C2C2A');cx+=w+6;n++}
+  if(n<all.length)out+=chip('',cx,y0+44,32,22,11,'+'+(all.length-n),'#FFFFFF','#B4B2A9','#444441');
+  return out}
+function favs(i){const f={zo:[],st:[],ac:[],fo:[],ma:[]};
+  rows.forEach(r=>r.t.forEach(t=>{if(i>=t.s&&i<t.e&&work(i)){if(!f.zo.includes(r.z))f.zo.push(r.z);CATS.forEach(c=>t.res[c.k].forEach(l=>{if(!f[c.k].includes(l))f[c.k].push(l)}))}}));
+  return f}
+function phaseAt(z,i){const r=rows.find(q=>q.z===z);if(!r)return null;const p=r.t.findIndex(t=>i>=t.s&&i<t.e);return p<0?null:PH[p]}
+const locked=i=>approved.has(i);
+const entLocked=en=>{for(let i=en.s;i<en.e;i++)if(locked(i))return true;return false};
+function inputFO(c,x,y,w){return `<foreignObject x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="46"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;gap:6px;align-items:center"><input id="in-${c.k}" value="${esc(vals[c.k])}" placeholder="${c.add}" style="flex:1;min-width:0;height:34px;font-size:13px;box-sizing:border-box"/><button data-act="new:${c.k}" style="height:34px;font-size:13px;padding:0 10px">Ajouter</button></div>${err[c.k]?`<div style="font-size:11px;color:${DANGER};margin-top:1px">Entrez un nom d'abord</div>`:''}</foreignObject>`}
+function weekView(){
+  let h='';const top=RT,AX=X0+32,AW=X1-X0-64,CWd=AW/7,colX=i=>AX+(i-wk)*CWd;
+  const ents=entries.map((en,ix)=>({en,ix})).filter(o=>o.en.e>wk&&o.en.s<wk+7).sort((a,b)=>a.en.s-b.en.s||a.ix-b.ix);const lanes=[];
+  ents.forEach(o=>{let l=lanes.findIndex(le=>le<=o.en.s);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=o.en.e;o.l=l});
+  const HH=56,LH=56,bodyH=Math.max(3,lanes.length)*LH+16,tabH=HH+bodyH;
+  h+=`<defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#F1EFE8"/><line x1="0" y1="0" x2="0" y2="10" stroke="#D3D1C7" stroke-width="3"/></pattern><clipPath id="wkc"><rect x="${AX}" y="${top}" width="${AW}" height="${tabH}" rx="14"/></clipPath></defs>`;
+  h+=`<g clip-path="url(#wkc)">`;
+  for(let d=0;d<7;d++){const i=wk+d,x0=colX(i),lk=locked(i),wd=work(i),on=i===dsel;
+    h+=`<rect class="dcol" data-act="day:${i}" x="${x0.toFixed(1)}" y="${top}" width="${CWd.toFixed(1)}" height="${tabH}" fill="${lk?'url(#hatch)':wd?'#FFFFFF':'#ECEAE3'}" style="cursor:pointer"/>`;
+    if(on)h+=`<rect x="${x0.toFixed(1)}" y="${top}" width="${CWd.toFixed(1)}" height="${tabH}" fill="rgba(47,138,87,0.10)" pointer-events="none"/><rect x="${x0.toFixed(1)}" y="${top}" width="${CWd.toFixed(1)}" height="5" fill="${B}" pointer-events="none"/>`;
+    if(d)h+=`<line x1="${x0.toFixed(1)}" x2="${x0.toFixed(1)}" y1="${top}" y2="${top+tabH}" stroke="#D3D1C7" stroke-width="1" pointer-events="none"/>`;
+    h+=`<text x="${(x0+12).toFixed(1)}" y="${top+25}" font-size="15" font-weight="500" fill="${on?B:'#000000'}" pointer-events="none">${JN[dt(i).getUTCDay()]}</text><text x="${(x0+12).toFixed(1)}" y="${top+44}" font-size="13" fill="${on?B:'#5F5E5A'}" pointer-events="none">${fd(i)}</text>`;
+    if(lk)h+=`<g pointer-events="none"><rect x="${(x0+CWd-80).toFixed(1)}" y="${top+12}" width="70" height="20" rx="10" fill="#FFFFFF" stroke="#888780"/><text x="${(x0+CWd-45).toFixed(1)}" y="${top+26}" font-size="11" font-weight="500" text-anchor="middle" fill="#444441">Approuvé</text></g>`;
+    else if(!wd&&hol.has(key(i)))h+=`<text x="${(x0+CWd-12).toFixed(1)}" y="${top+26}" font-size="11" text-anchor="end" fill="#5F5E5A" pointer-events="none">Férié</text>`}
+  h+=`<line x1="${AX}" x2="${AX+AW}" y1="${top+HH}" y2="${top+HH}" stroke="#D3D1C7" pointer-events="none"/>`;
+  ents.forEach(({en,ix,l})=>{const P=phaseAt(en.z,en.s),lk=entLocked(en),on=esel===ix;
+    const ta=colX(Math.max(en.s,wk))+4,tb=colX(Math.min(en.e,wk+7))-4,ty=top+HH+10+l*LH,th=LH-10;
+    const f=P?P.f:'#D3D1C7',tc=P?(P.s!=='none'?P.d:P.t):'#2C2C2A',stc=on?B:(P&&P.s!=='none'?P.s:'none');
+    h+=`<rect class="tag" data-act="ent:${ix}" x="${ta.toFixed(1)}" y="${ty}" width="${(tb-ta).toFixed(1)}" height="${th}" rx="${th/2}" fill="${f}" stroke="${stc}" stroke-width="${on?3:1}" opacity="${lk?0.75:1}" style="cursor:pointer"/>`;
+    const iw=tb-ta-(on?64:30);
+    h+=`<text x="${(ta+(on?32:16)).toFixed(1)}" y="${ty+19}" font-size="13" font-weight="500" fill="${tc}" pointer-events="none">${fit(en.ac,iw,13)}${en.cm?' ✎':''}</text><text x="${(ta+(on?32:16)).toFixed(1)}" y="${ty+36}" font-size="11" fill="${tc}" pointer-events="none">${fit(en.z+' · '+en.st+(en.fo?' · '+en.fo:''),iw,11)}</text>`;
+    if(on&&!lk){const cy=ty+th/2;
+      for(const [cx,side] of [[ta,'L'],[tb,'R']]){const outer=side==='L'?-1:1;
+        h+=`<rect x="${(cx-26).toFixed(1)}" y="${cy-14}" width="52" height="28" rx="14" fill="#FFFFFF" stroke="${B}" stroke-width="1.5"/><line x1="${cx.toFixed(1)}" x2="${cx.toFixed(1)}" y1="${cy-8}" y2="${cy+8}" stroke="#B5D4F4"/>`;
+        h+=`<text x="${(cx+13*outer).toFixed(1)}" y="${cy+6}" font-size="17" font-weight="500" text-anchor="middle" fill="${B}" pointer-events="none">+</text><text x="${(cx-13*outer).toFixed(1)}" y="${cy+6}" font-size="17" font-weight="500" text-anchor="middle" fill="${B}" pointer-events="none">−</text>`;
+        h+=`<rect data-act="ex:${ix}:${side}+" x="${(outer<0?cx-26:cx).toFixed(1)}" y="${cy-14}" width="26" height="28" fill="transparent" style="cursor:pointer"/><rect data-act="ex:${ix}:${side}-" x="${(outer<0?cx:cx-26).toFixed(1)}" y="${cy-14}" width="26" height="28" fill="transparent" style="cursor:pointer"/>`}}});
+  h+=`</g><rect x="${AX}" y="${top}" width="${AW}" height="${tabH}" rx="14" fill="none" stroke="#B4B2A9" stroke-width="1.5" pointer-events="none"/>`;
+  for(const [x0,act,d] of [[X0,'wprev',-1],[X1-24,'wnext',1]]){const cx=x0+12,cy=top+tabH/2;
+    h+=`<g class="navar" data-act="${act}" style="cursor:pointer"><rect x="${x0}" y="${top}" width="24" height="${tabH}" rx="12" fill="#FFFFFF" stroke="${B}" stroke-width="1.5"/><path d="M${cx-4*d} ${cy-14} L${cx+4*d} ${cy} L${cx-4*d} ${cy+14}" fill="none" stroke="${B}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>`}
+  const tY=top+tabH+16,lk=locked(dsel),f=favs(dsel);
+  const tabs=WT.map((c,ci)=>{const x0=X0+ci*(W5+8),iw=W5-24;
+    if(c.k==='cm')return{c,x0,o:'',need:250,more:false};
+    const fav=f[c.k]||[],rest=c.it.filter(l=>!fav.includes(l));
+    const wf=l=>Math.min(fit(l,iw,12).length*6.7+22,iw);
+    const mk=(it,cx,cy,w)=>{const on=pick[c.k]===it.l;return chip(lk?'':`pick:${c.k}:${c.it.indexOf(it.l)}`,cx,cy,w,30,12,fit(it.l,iw,12),on?B:(it.o?'#F1EFE8':'#FFFFFF'),on?B:(it.o?'none':'#B4B2A9'),on?'#FFFFFF':'#2C2C2A')};
+    let o='',y=tY+50;
+    if(fav.length){const fl=flow(fav.map(l=>({l})),x0+12,x0+W5-12,y,wf,36,mk);o+=fl.out;y=fl.bottom+8}
+    else{o+=`<text x="${x0+12}" y="${y+16}" font-size="12" fill="#888780">Aucun favori ce jour</text>`;y+=30}
+    if(exp[c.k]&&rest.length){o+=`<text x="${x0+12}" y="${y+14}" font-size="11" font-weight="500" fill="#5F5E5A">Autres</text>`;y+=22;
+      const fl=flow(rest.map(l=>({l,o:1})),x0+12,x0+W5-12,y,wf,36,mk);o+=fl.out;y=fl.bottom+8}
+    return{c,x0,o,need:y-tY+(rest.length?42:6),more:rest.length>0}});
+  const tH=Math.max(250,...tabs.map(t=>t.need));
+  h+=`<g${lk?' opacity="0.45" pointer-events="none"':''}>`;
+  tabs.forEach(({c,x0,o,more})=>{
+    h+=`<rect x="${x0.toFixed(1)}" y="${tY}" width="${W5.toFixed(1)}" height="${tH}" rx="14" fill="#FFFFFF" stroke="#B4B2A9" stroke-width="1.5"/><text x="${x0+14}" y="${tY+26}" font-size="15" font-weight="500" fill="#000000">${c.n}</text><line x1="${x0+14}" x2="${(x0+W5-14).toFixed(1)}" y1="${tY+38}" y2="${tY+38}" stroke="#D3D1C7"/>`+o;
+    if(c.k==='cm'){h+=`<foreignObject x="${(x0+10).toFixed(1)}" y="${tY+46}" width="${(W5-20).toFixed(1)}" height="${tH-54}"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;flex-direction:column;gap:8px;height:100%;box-sizing:border-box"><textarea id="in-cm" placeholder="Commentaire (optionnel)" style="flex:1;min-height:70px;font-size:13px;resize:none;box-sizing:border-box;padding:8px;font-family:inherit">${esc(vals.cm)}</textarea>${err.w?`<div style="font-size:11px;color:${DANGER}">Choisissez une zone, un sous-traitant et une action</div>`:''}<button data-act="wadd" style="height:36px;font-size:13px">Ajouter</button><button data-act="wdone" style="height:36px;font-size:13px">Terminé</button></div></foreignObject>`;return}
+    if(more)h+=`<g data-act="more:${c.k}" style="cursor:pointer"><rect x="${x0+12}" y="${tY+tH-40}" width="${(W5-24).toFixed(1)}" height="30" rx="15" fill="#FFFFFF" stroke="${B}"/><text x="${(x0+W5/2).toFixed(1)}" y="${tY+tH-20}" font-size="13" font-weight="500" text-anchor="middle" fill="${B}">${exp[c.k]?'Voir moins':'Voir plus'}</text></g>`});
+  h+='</g>';
+  if(lk)h+=`<g pointer-events="none"><rect x="${(X0+(X1-X0)/2-200).toFixed(1)}" y="${tY+tH/2-22}" width="400" height="44" rx="22" fill="#FFFFFF" stroke="#888780" stroke-width="1.5"/><text x="${(X0+(X1-X0)/2).toFixed(1)}" y="${tY+tH/2+5}" font-size="14" font-weight="500" text-anchor="middle" fill="#2C2C2A">Journal approuvé · aucun ajout ni retrait</text></g>`;
+  return{h,bottom:tY+tH}
+}
+function render(){
+  const [a,b]=view,k=(X1-X0)/(b-a),x=i=>X0+(i-a)*k,Y2=Y1+rows.length*RH;
+  let full=null;if(det){full=actFull(det.row.t[det.p],0,0,PH[det.p],true,false).h}
+  const selH=det?lerp(H,full,u):H;
+  let tY=0,tH=0,tabs=[],wv=null;
+  if(det){const res=det.row.t[det.p].res;tY=Y1+lerp(0,OY-8-Y1,u)+PAD+TB+selH+18;
+    tabs=CATS.map((c,ci)=>{const tx0=X0+ci*(SW+8),items=c.it.map((l,ix)=>({l,ix})).filter(o=>!res[c.k].includes(o.l)).map(o=>({l:o.l,act:`add:${c.k}:${o.ix}`}));
+      const f=flow(items,tx0+12,tx0+SW-12,tY+50,l=>Math.min(l.length*7+26,SW-24),36,(it,cx,cy,w)=>chip(it.act,cx,cy,w,30,13,it.l,'#FFFFFF','#B4B2A9','#2C2C2A'));
+      return{c,tx0,f,need:f.bottom-tY+(c.add?64:14)}});
+    tH=Math.max(180,...tabs.map(t=>t.need))}
+  if(mode==='w'&&!det)wv=weekView();
+  const VB=det?Math.max(720,tY+tH+34):wv?Math.max(720,wv.bottom+34):720;
+  let h=`<svg viewBox="0 0 1040 ${VB.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;font-family:inherit">`;
+  h+=`<defs><clipPath id="cp"><rect x="${X0}" y="${RT}" width="${X1-X0}" height="${Y2-RT+2}"/></clipPath><clipPath id="cr"><rect x="${X0}" y="70" width="${X1-X0}" height="${VB}"/></clipPath>${[0,1,2].map(q=>`<clipPath id="t${q}"><rect x="${X0+q*125}" y="${OY}" width="125" height="${H}"/></clipPath>`).join('')}</defs>`;
+  h+=`<rect x="2" y="2" width="1036" height="${VB-4}" rx="36" fill="#f3f5f4"/><rect x="14" y="14" width="1012" height="${VB-28}" rx="16" fill="#FFFFFF" stroke="#dfe4e1"/>`;
+  h+=`<text x="40" y="57" font-size="20" font-weight="500" fill="#2C2C2A">Échéancier · 2575 Aird</text>`;
+  if(det)h+=`<g data-act="back" style="cursor:pointer"><rect x="812" y="32" width="190" height="36" rx="18" fill="#FFFFFF" stroke="${B}" stroke-width="1.5"/><text x="907" y="55" font-size="15" font-weight="500" text-anchor="middle" fill="${B}">‹ Toutes les zones</text></g>`;
+  else h+=`<rect x="858" y="36" width="144" height="30" rx="8" fill="none" stroke="#B4B2A9"/><text x="930" y="56" font-size="13" text-anchor="middle" fill="#444441">Calendrier CCQ</text>`;
+  const fo=det?1-u:1;
+  if(fo>0.02){const cyb=OY+H/2+5,mi={w:0,z:1,g:2}[mode];h+=`<g opacity="${fo.toFixed(2)}"${det?' pointer-events="none"':''}>`;
+    h+=`<rect x="${X0}" y="${OY}" width="375" height="${H}" rx="${H/2}" fill="#FFFFFF" stroke="${G}" stroke-width="1.5"/><rect x="${X0}" y="${OY}" width="375" height="${H}" rx="${H/2}" fill="${G}" clip-path="url(#t${mi})"/>`;
+    [['w','Semaine'],['z','3 semaines'],['g','Global']].forEach(([m,l],q)=>{if(q)h+=`<line x1="${X0+q*125}" x2="${X0+q*125}" y1="${OY}" y2="${OY+H}" stroke="${G}" stroke-width="1.5"/>`;
+      h+=`<text x="${X0+q*125+62.5}" y="${cyb}" font-size="15" font-weight="500" text-anchor="middle" fill="${mode===m?'#FFFFFF':GD}">${l}</text><rect data-act="${m}" x="${X0+q*125}" y="${OY}" width="125" height="${H}" fill="transparent" style="cursor:pointer"/>`});
+    const mx=X0+391;
+    if(mode!=='w')h+=`<g data-act="edit" style="cursor:pointer"><rect x="${mx}" y="${OY}" width="130" height="${H}" rx="${H/2}" fill="${edit?B:'#FFFFFF'}" stroke="${B}" stroke-width="1.5"/><text x="${mx+65}" y="${cyb}" font-size="15" font-weight="500" text-anchor="middle" fill="${edit?'#FFFFFF':B}">${edit?'Terminer':'Modifier'}</text></g>`;
+    else h+=`<text x="${X1}" y="${cyb}" font-size="15" font-weight="500" text-anchor="end" fill="#000000">Semaine du ${fd(wk)} au ${fd(wk+6)}</text>`;
+    if(mode!=='w'){
+    h+=`<g clip-path="url(#cp)">`;
+    const i0=Math.floor(a)-1,i1=Math.ceil(b)+1;
+    for(let i=i0;i<i1;i++)if(!work(i))h+=`<rect x="${x(i).toFixed(1)}" y="${RT+H}" width="${(k+0.4).toFixed(1)}" height="${Y2-RT-H}" fill="#ECEAE3"/>`;
+    let i=i0;
+    while(i<i1){const m=dt(i).getUTCMonth(),yr=dt(i).getUTCFullYear();let j=i;while(j<i1&&dt(j).getUTCMonth()===m)j++;
+      const gr=m%2===0,xa=x(i),xb=x(j);
+      h+=`<rect x="${xa.toFixed(1)}" y="${RT}" width="${(xb-xa).toFixed(1)}" height="${H}" fill="${gr?'#FFFFFF':G}" stroke="${G}" stroke-width="1.2"/>`;
+      const lx=Math.max(xa,X0)+10,zm=k>18;
+      if(xb-lx>70)h+=`<text x="${lx.toFixed(1)}" y="${zm?RT+17:RT+H/2+5}" font-size="14" font-weight="500" fill="${gr?GD:'#FFFFFF'}">${MN[m]} ${yr}</text>`;
+      if(zm)for(let q=i;q<j;q++)h+=`<text x="${(x(q)+k/2).toFixed(1)}" y="${RT+35}" font-size="11" text-anchor="middle" fill="${gr?GD:'#FFFFFF'}">${dt(q).getUTCDate()}</text>`;
+      i=j}
+    h+='</g>'}
+    h+='</g>'}
+  if(wv){h+=`<g opacity="${wu.toFixed(2)}">${wv.h}</g>`;document.getElementById('w').innerHTML=h+'</svg>';return}
+  h+=`<g clip-path="url(#cr)">`;
+  rows.forEach((row,ri)=>{const isD=det&&row===det.row;let ry=Y1+ri*RH,op=1;
+    if(det){if(isD)ry=Y1+lerp(ri*RH,OY-8-Y1,u);else{op=1-u;ry+=30*u}}
+    if(op<0.02)return;
+    const r=row.t,tbY=ry+PAD,ty=tbY+TB,icy=tbY+TB/2-1;
+    h+=`<g opacity="${op.toFixed(2)}">`;
+    if(!det)h+=`<rect class="rowhit" data-act="row:${ri}" x="${X0}" y="${ry}" width="${X1-X0}" height="${RH}" fill="rgba(0,0,0,0)" style="cursor:pointer"/>`;
+    if(ri>0&&!isD)h+=`<line x1="${X0}" x2="${X1}" y1="${ry}" y2="${ry}" stroke="#D3D1C7" stroke-width="0.5" pointer-events="none"/>`;
+    let tx=X0+4;
+    if(edit&&!det){for(const [dir,dy] of [['up',-1],['dn',1]]){const bx=tx+8;
+        h+=`<g data-act="${dir}:${ri}" style="cursor:pointer"><circle cx="${bx}" cy="${icy}" r="8" fill="#FFFFFF" stroke="${B}"/><path d="M${bx-3.5} ${icy-2*dy} L${bx} ${icy+2*dy} L${bx+3.5} ${icy-2*dy}" fill="none" stroke="${B}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>`;tx+=20}tx+=4}
+    h+=`<text x="${tx}" y="${icy+5}" font-size="14" font-weight="500" fill="#000000" pointer-events="none">${row.z}</text>`;
+    let ic='',hs='',cont='';
+    r.forEach((t,p)=>{const P=PH[p],da=x(t.s)+1.5,db=x(t.e)-1.5;
+      if(isD){const on=det.p===p,sa=X0+p*(SW+8),ta=lerp(da,sa,u),tb=lerp(db,sa+SW,u),th=on?selH:lerp(H,DH,u),wh=!on&&u>0.5;
+        const fill=wh?'#FFFFFF':P.f,stroke=on&&u>0.5?(P.s!=='none'?P.s:P.f):(wh?(P.s!=='none'?P.s:P.f):P.s),sw=wh?1.5:1;
+        h+=`<rect class="tag" data-act="dtag:${ri}:${p}" x="${ta.toFixed(1)}" y="${ty}" width="${Math.max(tb-ta,1).toFixed(1)}" height="${th.toFixed(1)}" rx="${H/2}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" style="cursor:pointer"/>`;
+        const ly=lerp(ty+H/2+5,ty+24,u),vb=Math.min(tb,X1)-H/2;
+        if(vb-ta>60)h+=`<text x="${(Math.max(ta,X0-H/2)+H/2-4).toFixed(1)}" y="${ly.toFixed(1)}" font-size="${lerp(14,15,u).toFixed(1)}" font-weight="500" fill="${wh?P.d:P.t}" pointer-events="none">${P.n}</text>`;
+        if(u>0.75){const co=((u-0.75)/0.25).toFixed(2);cont+=`<g opacity="${co}">${on?actFull(t,sa,ty,P,true,true).out:actPreview(t,sa,ty)}</g>`}
+      }else{
+        const ta=da,tb=db;
+        h+=`<rect class="tag" data-act="tag:${ri}:${p}" x="${ta.toFixed(1)}" y="${ty}" width="${Math.max(tb-ta,1).toFixed(1)}" height="${H}" rx="${H/2}" fill="${P.f}" stroke="${P.s}" style="cursor:pointer"/>`;
+        const c=cnt(t),cy=ty+H/2,va=Math.max(ta,X0-H/2)+(edit?H+2:H/2-4),vb=Math.min(tb,X1)-(edit?H:H/2+(c?20:0));
+        if(vb-va>40)h+=`<text x="${va.toFixed(1)}" y="${cy+5}" font-size="14" font-weight="500" fill="${P.t}" pointer-events="none">${P.n}</text>`;
+        if(c&&!edit&&tb-ta>80){const bx=Math.min(tb,X1)-H/2+4;h+=`<g pointer-events="none"><circle cx="${bx.toFixed(1)}" cy="${cy}" r="11" fill="#FFFFFF"/><text x="${bx.toFixed(1)}" y="${cy+4.5}" font-size="12" font-weight="500" text-anchor="middle" fill="${P.d}">${c}</text></g>`}
+        if(edit)hs+=handle(ta+H/2,cy,-1,P.d,`L:${ri}:${p}`)+handle(tb-H/2,cy,1,P.d,`R:${ri}:${p}`)}
+      if(p<3&&(!det||u<0.98))ic+=`<g opacity="${det?(1-u).toFixed(2):1}">${ico(p,x(t.e),icy)}</g>`;
+    });
+    h+=cont+ic+hs+'</g>'});
+  h+='</g>';
+  if(det&&u>0.01){const P=PH[det.p],bc=P.s!=='none'?P.s:P.f;
+    h+=`<g opacity="${u.toFixed(2)}">`;
+    tabs.forEach(({c,tx0,f})=>{
+      h+=`<rect x="${tx0.toFixed(1)}" y="${tY.toFixed(1)}" width="${SW.toFixed(1)}" height="${tH}" rx="14" fill="#FFFFFF" stroke="${bc}" stroke-width="2"/><text x="${(tx0+14).toFixed(1)}" y="${(tY+26).toFixed(1)}" font-size="15" font-weight="500" fill="${P.d}">${c.n}</text><line x1="${(tx0+14).toFixed(1)}" x2="${(tx0+SW-14).toFixed(1)}" y1="${(tY+38).toFixed(1)}" y2="${(tY+38).toFixed(1)}" stroke="${bc}" stroke-width="0.8"/>`+f.out;
+      if(c.add&&u>0.98)h+=inputFO(c,tx0+12,tY+tH-52,SW-24)});
+    h+='</g>'}
+  document.getElementById('w').innerHTML=h+'</svg>';
+}
+const ease=q=>q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function zoomTo(t){cancelAnimationFrame(raf);if(reduce){view=[...t];render();return}const f=[...view],t0=performance.now(),D=1100;
+  const step=now=>{const q=Math.min((now-t0)/D,1),e=ease(q);view=[f[0]+(t[0]-f[0])*e,f[1]+(t[1]-f[1])*e];render();if(q<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+function animDet(to,done){cancelAnimationFrame(araf);if(reduce){u=to;if(done)done();render();return}const f=u,t0=performance.now(),D=850;
+  const step=now=>{const q=Math.min((now-t0)/D,1);u=f+(to-f)*ease(q);if(q>=1&&done)done();render();if(q<1)araf=requestAnimationFrame(step)};araf=requestAnimationFrame(step)}
+function fadeWeek(){cancelAnimationFrame(raf);if(reduce){wu=1;render();return}const t0=performance.now();const step=now=>{const q=Math.min((now-t0)/400,1);wu=ease(q);render();if(q<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+function growR(r,p){const t=r[p],ne=nxt(t.e-1)+1,n=r[p+1];if(n&&n.s<ne){const ns=nxt(ne-1);if(ns>=n.e)return;n.s=ns}t.e=ne}
+function growL(r,p){const t=r[p],ns=prv(t.s),q=r[p-1];if(q&&q.e-1>=ns){const qe=prv(ns)+1;if(qe<=q.s)return;q.e=qe}t.s=ns}
+function addNew(kk){const el=document.getElementById('in-'+kk),v=(el?el.value:'').trim();
+  if(!v){err[kk]=true;render();return}
+  const c=CATS.find(q=>q.k===kk);if(!c.it.includes(v))c.it.push(v);const L=det.row.t[det.p].res[kk];if(!L.includes(v))L.push(v);
+  vals[kk]='';err[kk]=false;render()}
+function addEntry(withCm){if(locked(dsel))return;
+  if(!pick.zo||!pick.st||!pick.ac){err.w=true;render();return}
+  entries.push({z:pick.zo,st:pick.st,fo:pick.fo,ac:pick.ac,cm:withCm?vals.cm.trim():'',s:dsel,e:dsel+1});
+  esel=entries.length-1;pick={zo:null,st:null,fo:null,ac:null};vals.cm='';err.w=false;render()}
+const W=document.getElementById('w');
+W.addEventListener('input',e=>{const id=e.target.id||'';if(id.startsWith('in-')){const kk=id.slice(3);vals[kk]=e.target.value;if(err[kk]){err[kk]=false;const n=e.target.parentNode.nextSibling;if(n)n.remove()}}});
+W.addEventListener('keydown',e=>{const id=e.target.id||'';if(id.startsWith('in-')&&id!=='in-cm'&&e.key==='Enter'){e.preventDefault();addNew(id.slice(3))}});
+W.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const act=el.getAttribute('data-act');
+  if(act==='w'&&mode!=='w'){mode='w';edit=false;wu=0;fadeWeek();return}
+  if(act==='z'&&mode!=='z'){const from=mode;mode='z';if(from==='w'){view=[...VZ];render()}else zoomTo(VZ);return}
+  if(act==='g'&&mode!=='g'){const from=mode;mode='g';if(from==='w'){view=[...VG];render()}else zoomTo(VG);return}
+  if(act==='edit'){edit=!edit;render();return}
+  if(act==='back'){animDet(0,()=>{det=null});return}
+  if(act==='wprev'||act==='wnext'){wk+=act==='wprev'?-7:7;dsel=wk+(dsel-wk+700)%7;esel=null;wu=0;fadeWeek();return}
+  if(act==='wadd'){addEntry(true);return}
+  if(act==='wdone'){addEntry(false);return}
+  const [c,a1,a2,a3]=act.split(':');
+  if(c==='day'){dsel=+a1;esel=null;render();return}
+  if(c==='more'){exp[a1]=!exp[a1];render();return}
+  if(c==='pick'){const t=WT.find(q=>q.k===a1),v=t.it[+a2];pick[a1]=pick[a1]===v?null:v;if(err.w&&pick.zo&&pick.st&&pick.ac)err.w=false;render();return}
+  if(c==='ent'){const en=entries[+a1];esel=esel===+a1?null:+a1;dsel=Math.max(en.s,wk);render();return}
+  if(c==='ex'){const en=entries[+a1];if(entLocked(en))return;
+    if(a2==='L+'&&!locked(en.s-1))en.s--;
+    if(a2==='L-'&&en.e-en.s>1)en.s++;
+    if(a2==='R-'&&en.e-en.s>1)en.e--;
+    if(a2==='R+'&&!locked(en.e))en.e++;
+    render();return}
+  if(c==='row'||c==='tag'){if(det)return;edit=false;det={row:rows[+a1],p:c==='tag'?+a2:0};u=0;animDet(1);return}
+  if(c==='new'){addNew(a1);return}
+  if(c==='dtag'){det.p=+a2;render();return}
+  if(c==='add'){const cat=CATS.find(q=>q.k===a1);det.row.t[det.p].res[a1].push(cat.it[+a2]);render();return}
+  if(c==='rem'){det.row.t[det.p].res[a1].splice(+a2,1);render();return}
+  const R=+a1,o=rows[R];
+  if(c==='up'&&R>0){[rows[R-1],rows[R]]=[rows[R],rows[R-1]]}
+  if(c==='dn'&&R<rows.length-1){[rows[R+1],rows[R]]=[rows[R],rows[R+1]]}
+  if(c==='R')growR(o.t,+a2);
+  if(c==='L')growL(o.t,+a2);
+  render();
+});
+render();
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script>
+</body>
+</html>

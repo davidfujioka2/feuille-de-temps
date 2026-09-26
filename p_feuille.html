@@ -1770,6 +1770,15 @@ $('#toCalBtn').onclick=()=>go('calendar');
 
 renderAll();
 </script>
+<style>#projectsPage .ip-head{display:none!important}#pool{display:none!important}.ip-body,.ip-body.no-pool{grid-template-columns:1fr!important}</style>
+<script>
+/* pont avec le cadre : la rangée des projets ajoute ou retire un projet ; Continuer est dans le menu */
+window.fdt={page:()=>state.currentPage,added:()=>added().slice(),
+  toggle:p=>{if(added().includes(p))removeProject(p);else addProject(p);renderProjects()},
+  next:()=>{const b=document.getElementById('nextStep');if(b)b.click()},
+  nextLbl:()=>{const b=document.getElementById('nextStep');return b?b.textContent:''},
+  nextOk:()=>{const b=document.getElementById('nextStep');return !!b&&!b.disabled&&!b.classList.contains('off')&&getComputedStyle(b).opacity>0.7}};
+</script>
 <script>addEventListener('load',()=>{const d=new URLSearchParams(location.search).get('d');
   if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d)){try{state.selectedDate=d;state.viewAnchor=new Date(d+'T12:00');go('projects')}catch(e){}}})</script>
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}

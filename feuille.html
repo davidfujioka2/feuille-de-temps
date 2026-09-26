@@ -1790,14 +1790,20 @@ renderAll();
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}
 html.phone .ipad{border-radius:0!important;box-shadow:none!important;margin:0 auto!important}
-html.phone body{display:flex;justify-content:center;align-items:center}</style>
+html.phone body{display:flex;justify-content:center;align-items:center}
+html.phone.zoomed,html.phone.zoomed body{overflow:auto;-webkit-overflow-scrolling:touch}
+html.phone.zoomed body{display:block}
+html.phone.zoomed .stage{display:block!important;min-height:0}
+#zoomHint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(23,61,45,.88);color:#fff;font:800 15px -apple-system,sans-serif;padding:10px 18px;border-radius:999px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s}
+#zoomHint.on{opacity:1}</style>
 <div id="safeProbe" style="position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)"></div>
 <script>
 window.__fit=function(){const el=document.getElementById('ipad'),app=document.getElementById('app'),fdt=app&&!document.querySelector('.stage');if(!el&&!app)return;
   const cs=getComputedStyle(document.getElementById('safeProbe'));
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
   const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
-  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820);
+  if(!phone)window.__Z=1;const Z=window.__Z||1;document.documentElement.classList.toggle('zoomed',Z>1);
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820)*Z;window.__S=s;
   if(fdt){
     if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
     else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
@@ -1806,6 +1812,23 @@ window.__fit=function(){const el=document.getElementById('ipad'),app=document.ge
 function fitIpad(){window.__fit()}
 addEventListener('resize',window.__fit);addEventListener('orientationchange',()=>setTimeout(window.__fit,200));
 addEventListener('load',window.__fit);window.__fit();
+(function(){let last=0,lx=0,ly=0;
+  const SKIP='button,a,input,select,textarea,label,canvas,video,[data-v],[data-fa],[data-day],[data-proj],[data-proj2],[data-tn],[contenteditable]';
+  function hint(t){let h=document.getElementById('zoomHint');if(!h){h=document.createElement('div');h.id='zoomHint';document.body.appendChild(h)}h.textContent=t;h.classList.add('on');clearTimeout(h._t);h._t=setTimeout(()=>h.classList.remove('on'),900)}
+  function toggle(x,y){const box=(document.querySelector('.stage')?document.getElementById('ipad'):document.getElementById('app'))||document.getElementById('ipad');if(!box)return;
+    const se=document.scrollingElement,r=box.getBoundingClientRect(),s0=window.__S;
+    const cx=(x-r.left)/s0,cy=(y-r.top)/s0;
+    window.__Z=(window.__Z||1)>1?1:2;window.__fit();
+    if(window.__Z>1){const r2=box.getBoundingClientRect(),s1=window.__S;
+      se.scrollLeft+=r2.left+cx*s1-x;se.scrollTop+=r2.top+cy*s1-y;hint('Zoom ×2 — double-tap pour revenir')}
+    else{se.scrollLeft=0;se.scrollTop=0;hint('Vue complète')}}
+  addEventListener('touchend',e=>{if(!document.documentElement.classList.contains('phone')||e.changedTouches.length!==1||e.touches.length)return;
+    const t=e.changedTouches[0],now=Date.now();
+    if(e.target.closest&&e.target.closest(SKIP)){last=0;return}
+    if(now-last<320&&Math.abs(t.clientX-lx)<30&&Math.abs(t.clientY-ly)<30){e.preventDefault();last=0;toggle(t.clientX,t.clientY);return}
+    last=now;lx=t.clientX;ly=t.clientY},{passive:false});
+  addEventListener('dblclick',e=>{if(!document.documentElement.classList.contains('phone')||(e.target.closest&&e.target.closest(SKIP)))return;if('ontouchstart' in window)return;toggle(e.clientX,e.clientY)});
+})();
 </script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}

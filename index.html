@@ -660,7 +660,7 @@ button{cursor:pointer}
 .top .pribbon.hdr{flex:1;min-width:0;border-width:1.5px}
 .top .pribbon.hdr button{height:34px;font-size:11.5px;padding:0 3px;letter-spacing:-.2px}
 .top .pribbon.hdr button:first-child{flex:0 0 auto}
-.daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
+.daylbl:empty{display:none}.daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
 .jtag.plan{border:1.5px dashed var(--green)!important;background:#fff!important;color:var(--green-dark)!important;padding:0 14px!important;cursor:pointer}
 .grid{width:100%;display:flex;flex-direction:column;gap:6px}
 .grow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px;align-items:stretch}
@@ -684,11 +684,15 @@ button{cursor:pointer}
 .pbar button{height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:14px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px;min-width:0}
 .pbar button.on{background:var(--green);color:#fff}
 .top .tsp{flex:1}
+.top{position:relative}
+.top .tnav{flex:1;min-width:0}.top .tsp{display:none}.tnav .tfill{flex:1}
+.tnav .tdate{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:850;color:var(--deep);white-space:nowrap;pointer-events:none}
+#pgPrm .tnav .tdate{display:none}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 06</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-15</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 17</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-16</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1035,10 +1039,10 @@ function renderEntry(){
   if(!ACTIVE().includes(S.project))S.project=ACTIVE()[0];
   $('#projBar2').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj2="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
   $('#finish').hidden=false;$('#rows').classList.remove('gmode');
-  if(S.viewAll){$('#dayLbl').textContent=dayLbl(U.date);renderGrid();if(!$('#win').hidden)renderWin();return}
+  if(S.viewAll){$('#dayLbl').textContent='';renderGrid();if(!$('#win').hidden)renderWin();return}
   const D=day();
   $('#entrySub').textContent=S.project+' · '+dayLbl(U.date)+(D.rev?' · révision '+D.rev:'');
-  $('#dayLbl').textContent=dayLbl(U.date)+(D.photos.length?' · '+D.photos.length+' photo'+(D.photos.length>1?'s':''):'');
+  $('#dayLbl').textContent=D.photos.length?D.photos.length+' photo'+(D.photos.length>1?'s':''):'';
   const tag=(e,i)=>{const np=D.photos.filter(p=>p.entry===e.id).length,j=U.last&&U.justAdded&&U.last.id===e.id;
     return `<span class="jtag ${j?'just':''}">${e.phase?`<span class="pz">${esc(PH_SHORT[e.phase])}</span>`:''}<button class="t" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</button><button class="ph" data-ea="photo" data-i="${i}" aria-label="Photo liée">📷${np?' '+np:''}</button><button class="x" data-ea="rm" data-i="${i}" aria-label="Retirer">×</button></span>`};
   $('#rows').innerHTML=JROWS.map(([k,n,label,sub])=>{
@@ -1720,7 +1724,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!
   if(pg==='cal')renderCal();
   else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}
   else render()});
-function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const dd=parse(U.date),dl=DAYS[dd.getDay()].slice(0,3)+'. '+dd.getDate()+' '+(MONTHS[dd.getMonth()].length>4?MONTHS[dd.getMonth()].slice(0,4)+'.':MONTHS[dd.getMonth()]);const h=TNAV.map(([k,l0,href])=>{const l=k==='jou'?dl:l0;return `<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`}).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
+function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const it=([k,l,href])=>`<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`;
+  const R=['pho','prm'],d=dayLbl(U.date),h=TNAV.filter(x=>!R.includes(x[0])).map(it).join('')+`<b class="tdate">${d.charAt(0).toUpperCase()+d.slice(1)}</b><span class="tfill"></span>`+TNAV.filter(x=>R.includes(x[0])).map(it).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
   if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
 

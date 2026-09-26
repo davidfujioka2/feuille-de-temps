@@ -14,7 +14,7 @@ body{padding-top:58px!important;box-sizing:border-box}
 .appnav{display:none!important}
 #finish{display:none!important}
 #pgCal .seg{display:none!important}
-@media (max-width:760px){.hb{min-width:0;padding:0 6px}.hb span{display:none}.hdr-right{width:auto}}
+html.phone .apphdr{zoom:.6}html.phone body{padding-top:35px!important}
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
@@ -1784,8 +1784,6 @@ $('#toCalBtn').onclick=()=>go('calendar');
 
 renderAll();
 </script>
-<style>.jlink{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:44px;border-radius:12px;border:1px solid #2f8a57;background:#fff;color:#236b43;font-weight:800;font-size:14px;text-decoration:none;padding:0 12px}</style>
-<script>document.addEventListener('DOMContentLoaded',()=>{const s=document.querySelector('.cal-side');if(s&&!s.querySelector('.jlink')){const a=document.createElement('a');a.href='./';a.className='jlink';a.textContent='Journal de chantier ›';s.appendChild(a);const b=document.createElement('a');b.href='./echeancier.html';b.className='jlink';b.textContent='Échéancier ›';s.appendChild(b)}});</script>
 
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}
@@ -1803,7 +1801,8 @@ window.__fit=function(){const el=document.getElementById('ipad'),app=document.ge
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
   const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
   if(!phone)window.__Z=1;const Z=window.__Z||1;document.documentElement.classList.toggle('zoomed',Z>1);
-  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820)*Z;window.__S=s;
+  const HH=document.querySelector('.apphdr')?(phone?35:58):0;
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m-HH)/820)*Z;window.__S=s;
   if(fdt){
     if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
     else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
@@ -1849,4 +1848,4 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
     document.querySelectorAll('.hb[href^="./#"]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href').slice(1);if(location.hash===h){e.preventDefault();route()}}));
   }
 })();
-</script>
+</script><div id="verBadge" style="position:fixed;right:max(8px,env(safe-area-inset-right));bottom:max(6px,env(safe-area-inset-bottom));z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 14 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-10</span></div>

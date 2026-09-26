@@ -1815,7 +1815,8 @@ window.__fit=function(){const el=document.getElementById('ipad'),app=document.ge
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
   const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
   if(!phone)window.__Z=1;const Z=window.__Z||1;document.documentElement.classList.toggle('zoomed',Z>1);
-  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820)*Z;window.__S=s;
+  const HH=document.querySelector('.apphdr')?(phone?35:58):0;
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m-HH)/820)*Z;window.__S=s;
   if(fdt){
     if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
     else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
@@ -1847,3 +1848,4 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 </script>
 </html>
+<div id="verBadge" style="position:fixed;right:max(8px,env(safe-area-inset-right));bottom:max(6px,env(safe-area-inset-bottom));z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 14 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-10</span></div>

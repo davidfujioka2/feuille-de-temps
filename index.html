@@ -247,7 +247,7 @@ button{cursor:pointer}
 .jtag .x{width:32px;height:32px;border:0;background:transparent;font-size:16px;color:var(--muted)}
 .jtag .pz{font-size:11px;font-weight:900;color:var(--green-dark);background:#fff;border:1px solid var(--green-line);border-radius:999px;padding:1px 7px}
 /* fenêtre de saisie */
-.win{position:absolute;left:0;right:0;top:64px;bottom:0;background:var(--bg);display:flex;flex-direction:column;padding:12px 16px 16px;gap:10px;z-index:10}
+.win{position:absolute;left:0;right:0;top:128px;bottom:0;background:var(--bg);display:flex;flex-direction:column;padding:12px 16px 16px;gap:10px;z-index:10}
 .win-h{display:flex;align-items:center;gap:12px}
 .win-h b{font-size:18px}.win-h span{flex:1;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .win .flow{flex:1;height:auto;min-height:0}
@@ -677,17 +677,22 @@ button{cursor:pointer}
 .gadd{margin-top:auto;align-self:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:18px;font-weight:800}
 .gfdt{border:2px solid var(--green);border-radius:14px;background:#fff;color:var(--deep);font-size:14px;font-weight:850;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .gfdt small{font-size:11px;color:var(--muted);font-weight:700}.gfdt.ok{background:#f5fbf7;color:var(--green-dark)}
+.pbar{height:64px;flex-shrink:0;display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:8px;align-items:center;padding:0 12px;background:#fff;border-bottom:1px solid var(--line)}
+.pbar button{height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:14px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px;min-width:0}
+.pbar button.on{background:var(--green);color:#fff}
+.top .tsp{flex:1}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 17 h 39</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-13</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 17 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-14</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
     <header class="top"><nav class="tnav"></nav>
-      <div class="pribbon hdr" id="projBar"></div><b id="calProj" hidden></b>
+      <div class="pribbon hdr" id="projBar" hidden></div><b id="calProj" hidden></b><span class="tsp"></span>
     </header>
+    <div class="pbar"></div>
     <div class="cal-wrap">
       
       <div class="cal-card">
@@ -706,9 +711,10 @@ button{cursor:pointer}
   <!-- ============ SAISIE ============ -->
   <section id="pgEntry" class="page" hidden>
     <header class="top"><nav class="tnav"></nav>
-      <div class="pribbon hdr" id="projBar2"></div><small id="entrySub" hidden></small>
+      <div class="pribbon hdr" id="projBar2" hidden></div><span class="tsp"></span><small id="entrySub" hidden></small>
       <button class="btn pri" id="finish">Terminé</button>
     </header>
+    <div class="pbar"></div>
     <div class="daylbl" id="dayLbl"></div>
     <div class="rows scroll" id="rows"></div>
     <div class="win" id="win" hidden>
@@ -724,6 +730,7 @@ button{cursor:pointer}
       <div class="ttl"><b>Photos du jour</b><small id="photoSub"></small></div>
       <button class="btn" data-go="read">Vue lecture</button>
     </header>
+    <div class="pbar"></div>
     <div class="ph-wrap">
       <div class="panel">
         <div class="panel-h"><b>Pré-marquage</b><span>appliqué aux prochaines photos</span></div>
@@ -752,6 +759,7 @@ button{cursor:pointer}
     <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Journal de chantier · vue lecture</b><small id="readSub"></small></div>
     </header>
+    <div class="pbar"></div>
     <div class="read">
       <div class="read-main">
         <div class="spread" id="spread" hidden></div><div class="paperwrap scroll" id="paperwrap"><div class="paper" id="paper"></div></div>
@@ -768,6 +776,7 @@ button{cursor:pointer}
       <label class="btn out filebtn">Importer des photos<input type="file" accept="image/*" multiple id="phImport"></label>
       <button class="btn pri" id="phCamBtn">📷 Prendre des photos</button>
     </header>
+    <div class="pbar"></div>
     <div class="phhub scroll" id="phHub"></div>
   </section>
 
@@ -795,6 +804,7 @@ button{cursor:pointer}
       <div class="ttl"><b>Trier les photos</b><small id="revSub"></small></div>
       <span class="revhelp">→ classer et archiver · ↑ supprimer · ↓ garder pour moi</span>
     </header>
+    <div class="pbar"></div>
     <div class="rev"><div class="rev-stage" id="revStage"></div><aside class="rev-side scroll" id="revSide"></aside></div>
   </section>
 
@@ -804,6 +814,7 @@ button{cursor:pointer}
       <button class="back" data-go="ph">‹ Retour</button>
       <div class="ttl"><b id="galTitle">Archive</b><small id="galSub"></small></div>
     </header>
+    <div class="pbar"></div>
     <div class="gal"><div class="gal-f scroll" id="galF"></div><div class="gal-g scroll" id="galG"></div></div>
   </section>
 
@@ -813,6 +824,7 @@ button{cursor:pointer}
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
       <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="bkBtn">💾 Sauvegarde</button><button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
     </header>
+    <div class="pbar"></div>
     <div class="prm">
       <nav class="prm-nav" id="prmNav"></nav>
       <div class="panel">
@@ -1698,7 +1710,14 @@ function saveBackup(){
 const TNAV_ICO={pho:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',fdt:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',jou:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/>',liv:'<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/>',pla:'<path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/>',prm:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'};
 const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
-function drawTnav(){const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const dd=parse(U.date),dl=DAYS[dd.getDay()].slice(0,3)+'. '+dd.getDate()+' '+(MONTHS[dd.getMonth()].length>4?MONTHS[dd.getMonth()].slice(0,4)+'.':MONTHS[dd.getMonth()]);const h=TNAV.map(([k,l0,href])=>{const l=k==='jou'?dl:l0;return `<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`}).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
+function drawPbar(){const P=ACTIVE(),h=P.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-pb="${esc(p)}">${esc(p)}</button>`).join('');$$('.pbar').forEach(n=>{n.innerHTML=h;n.style.setProperty('--n',P.length)})}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const p=b.dataset.pb;
+  if(!S.viewAll&&S.project===p)S.viewAll=true;else{S.viewAll=false;S.project=p}save();drawPbar();
+  const pg=U.page;
+  if(pg==='cal')renderCal();
+  else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}
+  else render()});
+function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const dd=parse(U.date),dl=DAYS[dd.getDay()].slice(0,3)+'. '+dd.getDate()+' '+(MONTHS[dd.getMonth()].length>4?MONTHS[dd.getMonth()].slice(0,4)+'.':MONTHS[dd.getMonth()]);const h=TNAV.map(([k,l0,href])=>{const l=k==='jou'?dl:l0;return `<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`}).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
   if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
 

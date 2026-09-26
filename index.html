@@ -1,7 +1,21 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><style>
+.apphdr{position:fixed;left:0;right:0;top:0;height:58px;z-index:50;background:#fff;border-bottom:1px solid #dfe4e1;display:flex;align-items:center;gap:8px;padding:0 max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));font-family:-apple-system,"Segoe UI",sans-serif;box-sizing:border-box}
+.hbs{display:flex;gap:4px;flex:1;min-width:0}
+.hb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:78px;height:50px;padding:0 8px;border-radius:12px;text-decoration:none;color:#236b43}
+.hb svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hb span{font-size:10.5px;font-weight:800;white-space:nowrap}
+.hb.on{background:#2f8a57;color:#fff}
+.hdr-right{width:170px;display:flex;justify-content:flex-end}
+.hdr-done{height:44px;padding:0 22px;border:0;border-radius:12px;background:#173d2d;color:#fff;font-size:15px;font-weight:850;font-family:inherit;cursor:pointer}
+body{padding-top:58px!important;box-sizing:border-box}
+.appnav{display:none!important}
+#finish{display:none!important}
+#pgCal .seg{display:none!important}
+@media (max-width:760px){.hb{min-width:0;padding:0 6px}.hb span{display:none}.hdr-right{width:auto}}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -641,7 +655,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad">
+<header class="apphdr"><nav class="hbs"><a class="hb on" href="./#cal" data-hk="cal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendrier</span></a><a class="hb" href="./feuille.html" data-hk="fdt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Feuille de temps</span></a><a class="hb" href="./#journal" data-hk="jou"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/></svg><span>Journal de chantier</span></a><a class="hb" href="./materiaux.html" data-hk="liv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/></svg><span>Livraison</span></a><a class="hb" href="./echeancier.html" data-hk="pla"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/></svg><span>Planification</span></a><a class="hb" href="./#prm" data-hk="prm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><span>Paramètres</span></a></nav><div class="hdr-right" id="hdrRight"><button class="hdr-done" id="hdrDone" hidden>Terminé</button></div></header><div class="stage"><div id="ipad" class="ipad">
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -781,7 +795,7 @@ button{cursor:pointer}
     <header class="top">
       <button class="back" id="prmBack">‹ Retour</button>
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
-      <span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="bkBtn">💾 Sauvegarde</button>
+      <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="bkBtn">💾 Sauvegarde</button>
     </header>
     <div class="prm">
       <nav class="prm-nav" id="prmNav"></nav>
@@ -1762,6 +1776,7 @@ $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gi
     if(ev.target.id==='gvDel'){dropMedia(m);ov.hidden=true;renderGal();toast('Photo supprimée')}};
 });
 
+window.__route=h=>{if(h==='#journal'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}else if(h==='#prm'){go('prm')}else{go('cal')}};
 go('cal');
 })();
 </script>
@@ -1776,7 +1791,7 @@ window.__fit=function(){const el=document.getElementById('ipad'),app=document.ge
   const cs=getComputedStyle(document.getElementById('safeProbe'));
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
   const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
-  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m)/820);
+  const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m-58)/820);
   if(fdt){
     if(phone){Object.assign(app.style,{width:'1180px',height:'820px',maxWidth:'none',minHeight:'0',padding:'0',overflow:'auto',zoom:s});if(el)el.style.zoom=1}
     else{Object.assign(app.style,{width:'',height:'',maxWidth:'',minHeight:'',padding:'',overflow:'',zoom:''});if(el)el.style.zoom=Math.min(1,(document.documentElement.clientWidth-8)/1180)}
@@ -1791,3 +1806,18 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 </script>
 </html>
+<script>
+(function(){
+  const hb=document.getElementById('hdrDone');
+  function sync(){const pg=document.getElementById('pgEntry');hb.hidden=!(pg&&!pg.hidden)}
+  hb.onclick=()=>{const f=document.getElementById('finish');if(f)f.click()};
+  setInterval(sync,400);sync();
+  if(location.pathname.endsWith('/')||location.pathname.endsWith('index.html')){
+    const route=()=>{const h=location.hash;document.querySelectorAll('.hb').forEach(a=>a.classList.remove('on'));
+      const k=h==='#journal'?'jou':h==='#prm'?'prm':'cal';const a=document.querySelector('.hb[data-hk="'+k+'"]');if(a)a.classList.add('on');
+      if(window.__route)window.__route(h)};
+    addEventListener('hashchange',route);addEventListener('load',route);
+    document.querySelectorAll('.hb[href^="./#"]').forEach(a=>a.addEventListener('click',e=>{const h=a.getAttribute('href').slice(1);if(location.hash===h){e.preventDefault();route()}}));
+  }
+})();
+</script>

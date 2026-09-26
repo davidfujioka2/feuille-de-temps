@@ -692,11 +692,17 @@ button{cursor:pointer}
 .srow .sdate{font-size:15px;font-weight:850;color:var(--deep);white-space:nowrap}
 .srow .sname{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:850;color:var(--green-dark);white-space:nowrap}
 .pbar{background:var(--bg)!important;border-bottom:0!important}
+.sgroup{border:2px solid var(--green);border-radius:18px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.stag{height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:0 10px;min-width:0;white-space:nowrap}
+.stag b{font-size:13.5px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.stag span{font-size:12px;font-weight:700;color:var(--muted)}.stag span:before{content:'· '}
+.stag.wip span{color:var(--amber)}
+.stag.ok{background:var(--green);color:#fff}.stag.ok span{color:#e6f4ec}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 21</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-17</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 29</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-18</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1023,20 +1029,16 @@ function closeWin(){resetDraft();$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){
-  const P=ACTIVE(),cur=S.project,out=[];
-  const cellTags=(p,k)=>{S.project=p;const D=day();let h='';
-    D.entries.forEach((e,i)=>{if(e.sec!==k)return;h+=`<button class="gtag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${e.phase?`<b>${esc(PH_SHORT[e.phase])}</b> `:''}${esc(tagText(e))}</button>`});
-    if(k==='st'&&D.status!=='approved')plannedToday().forEach(x=>{h+=`<button class="gtag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</button>`});
-    return h};
-  const head=P.map(p=>{S.project=p;const D=day(),n=D.entries.length,ok=D.status==='approved';
-    return `<button class="grep ${ok?'ok':n?'wip':''}" data-grep="${esc(p)}">${ok?'✓ Rapport approuvé':'Rapport · '+(n?n+' entrée'+(n>1?'s':''):'vide')}</button>`}).join('');
-  const anyF=P.some(p=>(S.days[p+'|'+U.date]||{}).fdt);
-  let body=`<div class="grow"><button class="gfdt ${anyF?'ok':''}" data-gfdt="1" style="grid-column:1 / span ${P.length}">${anyF?'✓ Feuille de temps remplie':'Feuille de temps de la journée — tous les projets'}<small>Approuvée à la semaine</small></button></div>`;
-  JROWS.filter(r=>r[0]!=='fdt').forEach(([k,,label])=>{
-    body+=`<div class="grow">${P.map(p=>{const t=cellTags(p,k),lk=(S.days[p+'|'+U.date]||{}).status==='approved';
-      return `<div class="gcell ${lk?'lk':''}" data-cp="${esc(p)}">${t}${lk?'':`<button class="gadd" data-row="${k}" aria-label="Ajouter · ${esc(p)}">＋ ${esc(label.replace(' et rencontres','').replace(' et incidents',''))}</button>`}</div>`}).join('')}</div>`});
+  /* un groupe par projet : une étiquette par section du rapport, avec son statut */
+  const P=ACTIVE(),cur=S.project;
+  const NAMES={fdt:'Feuille de temps',st:'Sous-traitants',liv:'Livraisons',reu:'Réunions',evt:'Événements'};
+  const groups=P.map(p=>{S.project=p;const D=day(),ok=D.status==='approved';
+    const tags=JROWS.map(([k])=>{const has=k==='fdt'?!!D.fdt:D.entries.some(e=>e.sec===k);
+      const st=ok&&has?'ok':has?'wip':'';
+      return `<button class="stag ${st}" ${k==='fdt'?'data-gfdt="1"':`data-row="${k}"`}><b>${NAMES[k]}</b><span>${st==='ok'?'Approuvé':st==='wip'?'En cours':'Vide'}</span></button>`}).join('');
+    return `<div class="sgroup" data-cp="${esc(p)}">${tags}</div>`}).join('');
   S.project=cur;
-  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow ghead">${head}</div>${body}</div>`;
+  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
   $('#finish').hidden=true;$('#rows').classList.add('gmode');
 }
 function renderEntry(){

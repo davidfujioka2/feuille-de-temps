@@ -484,8 +484,8 @@ button{cursor:pointer}
 .pan{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px}
 .pan.light{background:#f2f7f4;border-color:#d4e6db}
 .pan .gl{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0}
-.pill2{align-self:center;display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--green);border-radius:999px;overflow:hidden;width:78%}
-.pill2 button{height:46px;border:0;background:#fff;font-size:14.5px;font-weight:850;color:var(--green-dark)}
+.pill2{align-self:center;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:2px solid var(--green);border-radius:999px;overflow:hidden;width:100%}
+.pill2 button{padding:0 6px;height:46px;white-space:nowrap;font-size:13.5px!important;border:0;background:#fff;font-size:14.5px;font-weight:850;color:var(--green-dark)}
 .pill2 button.on{background:var(--green);color:#fff}
 .pill2 button small{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:999px;background:var(--amber);color:#fff;font-size:11.5px}
 .otags.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -661,11 +661,12 @@ button{cursor:pointer}
 .top .pribbon.hdr button{height:34px;font-size:11.5px;padding:0 3px;letter-spacing:-.2px}
 .top .pribbon.hdr button:first-child{flex:0 0 auto}
 .daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
+.jtag.plan{border:1.5px dashed var(--green)!important;background:#fff!important;color:var(--green-dark)!important;padding:0 14px!important;cursor:pointer}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 15 h 28</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-11</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 15 h 38</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-12</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -874,11 +875,20 @@ const dk=()=>S.project+'|'+U.date;
 function day(k=dk()){return S.days[k] ||= {entries:[],photos:[],status:'draft',rev:0,history:[]}}
 const locked=()=>day().status==='approved';
 
+/* planification (Échéancier) : favoris par phase et activités planifiées de la semaine */
+const PLAN_KEY='chantierPlan_v1';
+function plan(){try{return (JSON.parse(localStorage.getItem(PLAN_KEY)||'{}')[S.project]||{}).export||null}catch(e){return null}}
+function planFav(){const p=plan(),F={st:[],trav:[],four:[],mat:[]};if(!p)return F;F.st=p.fav.st||[];F.trav=p.fav.ac||[];F.four=p.fav.fo||[];F.mat=p.fav.ma||[];return F}
+const PH_MAP={'Démo':'rough','Rough':'rough','Systèmes int.':'rough','Finition':'fin'};
+function weekOf(ds){const d=parse(ds),w=(d.getDay()+6)%7,a=new Date(d);a.setDate(d.getDate()-w);const b=new Date(a);b.setDate(a.getDate()+6);return [fmt(a),fmt(b)]}
+function plannedToday(){const p=plan();if(!p||!p.planned)return [];const [a,b]=weekOf(U.date),D=day();
+  return p.planned.filter(x=>x.from<=b&&x.to>=a&&!D.entries.some(e=>e.planId===x.id))}
 function lists(){
-  const L={};
+  const L={},PF=planFav();
   Object.keys(BASE).forEach(k=>{
-    const items=BASE[k].concat((S.added[k]||[]).map(n=>o(n,1,'Ajoutés')));
-    L[k]=items.map(x=>{const id=k+'|'+x.label;return {...x,fav:id in S.fav?S.fav[id]:x.fav,off:!!S.off[id]}});
+    const pf=PF[k]||[],base=BASE[k].concat((S.added[k]||[]).map(n=>o(n,1,'Ajoutés')));
+    const items=base.concat(pf.filter(n=>!base.some(x=>x.label===n)).map(n=>o(n,1,'Planification')));
+    L[k]=items.map(x=>{const id=k+'|'+x.label;return {...x,fav:id in S.fav?S.fav[id]:(x.fav||pf.includes(x.label)),off:!!S.off[id]}});
   });
   return L;
 }
@@ -890,8 +900,9 @@ const zoneTxt=z=>!z?'':/^\d+$/.test(z)?'logement '+z:lc(z);
 const MATP={'Gypse':'du gypse','Bois':'du bois','Isolant':'de l’isolant','Quincaillerie':'de la quincaillerie','Céramique':'de la céramique','Portes et moulures':'des portes et moulures','Fenêtres':'des fenêtres','Matériel de plomberie':'du matériel de plomberie','Matériel électrique':'du matériel électrique','Béton':'du béton','Peinture':'de la peinture','Conteneur':'un conteneur','Location d’équipement':'de l’équipement en location'};
 function sentence(e){
   const a=e.a||'',b=e.b||'',c=e.c||'';let t;
-  if(e.sec==='st')t=(a||'…')+(e.phase?' ('+({demo:'démolition et cloisons',rough:'rough',fin:'finition',gen:'général',spec:'spécialité'})[e.phase]+')':'')+(e.workers?' — '+e.workers+' travailleur'+(e.workers>1?'s':'')+', '+String(e.hours).replace('.',',')+' h':(b?' : '+lc(b):''))+(c?' — '+zoneTxt(c):'')+'.';
+  if(e.sec==='st')t=(a||'…')+(e.phase?' ('+({demo:'démolition et cloisons',rough:'rough',fin:'finition',gen:'général',spec:'spécialité'})[e.phase]+')':'')+(e.workers&&b?' : '+lc(b):'')+(e.workers?' — '+e.workers+' travailleur'+(e.workers>1?'s':'')+', '+String(e.hours).replace('.',',')+' h':(b?' : '+lc(b):''))+(c?' — '+zoneTxt(c):'')+'.';
   else if(e.sec==='liv'&&e.kind==='envoi')t='Commande envoyée à '+(a||'…')+(e.phase?' ('+PH_SHORT[e.phase].toLowerCase()+')':'')+' : '+(b||'—')+'.';
+  else if(e.sec==='liv'&&e.kind==='note')t='Matériel reçu de '+(a||'…')+(b?' : '+b:'')+(e.text?' — '+e.text:'')+'.';
   else if(e.sec==='liv'&&e.kind==='recu')t='Commande de '+(a||'…')+(e.orderDate?' du '+shortDate(e.orderDate):'')+' reçue — '+(b||'')+'.';
   else if(e.sec==='liv'&&('pour' in e||e.phase)){const q=e.qty?'quantité : '+e.qty:[e.logements?e.logements+' logement'+(e.logements>1?'s':''):'',e.unites?e.unites+' unité'+(e.unites>1?'s':''):''].filter(Boolean).join(', ');
     t=(a||'…')+(e.phase?' ('+({demo:'démolition et cloisons',rough:'rough',fin:'finition',gen:'général',spec:'spécialité'})[e.phase]+')':'')+' a livré '+(b?(MATP[b]||b):'…')+(q?' — '+q:'')+(e.pour?' — pour : '+lc(e.pour):'')+(e.manW&&e.manH?' — manutention : '+e.manW+' homme'+(e.manW>1?'s':'')+' × '+e.manH+' h':'')+(c?' — '+zoneTxt(c):'')+'.'}
@@ -967,8 +978,8 @@ const phasesOf=c=>S.phaseMap[c]||[];
 const JROWS=[['fdt',1,'Employés','Feuille de temps du jour'],['st',2,'Sous-traitants','Par phase du projet'],['liv',3,'Livraisons','Commandes envoyées et reçues'],['reu',4,'Réunions et rencontres','Intervenants, sujets, horaire'],['evt',5,'Événements et incidents','Visites, conformité, incidents']];
 
 function resetDraft(){Object.assign(U,{sec:null,vals:{},step:0,text:'',editIndex:null,labour:false,W:null})}
-function openWin(){$('#win').hidden=false}
-function closeWin(){resetDraft();$('#win').hidden=true;renderEntry()}
+function openWin(){$('#win').hidden=false;drawTnav()}
+function closeWin(){resetDraft();$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderEntry(){
@@ -983,16 +994,20 @@ function renderEntry(){
     if(k==='fdt')tags=D.fdt?'<span class="jtag ok">✓ Feuille de temps remplie</span>':'<span class="none">Feuille de temps à remplir</span>';
     else{let list=D.entries.map((e,i)=>({e,i})).filter(x=>x.e.sec===k);
       list.sort((a,b)=>PHASES.findIndex(p=>p[0]===a.e.phase)-PHASES.findIndex(p=>p[0]===b.e.phase));
-      tags=list.length?list.map(x=>tag(x.e,x.i)).join(''):'<span class="none">Aucune entrée</span>'}
+      tags=list.length?list.map(x=>tag(x.e,x.i)).join(''):'';
+      const pl=k==='st'&&!locked()?plannedToday():[];
+      tags+=pl.map(x=>`<button class="jtag plan" data-plan="${esc(x.id)}" title="Planifié : ${esc(x.ac)}">＋ ${esc(x.ac)} · ${esc(x.st)}${x.z?' · '+esc(x.z):''}</button>`).join('');
+      if(!tags)tags='<span class="none">Aucune entrée</span>'}
     return `<div class="jrow2"><button class="jrow2-h" data-row="${k}">${label}</button><div class="jrow2-t">${tags}</div></div>`;
   }).join('')+(D.entries.length||D.fdt?'':`<div style="text-align:center;padding:6px"><button class="btn out" id="demo">Charger un exemple</button></div>`);
   if(!$('#win').hidden)renderWin();
 }
 function tagText(e){
   const short=t=>t&&t.length>48?t.slice(0,48)+'…':t;
-  if(e.sec==='st')return [e.a,e.hours?fmtH(e.hours)+' h':''].filter(Boolean).join(' · ');
+  if(e.sec==='st')return [e.a,e.b,e.hours?fmtH(e.hours)+' h':''].filter(Boolean).join(' · ');
   if(e.sec==='liv'&&e.kind==='envoi')return 'Envoyée · '+e.a;
   if(e.sec==='liv'&&e.kind==='recu')return 'Reçue · '+e.a+(e.complete?' ✓':'');
+  if(e.sec==='liv'&&e.kind==='note')return 'Matériel reçu · '+e.a;
   if(e.sec==='liv')return e.a||'Livraison';
   if(e.sec==='reu')return e.a||'Rencontre';
   if(e.sec==='evt')return [e.a||'Événement',short(e.text)||e.b].filter(Boolean).join(' · ');
@@ -1002,6 +1017,8 @@ const fmtH=h=>String(Math.round((h||0)*10)/10).replace('.',',');
 
 $('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj2]');if(!b)return;if(b.dataset.proj2==='__all'){S.viewAll=true;save();go('cal');return}S.project=b.dataset.proj2;S.viewAll=false;save();resetDraft();renderEntry()});
 $('#rows').addEventListener('click',e=>{
+  const pb=e.target.closest('[data-plan]');if(pb){const x=plannedToday().find(p=>p.id===pb.dataset.plan);if(!x)return;
+    saveEntry({sec:'st',a:x.st,b:x.ac,phase:PH_MAP[x.phase]||'rough',workers:1,hours:8,c:x.z||'',text:x.cm||'',planId:x.id});renderEntry();toast('Activité planifiée ajoutée');return}
   if(e.target.id==='demo'){loadDemo();return}
   const r=e.target.closest('[data-row]');
   if(r){const k=r.dataset.row;resetDraft();
@@ -1077,7 +1094,8 @@ function renderSt(){
 }
 function stDone(text){const W=U.W;
   if(text){S.comments=[text,...S.comments.filter(c=>c!==text)].slice(0,200)}
-  saveEntry({sec:'st',a:W.who,phase:W.phase,workers:W.workers,hours:W.hours,c:W.zone||'',text:text||''});
+  const old=U.editIndex!=null?day().entries[U.editIndex]:null;
+  saveEntry({sec:'st',a:W.who,b:old&&old.b||'',planId:old&&old.planId||undefined,phase:W.phase,workers:W.workers,hours:W.hours,c:W.zone||'',text:text||''});
 }
 function stAdvance(){renderSt()}
 
@@ -1111,13 +1129,14 @@ const ordersOf=sup=>S.orders.filter(o=>o.project===S.project&&o.sup===sup).sort(
 const orderDone=o=>o.lines.length&&o.lines.every(l=>l.done);
 function lvNew(){return {sup:null,phase:null,mode:'envoi',items:[],sel:null,qpop:false,hund:0,orderId:null,recvId:null,recv:null}}
 function lvFrom(e){const V=lvNew();V.sup=e.a;V.phase=e.phase||null;
+  if(e.kind==='note'){V.mode='note';V.note=e.text||'';V.items=(e.items||[]).map(x=>({mat:x.mat,qty:x.qty}));return V}
   if(e.kind==='recu'){V.mode='recu';const o=S.orders.find(x=>x.id===e.orderId);if(o){V.recvId=o.id;V.recv=JSON.parse(JSON.stringify(o.lines))}}
   else{V.orderId=e.orderId||null;V.items=(e.items||[]).map(x=>({mat:x.mat,qty:x.qty}))}
   return V}
 function renderLiv(){
   const V=U.V,L=lists(),el=$('#flow');
   const ready=!!(V.phase&&V.sup);let h='';
-  $('#winSent').textContent=ready?(V.mode==='envoi'?'Commande envoyée à '+V.sup:'Commande reçue de '+V.sup):'';
+  $('#winSent').textContent=ready?(V.mode==='envoi'?'Commande envoyée à '+V.sup:V.mode==='note'?'Matériel reçu de '+V.sup:'Commande reçue de '+V.sup):'';
   if(!ready){
     const PW=150,FW=710;
     h+=fxPhase(V.phase,'lvph',PW);
@@ -1141,10 +1160,10 @@ function renderLiv(){
       <div class="qrow3"><button class="nb h100 ${V.hund?'on':''}" data-fa="lvh" ${qd}>+100${V.hund?' (×'+V.hund+')':''}</button><button class="nb" data-fa="lvq0" ${tot?'':'disabled'}>Effacer</button><button class="nb ok" data-fa="lvqok" ${tot&&V.sel?'':'disabled'}>Ajouter ✓</button></div>
     </div>`;
   const past2=past.filter(o=>!orderDone(o)).length;
-  const pill=`<div class="pill2"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Préparer une commande</button><button class="${V.mode==='recu'?'on':''}" data-fa="lvmode" data-v="recu">Vérifier une commande${past2?` <small>${past2}</small>`:''}</button></div>`;
-  if(V.mode==='envoi'){
+  const pill=`<div class="pill2"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Préparer une commande</button><button class="${V.mode==='recu'?'on':''}" data-fa="lvmode" data-v="recu">Recevoir une commande${past2?` <small>${past2}</small>`:''}</button><button class="${V.mode==='note'?'on':''}" data-fa="lvmode" data-v="note">Réception de matériel</button></div>`;
+  if(V.mode==='envoi'||V.mode==='note'){const nt=V.mode==='note';
     const lines=V.items.map((x,i)=>({...x,i})).sort((p,q)=>byFr(p.mat,q.mat));
-    const descs=(S.descs||[]).slice().sort(byFr);
+    const descs=[...new Set([...(S.descs||[]),...planFav().mat,...(S.supMats[V.sup]||[])])].sort(byFr);
     const total=lines.reduce((t,x)=>t+x.qty,0);
     body=`<div class="cmd3">
       <div class="c3l">${pill}
@@ -1155,10 +1174,11 @@ function renderLiv(){
         </div>
       </div>
       <div class="pan light">
-        <div class="gl">Commande · ${lines.length} ligne${lines.length>1?'s':''}</div>
+        <div class="gl">${nt?'Reçu':'Commande'} · ${lines.length} ligne${lines.length>1?'s':''}</div>
         <div class="scroll" style="flex:1;min-height:0">${lines.length?lines.map(x=>`<div class="oline sm"><b>${esc(x.mat)}</b><span>${x.qty}</span><button data-fa="lvrm" data-i="${x.i}" aria-label="Retirer la ligne">×</button></div>`).join(''):'<span class="empty-t">Utiliser ▲ ▼ à gauche : les lignes s’ajoutent ici.</span>'}</div>
         ${lines.length?`<div class="osum">Total <b>${total}</b></div>`:''}
-        <button class="bigbtn" data-fa="lvsend" ${lines.length?'':'disabled'}>Terminé</button>
+        ${nt?`<input class="inp" id="lvNote" placeholder="Détails (optionnel)" autocomplete="off" value="${esc(V.note||'')}">`:''}
+        <button class="bigbtn" data-fa="${nt?'lvnote':'lvsend'}" ${lines.length||nt?'':'disabled'}>Terminé</button>
       </div></div>`;
   }else{
     const o=V.recvId&&S.orders.find(x=>x.id===V.recvId);
@@ -1304,6 +1324,8 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvrph'){V.phase=null;renderLiv();return}
   if(a==='lvrsup'){V.sup=null;V.recvId=null;renderLiv();return}
   if(a==='lvmode'){V.mode=b.dataset.v;V.qpop=false;renderLiv();return}
+  if(a==='lvnote'){const t=($('#lvNote')?$('#lvNote').value:'').trim();
+    saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:V.items.map(x=>({...x})),b:V.items.map(x=>x.mat+' × '+x.qty).join(', '),c:'',text:t});return}
   if(a==='lvsel'){V.sel=b.dataset.v;V.hund=0;V.tens=0;V.units=0;renderLiv();return}
   if(a==='lvdescadd'){const t=($('#lvNewDesc').value||'').trim();if(!t)return;if(!S.descs.includes(t))S.descs.push(t);save();renderLiv();return}
   if(a==='lvqopen'){if(V.sel){V.qpop=true;V.hund=0;V.tens=0;V.units=0;renderLiv()}return}
@@ -1492,7 +1514,7 @@ function renderRead(){
     </header>`;
   html+=sec('Main-d’œuvre')+`<p>${D.fdt?'La feuille de temps du jour a été remplie.':'<em>Feuille de temps non remplie.</em>'}</p>`;
   html+=sec('Sous-traitants')+tbl(['Phase','Sous-traitant','Trav.','Heures','Zone','Commentaire'],st.map(({e,i})=>`<tr${ed(i)}><td>${esc(ph(e.phase))}</td><td>${esc(e.a||'—')}</td><td class="n">${e.workers||'—'}</td><td class="n">${e.hours!=null?fmtH(e.hours):'—'}</td><td>${esc(e.c||'—')}</td><td>${esc(e.text||'')}</td></tr>`),'Aucun sous-traitant au chantier.')+(st.length?`<p class="rtot">Total des heures des sous-traitants : <b>${fmtH(totH)} h</b></p>`:'');
-  html+=sec('Livraisons et commandes')+tbl(['Type','Fournisseur','Détail'],liv.map(({e,i})=>`<tr${ed(i)}><td>${e.kind==='envoi'?'Commande envoyée':e.kind==='recu'?'Réception':'Livraison'}</td><td>${esc(e.a||'—')}</td><td>${esc(e.kind==='recu'?(e.orderDate?'Commande du '+shortDate(e.orderDate)+' — ':'')+(e.b||''):(e.b||''))}</td></tr>`),'Aucune livraison ni commande.');
+  html+=sec('Livraisons et commandes')+tbl(['Type','Fournisseur','Détail'],liv.map(({e,i})=>`<tr${ed(i)}><td>${e.kind==='envoi'?'Commande envoyée':e.kind==='recu'?'Réception':e.kind==='note'?'Matériel reçu':'Livraison'}</td><td>${esc(e.a||'—')}</td><td>${esc(e.kind==='recu'?(e.orderDate?'Commande du '+shortDate(e.orderDate)+' — ':'')+(e.b||''):(e.b||''))}</td></tr>`),'Aucune livraison ni commande.');
   html+=sec('Réunions et rencontres')+tbl(['Heure','Durée','Intervenant','Sujets','Commentaire'],reu.map(({e,i})=>`<tr${ed(i)}><td>${e.start!=null?hm(e.start):'—'}</td><td>${e.dur?durTxt(e.dur):'—'}</td><td>${esc(e.a||'—')}</td><td>${esc((e.subjects||[]).join(', '))}</td><td>${esc(e.text||'')}</td></tr>`),'Aucune réunion.');
   html+=sec('Événements et incidents')+tbl(['Événement','Sous-traitant','Commentaire'],evt.map(({e,i})=>`<tr${ed(i)}><td>${esc(e.a||'—')}</td><td>${esc(e.b||'—')}</td><td>${esc(e.text||'')}</td></tr>`),'Aucun événement.');
   if(D.photos.length)html+=sec('Photos')+`<div class="rph">${D.photos.map(p=>`<figure><div class="im" data-burn="${p.id}"></div><figcaption>${esc([p.zones&&p.zones.length?'Zone '+p.zones.join(', '):'',p.who,p.act].filter(Boolean).join(' · ')||'Photo')}</figcaption></figure>`).join('')}</div>`;
@@ -1634,11 +1656,11 @@ function saveBackup(){
 
 /* ===================== MENU D'ICÔNES (rangée d'en-tête) ===================== */
 const TNAV_ICO={pho:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',fdt:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',jou:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/>',liv:'<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/>',pla:'<path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/>',prm:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'};
-const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'],['jou','Journal',null],['pho','Photos',null],['liv','Livraison','./materiaux.html'],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
+const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
-function drawTnav(){const act=TNAV_ACTIVE[U.page]||'';const dd=parse(U.date),dl=DAYS[dd.getDay()].slice(0,3)+'. '+dd.getDate()+' '+(MONTHS[dd.getMonth()].length>4?MONTHS[dd.getMonth()].slice(0,4)+'.':MONTHS[dd.getMonth()]);const h=TNAV.map(([k,l0,href])=>{const l=k==='jou'?dl:l0;return `<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`}).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
+function drawTnav(){const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const dd=parse(U.date),dl=DAYS[dd.getDay()].slice(0,3)+'. '+dd.getDate()+' '+(MONTHS[dd.getMonth()].length>4?MONTHS[dd.getMonth()].slice(0,4)+'.':MONTHS[dd.getMonth()]);const h=TNAV.map(([k,l0,href])=>{const l=k==='jou'?dl:l0;return `<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`}).join('');$$('.tnav').forEach(n=>n.innerHTML=h)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
-  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
+  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
 
 /* ===================== MODULE PHOTOS ===================== */
 S.media=S.media||[];
@@ -1794,7 +1816,8 @@ $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gi
     if(ev.target.id==='gvDel'){dropMedia(m);ov.hidden=true;renderGal();toast('Photo supprimée')}};
 });
 
-window.__route=h=>{if(h==='#journal'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
+function openLiv(){U.date=fmt(today);resetDraft();if(locked()){go('read');toast('Journal du jour approuvé');return}go('entry');U.V=lvNew();U.winSec='liv';openWin();renderWin()}
+window.__route=h=>{if(h==='#liv'){openLiv();return}if(h==='#journal'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
 go('cal');
 addEventListener('hashchange',()=>window.__route(location.hash));if(location.hash)window.__route(location.hash);
 })();

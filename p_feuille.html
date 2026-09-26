@@ -1516,7 +1516,7 @@ const showFull={};
 /* data overrides used everywhere */
 function roster(t){return state.empDb.filter(e=>e.trade===t&&!e.inactive&&e.name.trim()).map(e=>({name:e.name,company:e.company||'—'}))}
 function companyOf(n){const e=state.empDb.find(x=>x.name===n);return e&&e.company?e.company:'Autres'}
-function activities(t){return [...new Set([...(state.actList[t]||[]),...((state.customActivities||{})[t]||[])])]}
+function planActs(){try{const J=JSON.parse(localStorage.getItem('journalChantier_v1'))||{},P=JSON.parse(localStorage.getItem('chantierPlan_v1'))||{},x=(P[J.project||'']||{}).export;return x&&x.fav?x.fav.ac||[]:[]}catch(e){return []}} function activities(t){return [...new Set([...planActs(),...(state.actList[t]||[]),...((state.customActivities||{})[t]||[])])]}
 const ZONE_COLS=8,ZONE_ROWS=6;
 const emptyGrid=()=>[...Array(ZONE_ROWS)].map(()=>({label:'',items:[]}));
 (function(){const oldDef=JSON.stringify(Object.entries(zoneGroups).map(([label,items])=>({label,items:[...items]})));Object.keys(state.zoneGrid).forEach(p=>{if(JSON.stringify(state.zoneGrid[p])===oldDef&&!(state.zoneFav[p]||[]).length)state.zoneGrid[p]=emptyGrid()})})();

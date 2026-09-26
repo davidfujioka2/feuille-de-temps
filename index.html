@@ -658,7 +658,8 @@ button{cursor:pointer}
 .top .ttl b{font-size:14px}.top .ttl small{font-size:11px}
 .tnav a{width:66px!important}.tnav span{font-size:9px!important}
 .top .pribbon.hdr{flex:1;min-width:0;border-width:1.5px}
-.top .pribbon.hdr button{height:34px;font-size:12px;padding:0 3px;letter-spacing:-.2px}
+.top .pribbon.hdr button{height:34px;font-size:11.5px;padding:0 3px;letter-spacing:-.2px}
+.top .pribbon.hdr button:first-child{flex:0 0 auto}
 .daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
@@ -670,7 +671,6 @@ button{cursor:pointer}
   <section id="pgCal" class="page">
     <header class="top"><nav class="tnav"></nav>
       <div class="pribbon hdr" id="projBar"></div><b id="calProj" hidden></b>
-      <nav class="seg"><a id="lnkFdt" href="./feuille.html">Feuille de temps</a><button class="on" type="button">Journal de chantier</button><a href="./echeancier.html">Échéancier</a><a href="./materiaux.html">Matériaux</a><a href="./aide.html">Aide</a></nav>
     </header>
     <div class="cal-wrap">
       
@@ -920,25 +920,34 @@ let tT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('sh
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){e.preventDefault();go(b.dataset.go)}});
 
 /* ---------- calendrier ---------- */
+function pickProject(then){
+  const ov=$('#ovl');ov.hidden=false;
+  ov.innerHTML=`<div class="sigbox"><h2>Quel projet ?</h2><p>${esc(dayLbl(U.date))}</p><div class="pchips" style="gap:8px">${PROJECTS.map(p=>`<button class="chip ${p===S.project?'on':''}" data-pp="${esc(p)}" style="min-height:48px;font-size:15px">${esc(p)}</button>`).join('')}</div><div class="row"><button class="btn" id="ppCancel">Annuler</button></div></div>`;
+  ov.onclick=e=>{if(e.target.id==='ppCancel'||e.target===ov){ov.hidden=true;return}const b=e.target.closest('[data-pp]');if(b){S.project=b.dataset.pp;S.viewAll=false;save();ov.hidden=true;then()}};
+}
 function renderCal(){
   $('#calProj').textContent=S.project;
-  $('#projBar').innerHTML=PROJECTS.map(p=>`<button class="${p===S.project?'on':''}" data-proj="${esc(p)}">${esc(p)}</button>`).join('');
+  $('#projBar').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj="__all">Tous</button>`+PROJECTS.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj="${esc(p)}">${esc(p)}</button>`).join('');
   const a=parse(S.month);$('#monthTitle').textContent=MONTHS[a.getMonth()]+' '+a.getFullYear();
   const start=new Date(a);start.setDate(1-a.getDay());
   let h=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map((w,i)=>`<div class="cal-wd ${i===0||i===6?'we':''}">${w}</div>`).join('');
   for(let i=0;i<42;i++){
-    const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d),k=S.project+'|'+ds,D=S.days[k];
-    const n=D?D.entries.length:0,np=D?D.photos.length:0,has=n||np;
-    const st=D&&D.status==='approved'?'ok':has?'draft':'';
-    const lbl=st==='ok'?`<span class="st" style="color:var(--green-dark)">Approuvé${D.rev?' · rév. '+D.rev:''}</span>`:st==='draft'?'<span class="st" style="color:var(--amber)">En cours</span>':'';
+    const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);
+    const Ds=(S.viewAll?PROJECTS:[S.project]).map(p=>S.days[p+'|'+ds]).filter(Boolean),D=S.viewAll?null:Ds[0];
+    const n=Ds.reduce((t,x)=>t+x.entries.length,0),np=Ds.reduce((t,x)=>t+x.photos.length,0),has=n||np;
+    const anyDraft=Ds.some(x=>x.status!=='approved'&&(x.entries.length||x.photos.length)),anyOk=Ds.some(x=>x.status==='approved');
+    const st=anyDraft?'draft':anyOk?'ok':'';
+    const lbl=st==='ok'?`<span class="st" style="color:var(--green-dark)">Approuvé${D&&D.rev?' · rév. '+D.rev:''}</span>`:st==='draft'?'<span class="st" style="color:var(--amber)">En cours</span>':'';
     const meta=has?`<span class="mt">${n} entrée${n>1?'s':''}${np?' · '+np+' photo'+(np>1?'s':''):''}</span>`:'';
     h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${lbl}${meta}</button>`;
   }
   $('#calGrid').innerHTML=h;
 }
 $('#pgCal').addEventListener('click',e=>{
-  const p=e.target.closest('[data-proj]');if(p){S.project=p.dataset.proj;save();renderCal();return}
-  const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;go(locked()?'read':'entry')}
+  const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
+  const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
+    if(S.viewAll){pickProject(()=>go(locked()?'read':'entry'));return}
+    go(locked()?'read':'entry')}
 });
 
 $('#mPrev').onclick=()=>{const a=parse(S.month);S.month=fmt(new Date(a.getFullYear(),a.getMonth()-1,1));save();renderCal()};
@@ -963,7 +972,7 @@ function closeWin(){resetDraft();$('#win').hidden=true;renderEntry()}
 $('#winClose').onclick=closeWin;
 
 function renderEntry(){
-  $('#projBar2').innerHTML=PROJECTS.map(p=>`<button class="${p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
+  $('#projBar2').innerHTML=`<button data-proj2="__all">Tous</button>`+PROJECTS.map(p=>`<button class="${p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
   const D=day();
   $('#entrySub').textContent=S.project+' · '+dayLbl(U.date)+(D.rev?' · révision '+D.rev:'');
   $('#dayLbl').textContent=dayLbl(U.date)+(D.photos.length?' · '+D.photos.length+' photo'+(D.photos.length>1?'s':''):'');
@@ -991,7 +1000,7 @@ function tagText(e){
 }
 const fmtH=h=>String(Math.round((h||0)*10)/10).replace('.',',');
 
-$('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj2]');if(!b)return;S.project=b.dataset.proj2;save();resetDraft();renderEntry()});
+$('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj2]');if(!b)return;if(b.dataset.proj2==='__all'){S.viewAll=true;save();go('cal');return}S.project=b.dataset.proj2;S.viewAll=false;save();resetDraft();renderEntry()});
 $('#rows').addEventListener('click',e=>{
   if(e.target.id==='demo'){loadDemo();return}
   const r=e.target.closest('[data-row]');

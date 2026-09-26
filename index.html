@@ -663,7 +663,10 @@ button{cursor:pointer}
 .daylbl{padding:10px 16px 0;text-align:center;font-size:14px;font-weight:800;color:var(--deep)}
 .jtag.plan{border:1.5px dashed var(--green)!important;background:#fff!important;color:var(--green-dark)!important;padding:0 14px!important;cursor:pointer}
 .grid{width:100%;display:flex;flex-direction:column;gap:6px}
-.grow{display:grid;grid-template-columns:118px repeat(var(--n),minmax(0,1fr));gap:6px;align-items:stretch}
+.grow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px;align-items:stretch}
+.rows.gmode{padding:10px 12px;align-items:stretch}
+.grep{height:34px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:12.5px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grep.wip{border-color:var(--amber);color:var(--amber)}.grep.ok{background:var(--green);color:#fff}
 .gl2{display:flex;align-items:center;font-size:13px;font-weight:850;color:var(--deep);padding-left:4px}
 .gh{border:2px solid var(--green);border-radius:16px;background:#fff;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
 .gh b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;color:var(--deep)}
@@ -674,7 +677,7 @@ button{cursor:pointer}
 .gtag{border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:11.5px;font-weight:750;padding:5px 9px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .gtag b{font-size:10px;color:var(--green)}
 .gtag.plan{border-style:dashed}
-.gadd{margin-top:auto;align-self:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:18px;font-weight:800}
+.gadd{margin-top:auto;height:32px;border-radius:999px;border:1.5px solid var(--green-line);background:#f5fbf7;color:var(--green-dark);font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
 .gfdt{border:2px solid var(--green);border-radius:14px;background:#fff;color:var(--deep);font-size:14px;font-weight:850;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .gfdt small{font-size:11px;color:var(--muted);font-weight:700}.gfdt.ok{background:#f5fbf7;color:var(--green-dark)}
 .pbar{height:64px;flex-shrink:0;display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:8px;align-items:center;padding:0 12px;background:#fff;border-bottom:1px solid var(--line)}
@@ -685,7 +688,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 17 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-14</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 06</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-15</span></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1018,21 +1021,21 @@ function renderGrid(){
     if(k==='st'&&D.status!=='approved')plannedToday().forEach(x=>{h+=`<button class="gtag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</button>`});
     return h};
   const head=P.map(p=>{S.project=p;const D=day(),n=D.entries.length,ok=D.status==='approved';
-    return `<div class="gh"><b>${esc(p)}</b><span class="${ok?'ok':n?'wip':''}">${ok?'✓ Approuvé':n?n+' entrée'+(n>1?'s':''):'Vide'}</span><button class="btn ${ok?'out':'pri'} sm" data-grep="${esc(p)}">${ok?'Voir le rapport':'Rapport'}</button></div>`}).join('');
+    return `<button class="grep ${ok?'ok':n?'wip':''}" data-grep="${esc(p)}">${ok?'✓ Rapport approuvé':'Rapport · '+(n?n+' entrée'+(n>1?'s':''):'vide')}</button>`}).join('');
   const anyF=P.some(p=>(S.days[p+'|'+U.date]||{}).fdt);
-  let body=`<div class="grow"><div class="gl2">Employés</div><button class="gfdt ${anyF?'ok':''}" data-gfdt="1" style="grid-column:2 / span ${P.length}">${anyF?'✓ Feuille de temps remplie':'Feuille de temps de la journée — tous les projets'}<small>Approuvée à la semaine</small></button></div>`;
+  let body=`<div class="grow"><button class="gfdt ${anyF?'ok':''}" data-gfdt="1" style="grid-column:1 / span ${P.length}">${anyF?'✓ Feuille de temps remplie':'Feuille de temps de la journée — tous les projets'}<small>Approuvée à la semaine</small></button></div>`;
   JROWS.filter(r=>r[0]!=='fdt').forEach(([k,,label])=>{
-    body+=`<div class="grow"><div class="gl2">${label}</div>${P.map(p=>{const t=cellTags(p,k),lk=(S.days[p+'|'+U.date]||{}).status==='approved';
-      return `<div class="gcell ${lk?'lk':''}" data-cp="${esc(p)}">${t}${lk?'':`<button class="gadd" data-row="${k}" aria-label="Ajouter · ${esc(p)}">＋</button>`}</div>`}).join('')}</div>`});
+    body+=`<div class="grow">${P.map(p=>{const t=cellTags(p,k),lk=(S.days[p+'|'+U.date]||{}).status==='approved';
+      return `<div class="gcell ${lk?'lk':''}" data-cp="${esc(p)}">${t}${lk?'':`<button class="gadd" data-row="${k}" aria-label="Ajouter · ${esc(p)}">＋ ${esc(label.replace(' et rencontres','').replace(' et incidents',''))}</button>`}</div>`}).join('')}</div>`});
   S.project=cur;
-  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow ghead"><div class="gl2"></div>${head}</div>${body}</div>`;
-  $('#finish').hidden=true;
+  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow ghead">${head}</div>${body}</div>`;
+  $('#finish').hidden=true;$('#rows').classList.add('gmode');
 }
 function renderEntry(){
   if(!ACTIVE().includes(S.project))S.project=ACTIVE()[0];
   $('#projBar2').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj2="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
-  $('#finish').hidden=false;
-  if(S.viewAll){$('#dayLbl').textContent=dayLbl(U.date)+' · tous les projets actifs';renderGrid();if(!$('#win').hidden)renderWin();return}
+  $('#finish').hidden=false;$('#rows').classList.remove('gmode');
+  if(S.viewAll){$('#dayLbl').textContent=dayLbl(U.date);renderGrid();if(!$('#win').hidden)renderWin();return}
   const D=day();
   $('#entrySub').textContent=S.project+' · '+dayLbl(U.date)+(D.rev?' · révision '+D.rev:'');
   $('#dayLbl').textContent=dayLbl(U.date)+(D.photos.length?' · '+D.photos.length+' photo'+(D.photos.length>1?'s':''):'');

@@ -651,6 +651,16 @@ button{cursor:pointer}
 .pribbon button:first-child{border-left:0}
 .pribbon button.on{background:var(--green);color:#fff}
 .pribbon.in{margin:12px 16px 0}
+/* ===== règle des étiquettes : pilule d'une ligne, active = pleine, inactive = blanche avec contour ===== */
+.chip,.vlist1 .chip,.vlist2 .chip,.vlist2.sm .chip,.vbig .chip,.vlist3 .chip,.mats .chip,.pchips .chip,.fb .chip,.zpick .chip,.chip.zc,
+.phase-btn,.phase-btn.sm,.segv button,.segh button,.tseg button,.otag,.cm-item,.jtag{
+  border-radius:999px!important;border:1.5px solid var(--green)!important;background:#fff!important;color:var(--green-dark)!important;
+  min-height:38px!important;padding:6px 14px!important;line-height:1.2!important;box-shadow:none!important;text-align:left}
+.chip.fav{background:#fff!important}
+.chip.on,.phase-btn.on,.segv button.on,.segh button.on,.tseg button.on,.otag.done,.otag.sel{background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
+.phase-btn small{display:none}
+.chip.bc{border-width:2.5px!important}
+.chip:disabled,.cm-item:disabled{opacity:.45}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>

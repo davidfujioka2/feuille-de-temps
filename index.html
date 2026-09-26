@@ -52,7 +52,7 @@ button{cursor:pointer}
 .cal-head h1{margin:0;font-size:20px;font-weight:800;min-width:210px;text-align:center;text-transform:capitalize}
 .legend{margin-left:auto;display:flex;gap:14px;font-size:12px;color:var(--muted)}
 .legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:5px;display:inline-block}
-.cal-grid{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:auto;grid-auto-rows:minmax(0,1fr);border-top:1px solid var(--line)}
+.cal-grid{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 170px;grid-template-rows:auto;grid-auto-rows:minmax(0,1fr);border-top:1px solid var(--line)}
 .cal-wd{padding:8px 10px;font-size:12px;font-weight:800;color:var(--muted);background:#fafbfa;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
 .cal-wd.we{background:#eceff1}
 .cal-day{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 10px;border:0;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:var(--surface);text-align:left}
@@ -701,11 +701,17 @@ button{cursor:pointer}
 
 .gstat{text-align:center;font-size:15px;font-weight:850;color:var(--muted);padding-bottom:2px}.gstat.wip{color:var(--amber)}.gstat.ok{color:var(--green-dark)}
 .stag.ok{background:var(--green);color:#fff}
+.pgcode{position:absolute;left:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:850;color:#173d2d}
+.pgcode:empty{display:none}
+.cal-wd.fw{background:var(--green-soft);color:var(--green-dark);border-left:2px solid var(--green)}
+.cal-fw{border:0;border-left:2px solid var(--green);border-top:1px solid var(--line);background:#f7fbf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;cursor:pointer}
+.cal-fw b{font-size:12.5px;font-weight:850;color:var(--green-dark);border:1.5px solid var(--green);border-radius:999px;padding:6px 12px;background:#fff}
+.cal-fw span{font-size:12px;font-weight:800;color:var(--muted)}.cal-fw.draft span{color:var(--amber)}.cal-fw.ok b{background:var(--green);color:#fff}.cal-fw.ok span{color:var(--green-dark)}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 41</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-26</span></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 49</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-28</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -990,7 +996,10 @@ function renderCal(){
   $('#projBar').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj="${esc(p)}">${esc(p)}</button>`).join('');
   const a=parse(S.month);$('#monthTitle').textContent=MONTHS[a.getMonth()]+' '+a.getFullYear();
   const start=new Date(a);start.setDate(1-a.getDay());
-  let h=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map((w,i)=>`<div class="cal-wd ${i===0||i===6?'we':''}">${w}</div>`).join('');
+  let h=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map((w,i)=>`<div class="cal-wd ${i===0||i===6?'we':''}">${w}</div>`).join('')+'<div class="cal-wd fw">Feuille de temps</div>';
+  let FT={};try{FT=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
+  const wkSt=ws=>{if((FT.weekSigned||{})[ws])return ['ok','Signée'];if((FT.weekApproved||{})[ws])return ['ok','Approuvée'];
+    const d0=parse(ws);for(let j=0;j<7;j++){const x=new Date(d0);x.setDate(d0.getDate()+j);if(((FT.added||{})[fmt(x)]||[]).length)return ['draft','En cours']}return ['','Vide']};
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);
     const Ds=(S.viewAll?ACTIVE():[S.project]).map(p=>S.days[p+'|'+ds]).filter(Boolean),D=S.viewAll?null:Ds[0];
@@ -999,12 +1008,15 @@ function renderCal(){
     const st=anyDraft?'draft':anyOk?'ok':'';
     const lbl=st==='ok'?`<span class="st" style="color:var(--green-dark)">Approuvé${D&&D.rev?' · rév. '+D.rev:''}</span>`:st==='draft'?'<span class="st" style="color:var(--amber)">En cours</span>':'';
     const meta=has?`<span class="mt">${n} entrée${n>1?'s':''}${np?' · '+np+' photo'+(np>1?'s':''):''}</span>`:'';
+    if(i%7===0)var wsKey=ds;
     h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${lbl}${meta}</button>`;
+    if(i%7===6){const [c,t]=wkSt(wsKey);h+=`<button class="cal-fw ${c}" data-fweek="${wsKey}"><b>Feuille de temps</b><span>${t}</span></button>`}
   }
   $('#calGrid').innerHTML=h;
 }
 $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
+  const fw=e.target.closest('[data-fweek]');if(fw){location.href='./feuille.html?w='+fw.dataset.fweek;return}
   const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
     if(S.viewAll){go('entry');return}
     go(locked()?'read':'entry')}
@@ -1739,6 +1751,10 @@ function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U
   const R=['pho','prm'],d=dayLbl(U.date),h=TNAV.filter(x=>!R.includes(x[0])).map(it).join('')+`<span class="tfill"></span>`+TNAV.filter(x=>R.includes(x[0])).map(it).join('');$$('.tnav').forEach(n=>n.innerHTML=h);
   const SN={cal:'Calendrier',entry:'Journal de chantier',read:'Rapport journalier',photos:'Photos',ph:'Photos',cam:'Photos',rev:'Photos',gal:'Photos',prm:'Paramètres'};
   const nm=act==='liv'?'Livraison':(SN[U.page]||''),dt=U.page==='entry'||U.page==='read'?d:dayLbl(fmt(today));
+  const PC={cal:'A1 · Calendrier',read:'J7 · Rapport journalier',photos:'PH1 · Photos du journal',ph:'PH2 · Photos',cam:'PH3 · Appareil photo',rev:'PH4 · Tri des photos',gal:'PH5 · Galerie',prm:'R1 · Paramètres'};
+  const WC={st:'J3 · Sous-traitants',liv:'J4 · Livraisons',reu:'J5 · Réunions',evt:'J6 · Événements'};
+  let pc=PC[U.page]||'';if(U.page==='entry')pc=!$('#win').hidden&&WC[U.winSec]?WC[U.winSec]:S.viewAll?'J1 · Journal · tous les projets':'J2 · Journal · '+S.project;
+  const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
   if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});

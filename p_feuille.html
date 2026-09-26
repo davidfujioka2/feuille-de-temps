@@ -1770,7 +1770,8 @@ $('#toCalBtn').onclick=()=>go('calendar');
 
 renderAll();
 </script>
-
+<script>addEventListener('load',()=>{const d=new URLSearchParams(location.search).get('d');
+  if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d)){try{state.selectedDate=d;state.viewAnchor=new Date(d+'T12:00');go('projects')}catch(e){}}})</script>
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}
 html.phone .ipad{border-radius:0!important;box-shadow:none!important;margin:0 auto!important}

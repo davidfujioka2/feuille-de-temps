@@ -715,11 +715,23 @@ button{cursor:pointer}
 .c5top .wk.row .lbl{margin:0!important;text-align:right}.c5top .wk.row .hint{grid-column:1 / span 2;text-align:center}
 .c5top .wk.row .cnt button,.c5top .wk.row .hrs button{width:38px;height:38px}
 .c5bot.wait .cm{opacity:.55}
+#rows.expand{animation:colexp .45s cubic-bezier(.2,.8,.2,1);transform-origin:var(--ox,50%) 0}
+@keyframes colexp{from{transform:scaleX(.2);opacity:.35}to{transform:none;opacity:1}}
+#pgEntry[data-sec] #rows .jrow2{display:none}
+#pgEntry[data-sec="st"] #rows .jrow2[data-k="st"],#pgEntry[data-sec="liv"] #rows .jrow2[data-k="liv"],#pgEntry[data-sec="reu"] #rows .jrow2[data-k="reu"],#pgEntry[data-sec="evt"] #rows .jrow2[data-k="evt"]{display:flex;width:100%}
+#pgEntry[data-sec] #rows{padding-top:8px;overflow:hidden}
+#pgEntry[data-sec] .jrow2-h{min-height:52px;background:var(--green);color:#fff}
+#pgEntry[data-sec] .jrow2-t{max-height:48px;overflow:hidden}
+#pgEntry[data-sec] .win-h{display:none}
+#pgEntry[data-sec] .jrow2-h::after{content:'  ✕';font-size:16px;opacity:.8}
+#pgEntry[data-sec] .jrow2-t{padding:0}
+#pgEntry[data-sec] .jrow2-t:has(.jtag){padding:0 16px 10px}
+#pgEntry[data-sec] .win{padding-top:6px;animation:slideup .35s ease-out}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 18 h 52</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-29</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 19 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-30</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1047,8 +1059,11 @@ const phasesOf=c=>S.phaseMap[c]||[];
 const JROWS=[['fdt',1,'Employés','Feuille de temps du jour'],['st',2,'Sous-traitants','Par phase du projet'],['liv',3,'Livraisons','Commandes envoyées et reçues'],['reu',4,'Réunions et rencontres','Intervenants, sujets, horaire'],['evt',5,'Événements et incidents','Visites, conformité, incidents']];
 
 function resetDraft(){Object.assign(U,{sec:null,vals:{},step:0,text:'',editIndex:null,labour:false,W:null})}
-function openWin(){$('#win').hidden=false;drawTnav()}
-function closeWin(){resetDraft();$('#win').hidden=true;renderEntry();drawTnav()}
+function openWin(){const k=U.winSec,pg=$('#pgEntry');
+  if(k&&k!=='fdt'&&!S.viewAll){pg.dataset.sec=k;const r=$('#rows .jrow2[data-k="'+k+'"]');
+    if(r){let el=r,y=0;while(el&&el.id!=='ipad'){y+=el.offsetTop;el=el.offsetParent}$('#win').style.top=(y+r.offsetHeight+6)+'px'}}
+  $('#win').hidden=false;drawTnav()}
+function closeWin(){resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){
@@ -1084,9 +1099,10 @@ function renderEntry(){
       const pl=k==='st'&&!locked()?plannedToday():[];
       tags+=pl.map(x=>`<button class="jtag plan" data-plan="${esc(x.id)}" title="Planifié : ${esc(x.ac)}">＋ ${esc(x.ac)} · ${esc(x.st)}${x.z?' · '+esc(x.z):''}</button>`).join('');
       if(!tags)tags='<span class="none">Aucune entrée</span>'}
-    return `<div class="jrow2"><button class="jrow2-h" data-row="${k}">${label}</button><div class="jrow2-t">${tags}</div></div>`;
+    return `<div class="jrow2" data-k="${k}"><button class="jrow2-h" data-row="${k}">${label}</button><div class="jrow2-t">${tags}</div></div>`;
   }).join('')+(D.entries.length||D.fdt?'':`<div style="text-align:center;padding:6px"><button class="btn out" id="demo">Charger un exemple</button></div>`);
   if(!$('#win').hidden)renderWin();
+  const R=$('#rows');R.classList.remove('expand');if(U.expandFrom!=null){R.style.setProperty('--ox',(U.expandFrom*100)+'%');void R.offsetWidth;R.classList.add('expand');U.expandFrom=null}
 }
 function tagText(e){
   const short=t=>t&&t.length>48?t.slice(0,48)+'…':t;
@@ -1105,11 +1121,15 @@ $('#projBar2').addEventListener('click',e=>{const b=e.target.closest('[data-proj
 $('#rows').addEventListener('click',e=>{
   const gf=e.target.closest('[data-gfdt]');if(gf){location.href='./feuille.html?d='+U.date;return}
   const gr=e.target.closest('[data-grep]');if(gr){S.project=gr.dataset.grep;S.viewAll=false;save();U.spread=0;go('read');return}
-  const cp=e.target.closest('[data-cp]');if(cp){S.project=cp.dataset.cp;if(locked()){S.viewAll=false;save();go('read');return}}
+  const cp=e.target.closest('[data-cp]');if(cp){S.project=cp.dataset.cp;if(locked()){S.viewAll=false;save();go('read');return}
+    if(S.viewAll){const P=ACTIVE();U.expandFrom=(P.indexOf(S.project)+.5)/P.length;S.viewAll=false;save();drawPbar();
+      if(e.target.closest('[data-gfdt]'))return;
+      renderEntry();drawTnav();if(!e.target.closest('[data-row]'))return}}
   const pb=e.target.closest('[data-plan]');if(pb){const x=plannedToday().find(p=>p.id===pb.dataset.plan);if(!x)return;
     saveEntry({sec:'st',a:x.st,b:x.ac,phase:PH_MAP[x.phase]||'rough',workers:1,hours:8,c:x.z||'',text:x.cm||'',planId:x.id});renderEntry();toast('Activité planifiée ajoutée');return}
   if(e.target.id==='demo'){loadDemo();return}
   const r=e.target.closest('[data-ea]')?null:e.target.closest('[data-row]');
+  if(r&&$('#pgEntry').dataset.sec===r.dataset.row&&!$('#win').hidden){closeWin();return}
   if(r&&r.dataset.row==='fdt'){location.href='./feuille.html?d='+U.date;return}
   if(r){const k=r.dataset.row;resetDraft();
     if(k==='fdt')U.labour=true;
@@ -1755,7 +1775,7 @@ const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
 function drawPbar(){const P=ACTIVE(),h=P.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-pb="${esc(p)}">${esc(p)}</button>`).join('');$$('.pbar').forEach(n=>{n.innerHTML=h;n.style.setProperty('--n',P.length)})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const p=b.dataset.pb;
-  if(!S.viewAll&&S.project===p)S.viewAll=true;else{S.viewAll=false;S.project=p}save();drawPbar();
+  if(!S.viewAll&&S.project===p)S.viewAll=true;else{if(S.viewAll){const P=ACTIVE();U.expandFrom=(P.indexOf(p)+.5)/P.length}S.viewAll=false;S.project=p}save();drawPbar();
   const pg=U.page;
   if(pg==='cal')renderCal();
   else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}
@@ -1926,7 +1946,7 @@ $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gi
     if(ev.target.id==='gvDel'){dropMedia(m);ov.hidden=true;renderGal();toast('Photo supprimée')}};
 });
 
-function openLiv(){U.date=fmt(today);resetDraft();if(locked()){go('read');toast('Journal du jour approuvé');return}go('entry');U.V=lvNew();U.winSec='liv';openWin();renderWin()}
+function openLiv(){U.date=fmt(today);resetDraft();S.viewAll=false;save();if(locked()){go('read');toast('Journal du jour approuvé');return}go('entry');U.V=lvNew();U.winSec='liv';renderEntry();openWin();renderWin()}
 window.__route=h=>{if(h==='#liv'){openLiv();return}if(h==='#journal'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
 go('cal');
 addEventListener('hashchange',()=>window.__route(location.hash));if(location.hash)window.__route(location.hash);

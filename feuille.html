@@ -1771,7 +1771,7 @@ $('#toCalBtn').onclick=()=>go('calendar');
 renderAll();
 </script>
 <style>.jlink{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:44px;border-radius:12px;border:1px solid #2f8a57;background:#fff;color:#236b43;font-weight:800;font-size:14px;text-decoration:none;padding:0 12px}</style>
-<script>document.addEventListener('DOMContentLoaded',()=>{const s=document.querySelector('.cal-side');if(s&&!s.querySelector('.jlink')){const a=document.createElement('a');a.href='./';a.className='jlink';a.textContent='Journal de chantier ›';s.appendChild(a)}});</script>
+<script>document.addEventListener('DOMContentLoaded',()=>{const s=document.querySelector('.cal-side');if(s&&!s.querySelector('.jlink')){const a=document.createElement('a');a.href='./';a.className='jlink';a.textContent='Journal de chantier ›';s.appendChild(a);const b=document.createElement('a');b.href='./echeancier.html';b.className='jlink';b.textContent='Échéancier ›';s.appendChild(b)}});</script>
 
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}

@@ -836,7 +836,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 23</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-27</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 25</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-28</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1201,7 +1201,7 @@ function renderFdt(){
     if(/^Calendrier/.test(lbl))finish()}
   function finish(){if(done)return;done=true;clearInterval(U.fdtT);let A=[];try{A=fr.contentWindow.fdt.added()}catch(e){}
     const cur=S.project;(A.length?A:[cur]).forEach(p=>{const D=S.days[p+'|'+U.date] ||= {entries:[],photos:[],status:'draft',rev:0,history:[]};D.fdt=true});save();
-    ftagChips();$('#win').style.visibility='hidden';setTimeout(()=>{$('#win').style.visibility='';S.viewAll=true;save();closeWin();drawPbar();drawTnav()},1200)}
+    ftagChips();$('#win').style.visibility='hidden';setTimeout(()=>{$('#win').style.visibility='';S.viewAll=false;save();closeWin();drawPbar();drawTnav()},1200)}
   clearInterval(U.fdtT);U.fdtT=setInterval(sync,400);
 }
 function jpos(el){let y=0;while(el&&el.id!=='ipad'){y+=el.offsetTop;el=el.offsetParent}return y}
@@ -1355,7 +1355,7 @@ function saveEntry(e){
   const D=day();
   if(U.editIndex!=null){e.id=D.entries[U.editIndex].id;D.entries[U.editIndex]=e}else{e.id='e'+Date.now().toString(36);D.entries.push(e)}
   U.last=e;U.justAdded=true;save();
-  if(U.ftag){ftagChips();$('#win').style.visibility='hidden';setTimeout(()=>{$('#win').style.visibility='';S.viewAll=true;save();closeWin();drawPbar();drawTnav()},1200);return}
+  if(U.ftag){ftagChips();$('#win').style.visibility='hidden';setTimeout(()=>{$('#win').style.visibility='';S.viewAll=false;save();closeWin();drawPbar();drawTnav()},1200);return}
   closeWin();
   clearTimeout(U.jt);U.jt=setTimeout(()=>{U.justAdded=false},1200);
 }
@@ -1677,7 +1677,7 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvrecv'){lvRecv();return}
   if(a==='lvfull'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value.trim()});V.recv.forEach(l=>{l.done=true;l.missing=0});U.lvPartText='';lvRecv();return}
   if(a==='lvpart'){U.lvPartText=($('#lvPartNote').value||'').trim();lvRecv();return}
-  if(a==='lvclose'){S.viewAll=true;save();closeWin();drawPbar();drawTnav();return}
+  if(a==='lvclose'){S.viewAll=false;save();closeWin();drawPbar();drawTnav();return}
   // réunions
   const R=U.R;
   if(a==='ruwho'){R.who=b.dataset.v;if(!S.usedInter.includes(R.who)){S.usedInter.push(R.who);save()}if(R.phase)R.step=U.editIndex!=null?'comment':'subj';renderReu();return}

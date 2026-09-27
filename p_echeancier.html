@@ -16,12 +16,20 @@
   input,textarea{padding:0 8px}
   button{cursor:pointer;color:#236b43;border-color:#236b43;font-weight:500}
   button:hover{background:#eaf6ef}
+  #lay{display:flex;gap:14px;align-items:flex-start;padding:12px 12px 0}
+  #alloc{flex:0 0 210px;display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid #dfe4e1;border-radius:18px;padding:14px}
+  #alloc h3{margin:0;font-size:15px;font-weight:800;color:#173d2d}
+  #allocT{display:flex;flex-direction:column;gap:10px}
+  #allocT button{min-height:64px;border-radius:999px;border:2px solid var(--pc);background:#fff;color:var(--pt);font-size:16px;font-weight:800;cursor:pointer;padding:0 16px}
+  #allocT button.on{background:var(--pc);color:var(--pf)}
+  #alloc p{margin:4px 0 0;font-size:12px;color:#5b6470;line-height:1.4}
+  #lay #w{flex:1;min-width:0;padding:0!important}
 </style>
-<style>#w{max-width:none!important;padding:0!important}#w>svg{height:100vh!important;width:auto!important;max-width:100%;margin:0 auto}</style><style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style></head>
+<style>#w{max-width:none!important;padding:0!important}#w>svg{width:100%!important;height:auto!important}</style><style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style></head>
 <body>
 <h1 class="sr-only">Échéancier</h1>
-<nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="on" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="" href="./aide.html">Aide</a></nav>
-<div id="w"></div>
+<div id="lay"><aside id="alloc"><h3>Allouer des ressources</h3><div id="allocT"></div><p>Choisir une phase pour lui attribuer sous-traitants, fournisseurs, actions et matériaux.</p></aside><nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="on" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="" href="./aide.html">Aide</a></nav>
+<div id="w"></div></div>
 <script>
 let PROJ='2575 Aird';try{PROJ=(JSON.parse(localStorage.getItem('journalChantier_v1'))||{}).project||PROJ}catch(e){}
 const PLAN_KEY='chantierPlan_v1';
@@ -164,7 +172,7 @@ function weekView(){
   if(lk)h+=`<g pointer-events="none"><rect x="${(X0+(X1-X0)/2-200).toFixed(1)}" y="${tY+tH/2-22}" width="400" height="44" rx="22" fill="#FFFFFF" stroke="#888780" stroke-width="1.5"/><text x="${(X0+(X1-X0)/2).toFixed(1)}" y="${tY+tH/2+5}" font-size="14" font-weight="500" text-anchor="middle" fill="#2C2C2A">Journal approuvé · aucun ajout ni retrait</text></g>`;
   return{h,bottom:tY+tH}
 }
-function render(){setTimeout(persist,0);
+function render(){setTimeout(persist,0);setTimeout(drawAlloc,0);
   const [a,b]=view,k=(X1-X0)/(b-a),x=i=>X0+(i-a)*k,Y2=Y1+rows.length*RH;
   let full=null;if(det){full=actFull(det.row.t[det.p],0,0,PH[det.p],true,false).h}
   const selH=det?lerp(H,full,u):H;
@@ -296,6 +304,11 @@ W.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)re
   if(c==='L')growL(o.t,+a2);
   render();
 });
+function drawAlloc(){const el=document.getElementById('allocT');if(!el)return;
+  el.innerHTML=PH.map((P,i)=>`<button data-ph="${i}" class="${det&&det.p===i?'on':''}" style="--pc:${P.s!=='none'?P.s:P.f};--pf:${P.s!=='none'?P.d:P.t};--pt:${P.s!=='none'?P.d:P.f}">${P.n}</button>`).join('')}
+document.getElementById('allocT').addEventListener('click',e=>{const b=e.target.closest('[data-ph]');if(!b)return;const p=+b.dataset.ph;
+  if(det){det.p=p;render();drawAlloc();return}edit=false;mode=mode==='w'?'g':mode;det={row:rows[0],p};u=0;animDet(1);drawAlloc()});
+setInterval(drawAlloc,600);
 render();
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script>

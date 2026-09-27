@@ -830,11 +830,13 @@ button{cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
 .lvchoice button.on{background:var(--green);color:#fff}.lvchoice button.on span{color:#e6f4ec}
 #pgEntry.ov .pill2{display:none}
+.cal-day .cst{display:block;font-size:11px;font-weight:800;line-height:1.2;white-space:normal;max-width:100%;text-align:left}
+.cst.ok{color:var(--green-dark)}.cst.wip{color:var(--amber)}.cst.bad{color:var(--red)}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 03</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-20</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 08</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-21</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1123,16 +1125,23 @@ function renderCal(){
   let FT={};try{FT=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
   const wkSt=ws=>{if((FT.weekSigned||{})[ws])return ['ok','Signée'];if((FT.weekApproved||{})[ws])return ['ok','Approuvée'];
     const d0=parse(ws);for(let j=0;j<7;j++){const x=new Date(d0);x.setDate(d0.getDate()+j);if(((FT.added||{})[fmt(x)]||[]).length)return ['draft','En cours']}return ['','Vide']};
+  const CV=S.calView||'cal',PP=S.viewAll?ACTIVE():[S.project],pl=(n,a,b)=>n+' '+(n>1?b:a);
+  const line=(n,a,b,c)=>n?`<span class="cst ${c}">${pl(n,a,b)}</span>`:'';
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);
-    const Ds=(S.viewAll?ACTIVE():[S.project]).map(p=>S.days[p+'|'+ds]).filter(Boolean),D=S.viewAll?null:Ds[0];
-    const n=Ds.reduce((t,x)=>t+x.entries.length,0),np=Ds.reduce((t,x)=>t+x.photos.length,0),has=n||np;
-    const anyDraft=Ds.some(x=>x.status!=='approved'&&(x.entries.length||x.photos.length)),anyOk=Ds.some(x=>x.status==='approved');
-    const st=anyDraft?'draft':anyOk?'ok':'';
-    const lbl=st==='ok'?`<span class="st" style="color:var(--green-dark)">Approuvé${D&&D.rev?' · rév. '+D.rev:''}</span>`:st==='draft'?'<span class="st" style="color:var(--amber)">En cours</span>':'';
-    const meta=has?`<span class="mt">${n} entrée${n>1?'s':''}${np?' · '+np+' photo'+(np>1?'s':''):''}</span>`:'';
+    const Ds=PP.map(p=>S.days[p+'|'+ds]).filter(Boolean);
+    let st='',body='';
+    if(CV==='fdt'){const A=((FT.added||{})[ds]||[]).filter(p=>PP.includes(p)),ok=!!(FT.approved||{})[ds];
+      body=ok?line(A.length,'approuvé','approuvés','ok'):line(A.length,'en cours','en cours','wip');st=A.length?(ok?'ok':'draft'):''}
+    else if(CV==='liv'){const O=S.orders.filter(o=>o.date===ds&&PP.includes(o.project));
+      const toR=O.filter(o=>!o.lines.some(l=>l.done)).length,part=O.filter(o=>o.lines.some(l=>l.done)&&!orderDone(o)).length,rec=O.filter(orderDone).length;
+      const nl=Ds.reduce((t,x)=>t+x.entries.filter(e=>e.sec==='liv'&&e.kind==='note').length,0);
+      body=line(toR,'commande à recevoir','commandes à recevoir','bad')+line(part,'commande partielle','commandes partielles','bad')+line(rec,'commande reçue','commandes reçues','ok')+line(nl,'livraison','livraisons','ok');
+      st=toR||part?'draft':rec||nl?'ok':''}
+    else{const nOk=Ds.filter(x=>x.status==='approved').length,nW=Ds.filter(x=>x.status!=='approved'&&(x.entries.length||x.photos.length||x.fdt)).length;
+      body=line(nOk,'approuvé','approuvés','ok')+line(nW,'en cours','en cours','wip');st=nW?'draft':nOk?'ok':''}
     if(i%7===0)var wsKey=ds;
-    h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${lbl}${meta}</button>`;
+    h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${body}</button>`;
     if(i%7===6){const [c,t]=wkSt(wsKey);h+=`<button class="cal-fw ${c}" data-fweek="${wsKey}"><b>Feuille de temps</b><span>${t}</span></button>`}
   }
   $('#calGrid').innerHTML=h;
@@ -1140,7 +1149,8 @@ function renderCal(){
 $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
   const fw=e.target.closest('[data-fweek]');if(fw){location.href='./feuille.html?w='+fw.dataset.fweek;return}
-  const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
+  const d=e.target.closest('[data-day]');if(d&&S.calView==='fdt'){location.href='./feuille.html?d='+d.dataset.day;return}
+  if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
     S.viewAll=true;save();go('entry');return;
     go(locked()?'read':'entry')}
 });
@@ -1981,7 +1991,7 @@ function saveBackup(){
 
 /* ===================== MENU D'ICÔNES (rangée d'en-tête) ===================== */
 const TNAV_ICO={pho:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',fdt:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',jou:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/>',liv:'<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/>',pla:'<path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/>',prm:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'};
-const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
+const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps',null],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['pla','Planification','./echeancier.html'],['prm','Paramètres',null]];
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
 function drawPbar(){const P=ACTIVE(),h=P.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-pb="${esc(p)}">${esc(p)}</button>`).join('');$$('.pbar').forEach(n=>{n.innerHTML=h;n.style.setProperty('--n',P.length)})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const p=b.dataset.pb;
@@ -1990,17 +2000,18 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!
   if(pg==='cal')renderCal();
   else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}
   else render()});
-function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const it=([k,l,href])=>`<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`;
+function drawTnav(){drawPbar();const act=U.page==='cal'?(S.calView||'cal'):(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const it=([k,l,href])=>`<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`;
   const R=['pho','prm'],d=dayLbl(U.date),h=TNAV.filter(x=>!R.includes(x[0])).map(it).join('')+`<span class="tfill"></span>`+TNAV.filter(x=>R.includes(x[0])).map(it).join('');$$('.tnav').forEach(n=>n.innerHTML=h);
   const SN={cal:'Calendrier',entry:'Journal de chantier',read:'Rapport journalier',photos:'Photos',ph:'Photos',cam:'Photos',rev:'Photos',gal:'Photos',prm:'Paramètres'};
-  const nm=act==='liv'?'Livraison':(SN[U.page]||''),dt=U.page==='entry'||U.page==='read'?d:dayLbl(fmt(today));
+  const CVN={cal:'Calendrier',jou:'Calendrier · Journal de chantier',fdt:'Calendrier · Feuille de temps',liv:'Calendrier · Livraisons'};
+  const nm=U.page==='cal'?CVN[S.calView||'cal']:act==='liv'?'Livraison':(SN[U.page]||''),dt=U.page==='entry'||U.page==='read'?d:dayLbl(fmt(today));
   const PC={cal:'A1 · Calendrier',read:'J7 · Rapport journalier',photos:'PH1 · Photos du journal',ph:'PH2 · Photos',cam:'PH3 · Appareil photo',rev:'PH4 · Tri des photos',gal:'PH5 · Galerie',prm:'R1 · Paramètres'};
   const WC={fdt:'F2 · Feuille de temps',st:'J3 · Sous-traitants',liv:'J4 · Livraisons',reu:'J5 · Réunions',evt:'J6 · Événements'};
   let pc=PC[U.page]||'';if(U.page==='entry')pc=!$('#win').hidden&&WC[U.winSec]?WC[U.winSec]:S.viewAll?'J1 · Journal · tous les projets':'J2 · Journal · '+S.project;
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
-  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();S.viewAll=true;save();go('entry')}});
+  if(k==='cal'||k==='jou'||k==='fdt'||k==='liv'){S.calView=k;save();go('cal');render()}else if(k==='prm')go('prm');else if(k==='pho')go('ph')});
 
 /* ===================== MODULE PHOTOS ===================== */
 S.media=S.media||[];
@@ -2157,7 +2168,7 @@ $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gi
 });
 
 function openLiv(){U.date=fmt(today);resetDraft();S.viewAll=false;save();if(locked()){go('read');toast('Journal du jour approuvé');return}go('entry');U.V=lvNew();U.winSec='liv';renderEntry();openWin();renderWin()}
-window.__route=h=>{if(h==='#liv'){openLiv();return}if(h==='#journal'){U.date=fmt(today);resetDraft();S.viewAll=true;save();go('entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
+window.__route=h=>{const cv={'#liv':'liv','#journal':'jou','#calfdt':'fdt','#cal':'cal'}[h];if(cv){S.calView=cv;save();go('cal');render();return}if(false){}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
 go('cal');
 addEventListener('hashchange',()=>window.__route(location.hash));if(location.hash)window.__route(location.hash);
 })();

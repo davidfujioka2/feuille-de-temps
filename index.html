@@ -821,6 +821,10 @@ button{cursor:pointer}
 .tdg button{width:40px;height:30px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:17px;font-weight:850;line-height:1}
 .tdg button.p{background:var(--green);color:#fff}.tdg button:disabled{opacity:.35}
 .tsum{display:block;text-align:center;color:var(--muted);font-size:12px;margin:4px 0 2px}
+.lvval{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:12px 14px}
+.lvvbar{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.lvvbar .bigbtn{width:auto;min-height:48px;padding:0 22px;font-size:15px}.lvvbar .inp{flex:1;max-width:420px}
+.lvvbar .btn{min-height:48px;padding:0 20px}
 .lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
@@ -830,7 +834,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 48</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-17</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 50</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-18</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1488,7 +1492,10 @@ function renderLiv(){
         <div class="scroll" style="flex:1;min-height:0"><div class="rl3 head"><span>Matériel</span><span>Qté</span><span>Complété</span><span>Manquant</span><span>Commentaire</span></div>${V.recv.map((l,i)=>`<div class="rl3 ${l.done?'ok':''}"><b>${esc(l.mat)}</b><span class="q">${l.qty}</span><button class="chk sm ${l.done?'on':''}" data-fa="rvdone" data-i="${i}" aria-pressed="${l.done}" aria-label="Complété">${l.done?'✓':''}</button><div class="mini"><button data-fa="rvmiss" data-i="${i}" data-d="-1" aria-label="Moins" ${l.missing<=0?'disabled':''}>▼</button><b>${l.missing}</b><button data-fa="rvmiss" data-i="${i}" data-d="1" aria-label="Plus">▲</button></div><input class="inp rvnote" data-i="${i}" value="${esc(l.note||'')}" placeholder="Commentaire" autocomplete="off"></div>`).join('')}</div>
         <button class="bigbtn" data-fa="lvrecv">Terminé</button>`
       :`<span class="empty-t" style="margin:auto;text-align:center">${past.length?'Choisir une commande à gauche.':'Aucune commande enregistrée chez '+esc(V.sup)+' pour ce projet. Pour une livraison sans commande : bouton à gauche.'}</span>`;
-    body=`<div class="cmd3 verify">
+    if(U.lvNoSup&&o){body=`<div class="lvval"><div class="gl">Commande du ${esc(shortDate(o.date))} · ${esc(o.project)} · ${o.lines.length} ligne${o.lines.length>1?'s':''}</div>
+        <div class="scroll" style="flex:1;min-height:0"><div class="rl3 head"><span>Matériel</span><span>Qté</span><span>Complété</span><span>Manquant</span><span>Commentaire</span></div>${V.recv.map((l,i)=>`<div class="rl3 ${l.done?'ok':''}"><b>${esc(l.mat)}</b><span class="q">${l.qty}</span><button class="chk sm ${l.done?'on':''}" data-fa="rvdone" data-i="${i}" aria-pressed="${l.done}" aria-label="Complété">${l.done?'✓':''}</button><div class="mini"><button data-fa="rvmiss" data-i="${i}" data-d="-1" aria-label="Moins" ${l.missing<=0?'disabled':''}>▼</button><b>${l.missing}</b><button data-fa="rvmiss" data-i="${i}" data-d="1" aria-label="Plus">▲</button></div><input class="inp rvnote" data-i="${i}" value="${esc(l.note||'')}" placeholder="Commentaire" autocomplete="off"></div>`).join('')}</div>
+        <div class="lvvbar"><button class="bigbtn" data-fa="lvfull">Commande complète</button><input class="inp" id="lvPartNote" placeholder="Note : ce qui manque ou arrive plus tard" autocomplete="off"><button class="bigbtn alt" data-fa="lvpart">Commande partielle</button><button class="btn" data-fa="lvclose">Fermer</button></div></div>`}
+    else body=`<div class="cmd3 verify">
       <div class="c3l">${pill}
         <div class="pan">
           <div class="gl">Commandes · ${esc(V.sup)}</div>
@@ -1516,7 +1523,7 @@ function lvRecv(){
   o.lines=JSON.parse(JSON.stringify(V.recv));
   const miss=o.lines.filter(l=>!l.done);
   saveEntry({sec:'liv',kind:'recu',a:V.sup,phase:V.phase,orderId:o.id,orderDate:o.date,complete:orderDone(o),
-    b:orderDone(o)?'complète':'manquant : '+miss.map(l=>l.mat+(l.missing?' × '+l.missing:'')+(l.note?' ('+l.note+')':'')).join(', '),c:'',text:''});
+    b:orderDone(o)?'complète':'manquant : '+miss.map(l=>l.mat+(l.missing?' × '+l.missing:'')+(l.note?' ('+l.note+')':'')).join(', '),c:'',text:U.lvPartText||'',items:o.lines.filter(l=>l.done).map(l=>({mat:l.mat,qty:l.qty}))});U.lvPartText='';
 }
 const ctr=(act,val,unit)=>`<div class="ctr"><button data-fa="${act}" data-d="-1" aria-label="Moins" ${val<=0?'disabled':''}>−</button><b>${val}</b><button class="p" data-fa="${act}" data-d="1" aria-label="Plus">+</button>${unit?`<small>${unit}</small>`:''}</div>`;
 function lvSync(){}
@@ -1657,6 +1664,9 @@ $('#flow').addEventListener('click',e=>{
   if(a==='rvdone'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value});const l=V.recv[Number(b.dataset.i)];l.done=!l.done;if(l.done)l.missing=0;renderLiv();return}
   if(a==='rvmiss'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value});const l=V.recv[Number(b.dataset.i)];l.missing=Math.max(0,Math.min(l.qty,l.missing+Number(b.dataset.d)));if(l.missing)l.done=false;renderLiv();return}
   if(a==='lvrecv'){lvRecv();return}
+  if(a==='lvfull'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value.trim()});V.recv.forEach(l=>{l.done=true;l.missing=0});U.lvPartText='';lvRecv();return}
+  if(a==='lvpart'){U.lvPartText=($('#lvPartNote').value||'').trim();lvRecv();return}
+  if(a==='lvclose'){S.viewAll=true;save();closeWin();drawPbar();drawTnav();return}
   // réunions
   const R=U.R;
   if(a==='ruwho'){R.who=b.dataset.v;if(!S.usedInter.includes(R.who)){S.usedInter.push(R.who);save()}if(R.phase)R.step=U.editIndex!=null?'comment':'subj';renderReu();return}

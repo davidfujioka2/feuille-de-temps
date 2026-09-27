@@ -28,25 +28,29 @@
   #vsw{display:flex;gap:0;margin:12px 12px 0;border:2px solid #2f8a57;border-radius:999px;overflow:hidden;width:max-content}
   #vsw button{border:0;background:#fff;color:#236b43;font-size:14px;font-weight:800;padding:10px 22px;cursor:pointer}
   #vsw button.on{background:#2f8a57;color:#fff}
-  #pcal{margin:12px;background:#fff;border:1px solid #dfe4e1;border-radius:18px;padding:12px 14px}
+  html,body{height:100%}
+  #vsw[hidden]{display:none}
+  #pcal{height:calc(100vh - 24px);box-sizing:border-box;margin:12px;background:#fff;border:1px solid #dfe4e1;border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
   #pcal[hidden]{display:none}
-  .pc-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}.pc-h b{font-size:20px;min-width:190px;text-align:center;color:#17202a}
-  .pc-h button{width:40px;height:40px;border:1px solid #dfe4e1;border-radius:10px;background:#fff;font-size:18px;color:#236b43;cursor:pointer}
-  .pc-h span{margin-left:auto;font-size:12px;color:#5b6470}
-  .pc-g{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) 46px 46px;column-gap:0}
-  .pc-dh{font-size:12px;font-weight:800;color:#5b6470;padding:4px 6px;border-bottom:1px solid #dfe4e1}
-  .pc-wk{display:contents}
-  .pc-dn{font-size:12.5px;font-weight:800;color:#17202a;padding:6px 6px 2px;border-top:1px solid #dfe4e1}
-  .pc-dn.o{color:#b5bcc3}.pc-dn.we{background:#f3f5f4}.pc-dn.t span{background:#173d2d;color:#fff;border-radius:999px;padding:1px 7px}
-  .pc-tag{margin:2px 3px;min-height:26px;border-radius:999px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1.5px solid transparent}
-  .pc-none{margin:2px 3px;font-size:11px;color:#b5bcc3;padding:4px 8px}
-  .pc-sp{grid-column:1 / -1;height:6px}
-  .pc-np{margin:10px 0 0;font-size:12.5px;color:#5b6470;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.pc-np button{border:1.5px solid #2f8a57;border-radius:999px;background:#fff;color:#236b43;font-weight:800;font-size:12px;padding:4px 10px;cursor:pointer}
+  .pc-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #dfe4e1}.pc-h b{font-size:20px;min-width:180px;text-align:center;color:#17202a}
+  .pc-h>button{width:44px;height:44px;border:1px solid #dfe4e1;border-radius:12px;background:#fff;font-size:18px;color:#236b43;cursor:pointer}
+  .pc-h span{margin-left:auto;font-size:12.5px;color:#5b6470;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .pc-leg{display:flex;gap:6px;font-style:normal}.pc-leg i{font-style:normal;font-size:11.5px;font-weight:800;border-radius:999px;padding:4px 10px;border:1.5px solid}
+  .pc-npb{border:1.5px solid #2f8a57;border-radius:999px;background:#fff;color:#236b43;font-weight:800;font-size:12px;padding:3px 10px;cursor:pointer}
+  .pc-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid #dfe4e1}
+  .pc-dow div{font-size:12px;font-weight:800;color:#5b6470;padding:8px 10px;background:#fafbfa}.pc-dow div.we{background:#eceff0}
+  .pc-weeks{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
+  .pc-w{min-height:66px;padding-bottom:6px;box-sizing:border-box;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:min-content;align-content:start;row-gap:3px;border-top:1px solid #dfe4e1;
+    background:repeating-linear-gradient(to right,transparent 0,transparent calc(100%/7 - 1px),#dfe4e1 calc(100%/7 - 1px),#dfe4e1 calc(100%/7)),linear-gradient(to right,#f3f5f4 0,#f3f5f4 14.2857%,transparent 14.2857%,transparent 85.714%,#f3f5f4 85.714%)}
+  .pc-tag{position:relative;z-index:1}
+  .pc-dn{font-size:14px;font-weight:800;color:#17202a;padding:8px 10px 2px}
+  .pc-dn.o{color:#b5bcc3}.pc-dn.t span{background:#173d2d;color:#fff;border-radius:999px;padding:2px 8px}
+  .pc-tag{margin:0 3px;min-height:24px;border-radius:999px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1.5px solid transparent}
 </style>
 <style>#w{max-width:none!important;padding:0!important}#w>svg{width:100%!important;height:auto!important}</style><style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style></head>
 <body>
 <h1 class="sr-only">Échéancier</h1>
-<div id="vsw"><button data-v="cal" class="on">Calendrier des projets</button><button data-v="ech">Échéancier du projet</button></div><div id="pcal"></div><div id="lay" hidden><aside id="alloc"><h3>Allouer des ressources</h3><div id="allocT"></div><p>Choisir une phase pour lui attribuer sous-traitants, fournisseurs, actions et matériaux.</p></aside><nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="on" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="" href="./aide.html">Aide</a></nav>
+<div id="vsw"><button data-v="cal">‹ Calendrier des projets</button><button data-v="ech" class="on">Échéancier du projet</button></div><div id="pcal"></div><div id="lay" hidden><aside id="alloc"><h3>Allouer des ressources</h3><div id="allocT"></div><p>Choisir une phase pour lui attribuer sous-traitants, fournisseurs, actions et matériaux.</p></aside><nav class="appnav"><a class="" href="./">Journal de chantier</a><a class="" href="./feuille.html">Feuille de temps</a><a class="on" href="./echeancier.html">Échéancier</a><a class="" href="./materiaux.html">Matériaux</a><a class="" href="./aide.html">Aide</a></nav>
 <div id="w"></div></div>
 <script>
 let PROJ='2575 Aird';try{PROJ=(JSON.parse(localStorage.getItem('journalChantier_v1'))||{}).project||PROJ}catch(e){}
@@ -335,22 +339,18 @@ function planOf(p){try{return (JSON.parse(localStorage.getItem(PLAN_KEY)||'{}')[
 function phaseDay(pl,i){if(!pl||!pl.rows||!work(i))return null;const c=[0,0,0,0];pl.rows.forEach(r=>r.t.forEach((t,k)=>{if(i>=t.s&&i<t.e)c[k]++}));let b=-1,m=0;c.forEach((v,k)=>{if(v>m){m=v;b=k}});return b<0?null:b}
 function dayIdx(d){return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-D0)/DAY)}
 function renderPcal(){const el=document.getElementById('pcal');const m=pcMonth;
-  const start=new Date(m);start.setDate(1-((m.getDay()+6)%7));const MNL=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  let h=`<div class="pc-h"><button data-pc="-1" aria-label="Mois précédent">‹</button><b>${MNL[m.getMonth()]} ${m.getFullYear()}</b><button data-pc="1" aria-label="Mois suivant">›</button><span>Toucher une étiquette pour ouvrir l'échéancier du projet</span></div><div class="pc-g">`;
-  h+=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(x=>`<div class="pc-dh">${x}</div>`).join('');
+  const start=new Date(m);start.setDate(1-m.getDay());const MNL=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const plans=Object.fromEntries(PROJS.map(p=>[p,planOf(p)])),today=ymd(new Date()),PL=PROJS.filter(p=>plans[p]),NP=PROJS.filter(p=>!plans[p]);
+  let h=`<div class="pc-h"><button data-pc="-1" aria-label="Mois précédent">‹</button><b>${MNL[m.getMonth()]} ${m.getFullYear()}</b><button data-pc="1" aria-label="Mois suivant">›</button><em class="pc-leg">${PH.map(P=>`<i style="background:${P.f};color:${P.t};border-color:${P.s!=='none'?P.s:P.f}">${P.n}</i>`).join('')}</em><span>Toucher une étiquette pour ouvrir l'échéancier du projet${NP.length?` · Sans planification : ${NP.map(p=>`<button class="pc-npb" data-pp="${esc(p)}">${esc(p)}</button>`).join('')}`:''}</span></div>`;
+  h+=`<div class="pc-dow">${['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].map((x,k)=>`<div class="${k===0||k===6?'we':''}">${x}</div>`).join('')}</div><div class="pc-weeks">`;
   for(let w=0;w<6;w++){const wd=[...Array(7)].map((_,k)=>{const d=new Date(start);d.setDate(start.getDate()+w*7+k);return d});
-    if(w>0&&wd[0].getMonth()!==m.getMonth()&&wd[0]>m)break;
-    h+=wd.map((d,k)=>`<div class="pc-dn ${d.getMonth()!==m.getMonth()?'o':''} ${k>4?'we':''} ${ymd(d)===today?'t':''}"><span>${d.getDate()}</span></div>`).join('');
-    PL.forEach(p=>{const pl=plans[p];
-      let k=0;while(k<5){const ph=phaseDay(pl,dayIdx(wd[k]));let e=k;while(e+1<5&&phaseDay(pl,dayIdx(wd[e+1]))===ph)e++;
-        if(ph==null)h+=`<div style="grid-column:${k+1} / span ${e-k+1}"></div>`;
-        else{const P=PH[ph],bd=P.s!=='none'?P.s:P.f;h+=`<div class="pc-tag" data-pp="${esc(p)}" style="grid-column:${k+1} / span ${e-k+1};background:${P.f};color:${P.t};border-color:${bd}" title="${esc(p)} – ${P.n}">${esc(p)} – ${P.n}</div>`}
-        k=e+1}
-      h+=`<div style="grid-column:6 / span 2"></div>`});
-    h+='<div class="pc-sp"></div>'}
-  el.innerHTML=h+'</div>'+(NP.length?`<p class="pc-np">Sans planification : ${NP.map(p=>`<button data-pp="${esc(p)}">${esc(p)}</button>`).join('')}</p>`:'')}
-function showView(v){try{sessionStorage.setItem('pl_view',v)}catch(x){}document.querySelectorAll('#vsw button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+    h+='<div class="pc-w">'+wd.map((d,k)=>`<div class="pc-dn ${d.getMonth()!==m.getMonth()?'o':''} ${ymd(d)===today?'t':''}" style="grid-column:${k+1};grid-row:1"><span>${d.getDate()}</span></div>`).join('');
+    PL.forEach((p,r)=>{const pl=plans[p];let k=1;while(k<6){const ph=phaseDay(pl,dayIdx(wd[k]));let e=k;while(e+1<6&&phaseDay(pl,dayIdx(wd[e+1]))===ph)e++;
+        if(ph!=null){const P=PH[ph],bd=P.s!=='none'?P.s:P.f;h+=`<div class="pc-tag" data-pp="${esc(p)}" style="grid-row:${r+2};grid-column:${k+1} / span ${e-k+1};background:${P.f};color:${P.t};border-color:${bd}" title="${esc(p)} – ${P.n}">${esc(p)} – ${P.n}</div>`}
+        k=e+1}});
+    h+='</div>'}
+  el.innerHTML=h+'</div>'}
+function showView(v){try{sessionStorage.setItem('pl_view',v)}catch(x){}try{parent.document.body.classList.toggle('nopbar',v==='cal')}catch(x){}document.getElementById('vsw').hidden=v==='cal';document.querySelectorAll('#vsw button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   document.getElementById('pcal').hidden=v!=='cal';document.getElementById('lay').hidden=v==='cal';if(v==='cal')renderPcal();else render()}
 document.getElementById('vsw').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)showView(b.dataset.v)});
 document.getElementById('pcal').addEventListener('click',e=>{const n=e.target.closest('[data-pc]');if(n){pcMonth=new Date(pcMonth.getFullYear(),pcMonth.getMonth()+Number(n.dataset.pc),1);renderPcal();return}

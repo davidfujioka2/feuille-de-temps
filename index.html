@@ -756,11 +756,27 @@ button{cursor:pointer}
 .mit.on{background:var(--green);border-color:var(--green);color:#fff}.mit em{font-style:normal;background:#fff;color:var(--green-dark);border-radius:999px;padding:0 7px;font-size:11.5px;font-weight:850}
 .oline.q{grid-template-columns:1fr 30px 34px 30px!important}.oline.q button{width:30px;height:30px;border:1.5px solid var(--green);border-radius:50%;background:#fff;color:var(--green-dark);font-size:16px;font-weight:850}
 .oline.q span{text-align:center!important}
+.lvwrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px}
+.lvwrap .pill2{width:100%}
+.lv4{flex:1;min-height:0;display:grid;grid-template-columns:150px 170px minmax(0,1fr) 250px;gap:8px}
+.lvcol{min-height:0;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px}
+.lvstack{display:flex;flex-direction:column;gap:4px;min-height:0}
+.lvc{min-height:34px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:12.5px;font-weight:850;padding:0 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvc.on{background:var(--green);color:#fff}
+.lvcol .mitems{flex:1;min-height:0;align-content:flex-start;overflow:auto}
+.lvq{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0}.lvq.off{opacity:.55}
+.lvq-h{font-size:12.5px;font-weight:850;color:var(--deep);min-height:32px}
+.lvq-n{font-size:30px;font-weight:900;color:var(--green-dark);text-align:center;font-variant-numeric:tabular-nums}
+.lvq .lbl{font-size:10.5px;font-weight:850;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.kp .nb,.kp2 .nb{height:34px;font-size:14px}
+.kp .nb.on{background:var(--green);color:#fff;border-color:var(--green)}
+.kp2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.lvq .bigbtn{margin-top:auto;min-height:48px;font-size:15px}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 11 h 27</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-1</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 11 h 32</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-2</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1172,9 +1188,9 @@ function renderEntry(){
 function tagText(e){
   const short=t=>t&&t.length>48?t.slice(0,48)+'…':t;
   if(e.sec==='st')return [e.a,e.b,e.hours?fmtH(e.hours)+' h':''].filter(Boolean).join(' · ');
-  if(e.sec==='liv'&&e.kind==='envoi')return 'Commande placée · '+e.a;
+  if(e.sec==='liv'&&e.kind==='envoi')return (e.items&&e.items.length===1?e.items[0].mat+' × '+e.items[0].qty:'Commande placée')+' · '+e.a;
   if(e.sec==='liv'&&e.kind==='recu')return 'Reçue · '+e.a+(e.complete?' ✓':'');
-  if(e.sec==='liv'&&e.kind==='note')return 'Reçu sans commande · '+e.a;
+  if(e.sec==='liv'&&e.kind==='note')return 'Reçu · '+(e.items&&e.items.length===1?e.items[0].mat+' × '+e.items[0].qty:'sans commande')+' · '+e.a;
   if(e.sec==='liv')return e.a||'Livraison';
   if(e.sec==='reu')return e.a||'Rencontre';
   if(e.sec==='evt')return [e.a||'Événement',short(e.text)||e.b].filter(Boolean).join(' · ');
@@ -1340,33 +1356,26 @@ function renderLiv(){
   const past2=past.filter(o=>!orderDone(o)).length;
   const pill=`<div class="pill2"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Placer une commande</button><button class="${V.mode==='recu'||V.mode==='note'?'on':''}" data-fa="lvmode" data-v="recu">Réception commande${past2?` <small>${past2}</small>`:''}</button></div>`;
   if(V.mode==='envoi'||V.mode==='note'){const nt=V.mode==='note';
-    const lines=V.items.map((x,i)=>({...x,i})).sort((p,q)=>byFr(p.mat,q.mat));
+    /* catégorie > sous-catégorie > article > quantité ; accepter crée l'étiquette et ramène au journal */
     const descs=[...new Set([...(S.descs||[]),...planFav().mat,...(S.supMats[V.sup]||[])])].sort(byFr);
-    const total=lines.reduce((t,x)=>t+x.qty,0);
-    /* sections (Charpenterie, Isolation…) qui s'ouvrent sur leurs sous-groupes, puis sur les articles en étiquettes */
     const GR=[...(descs.length?[['Récents',[['Récents',descs]]]]:[]),...MATCAT];
-    const qOf=m=>(V.items.find(x=>x.mat===m)||{}).qty||0;
-    const cnt=g=>g[1].reduce((t,sg)=>t+sg[1].filter(m=>qOf(m)).length,0);
-    const macc=GR.map((g,i)=>{const open=V.g===i,n=cnt(g);
-      let h=`<button class="mgrp ${open?'on':''}" data-fa="lvg" data-v="${i}"><b>${esc(g[0])}</b>${n?`<em>${n}</em>`:''}<i>${open?'▴':'▾'}</i></button>`;
-      if(open){const one=g[1].length===1,sj=one?0:V.s,sg=sj!=null?g[1][sj]:null;
-        h+='<div class="msub">'+(one?'':g[1].map((x,j)=>{const n2=x[1].filter(m=>qOf(m)).length;return `<button class="lvt ${sj===j?'on':''}" data-fa="lvs" data-v="${j}">${esc(x[0])}${n2?' · '+n2:''}</button>`}).join(''))
-          +(sg?`<div class="mitems">${sg[1].map(m=>{const q=qOf(m);return `<button class="mit ${q?'on':''}" data-fa="lvadd" data-v="${esc(m)}" data-d="1">${esc(m)}${q?`<em>${q}</em>`:''}</button>`}).join('')}</div>`:'')+'</div>'}
-      return h}).join('');
-    body=`<div class="cmd3">
-      <div class="c3l">${pill}
-        <div class="pan">
-          <div class="gl">${nt?'<button class="backlnk" data-fa="lvmode" data-v="recu">‹ Commandes enregistrées</button> · Livraison sans commande':'Matériaux'}</div>
-          <div class="scroll macc" style="flex:1;min-height:0">${macc}</div>
-          <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Nouveau matériel" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div>
-        </div>
-      </div>
-      <div class="pan light">
-        <div class="gl">${nt?'Reçu':'Commande'} · ${lines.length} ligne${lines.length>1?'s':''}</div>
-        <div class="scroll" style="flex:1;min-height:0">${lines.length?lines.map(x=>`<div class="oline sm q"><b>${esc(x.mat)}</b><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="-1" aria-label="Moins">−</button><span>${x.qty}</span><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="1" aria-label="Plus">+</button></div>`).join(''):'<span class="empty-t">Toucher un article à gauche : chaque toucher ajoute 1.</span>'}</div>
-        ${lines.length?`<div class="osum">Total <b>${total}</b></div>`:''}
+    const g=V.g!=null?GR[V.g]:null,one=g&&g[1].length===1,sj=g?(one?0:V.s):null,sg=g&&sj!=null?g[1][sj]:null;
+    const cats=GR.map((x,i)=>`<button class="lvc ${V.g===i?'on':''}" data-fa="lvg" data-v="${i}">${esc(x[0])}</button>`).join('');
+    const subs=g?(one?`<span class="empty-t">${esc(g[0])}</span>`:g[1].map((x,j)=>`<button class="lvc ${sj===j?'on':''}" data-fa="lvs" data-v="${j}">${esc(x[0])}</button>`).join('')):'<span class="empty-t">Choisir une catégorie.</span>';
+    const its=sg?sg[1].map(m=>`<button class="mit ${V.sel===m?'on':''}" data-fa="lvsel" data-v="${esc(m)}">${esc(m)}</button>`).join(''):'<span class="empty-t">Choisir une sous-catégorie.</span>';
+    const qd2=V.sel?'':'disabled',kp=(vals,act,cur)=>`<div class="kp">${vals.map(n=>`<button class="nb ${cur===n?'on':''}" data-fa="${act}" data-v="${n}" ${qd2}>${n}</button>`).join('')}</div>`;
+    const qcol=`<div class="lvq ${V.sel?'':'off'}"><div class="lvq-h">${V.sel?esc(V.sel):'Choisir un article'}</div><div class="lvq-n">${tot||0}</div>
+        <span class="lbl">Unités</span>${kp([1,2,3,4,5,6,7,8,9],'lvu',V.units)}<span class="lbl">Dizaines</span>${kp([10,20,30,40,50,60,70,80,90],'lvt',V.tens)}
+        <div class="kp2"><button class="nb" data-fa="lvh" ${qd2}>+100${V.hund?' (×'+V.hund+')':''}</button><button class="nb" data-fa="lvq0" ${tot?'':'disabled'}>Effacer</button></div>
         ${nt?`<input class="inp" id="lvNote" placeholder="Détails (optionnel)" autocomplete="off" value="${esc(V.note||'')}">`:''}
-        <button class="bigbtn" data-fa="${nt?'lvnote':'lvsend'}" ${lines.length||nt?'':'disabled'}>Terminé</button>
+        <button class="bigbtn" data-fa="lvqok" ${tot&&V.sel?'':'disabled'}>Accepter la quantité</button></div>`;
+    body=`<div class="lvwrap">${pill}${nt?'<div class="gl" style="margin:2px 0 0"><button class="backlnk" data-fa="lvmode" data-v="recu">‹ Commandes enregistrées</button> · Livraison sans commande</div>':''}
+      <div class="lv4">
+        <div class="lvcol"><div class="gl">Catégorie</div><div class="scroll lvstack">${cats}</div></div>
+        <div class="lvcol"><div class="gl">Sous-catégorie</div><div class="scroll lvstack">${subs}</div></div>
+        <div class="lvcol"><div class="gl">Article</div><div class="scroll mitems">${its}</div>
+          <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Autre article" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div></div>
+        <div class="lvcol">${qcol}</div>
       </div></div>`;
   }else{
     const o=V.recvId&&S.orders.find(x=>x.id===V.recvId);
@@ -1520,7 +1529,7 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvnote'){const t=($('#lvNote')?$('#lvNote').value:'').trim();
     saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:V.items.map(x=>({...x})),b:V.items.map(x=>x.mat+' × '+x.qty).join(', '),c:'',text:t});return}
   if(a==='lvsel'){V.sel=b.dataset.v;V.hund=0;V.tens=0;V.units=0;renderLiv();return}
-  if(a==='lvdescadd'){const t=($('#lvNewDesc').value||'').trim();if(!t)return;if(!S.descs.includes(t))S.descs.push(t);save();renderLiv();return}
+  if(a==='lvdescadd'){const t=($('#lvNewDesc').value||'').trim();if(!t)return;if(!S.descs.includes(t))S.descs.push(t);save();V.g=0;V.s=0;V.sel=t;V.hund=0;V.tens=0;V.units=0;renderLiv();return}
   if(a==='lvqopen'){if(V.sel){V.qpop=true;V.hund=0;V.tens=0;V.units=0;renderLiv()}return}
   if(a==='lvqclose'){V.qpop=false;V.hund=0;renderLiv();return}
   if(a==='lvh'){V.hund=(V.hund||0)+1;renderLiv();return}
@@ -1528,6 +1537,11 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvu'){const n=Number(b.dataset.v);V.units=V.units===n?0:n;renderLiv();return}
   if(a==='lvt'){const n=Number(b.dataset.v);V.tens=V.tens===n?0:n;renderLiv();return}
   if(a==='lvq0'){V.hund=0;V.tens=0;V.units=0;renderLiv();return}
+  if(a==='lvqok'&&(V.mode==='envoi'||V.mode==='note')){const q=(V.hund||0)*100+(V.tens||0)+(V.units||0);if(!q||!V.sel)return;
+    const it={mat:V.sel,qty:q};if(!S.descs.includes(V.sel))S.descs.push(V.sel);
+    if(V.mode==='envoi'){V.items=[it];lvSend()}
+    else saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:[it],b:it.mat+' × '+it.qty,c:'',text:($('#lvNote')?$('#lvNote').value:'').trim()});
+    return}
   if(a==='lvqok'){const q=(V.hund||0)*100+(V.tens||0)+(V.units||0);if(!q)return;const ex=V.items.find(x=>x.mat===V.sel);if(ex)ex.qty=q;else V.items.push({mat:V.sel,qty:q});V.sel=null;V.hund=0;V.tens=0;V.units=0;V.qpop=false;renderLiv();return}
   if(a==='lvrm'){V.items.splice(Number(b.dataset.i),1);renderLiv();return}
   if(a==='lvsend'){lvSend();return}

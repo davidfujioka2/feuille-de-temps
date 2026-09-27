@@ -20,7 +20,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}th,td{bo
 <section><h1>Field App — document du projet</h1><p>Field App Setup: Superintendent iPad App</p>
 <p>Architecture and requirements summary for continuing development in a</p>
 <p>new session.</p>
-<p>Status: design agreed, ready for prototype</p>
+<p>Status: prototype built, deployed and in field testing (27 September 2026)</p>
 <h2>1. Overview</h2>
 <p>The app is an HTML web app hosted on GitHub Pages and installed on the</p>
 <p>superintendent&#x27;s iPad as a Progressive Web App (PWA). After one initial</p>
@@ -213,5 +213,60 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}th,td{bo
 <h2>10. Technical notes for development</h2>
 <table><tr><th>Need</th><th>Suggested technology</th></tr><tr><td>Offline app</td><td>Service worker with cache of all app files; web app manifest for Home Screen install</td></tr><tr><td>Local data</td><td>IndexedDB (lists, drafts, reports, imported documents as blobs)</td></tr><tr><td>Keep data from being cleared</td><td>navigator.storage.persist(); launch from Home Screen</td></tr><tr><td>Import documents</td><td>&lt;input type=&quot;file&quot;&gt; opens the iPad Files picker, including OneDrive</td></tr><tr><td>Export / send</td><td>Web Share API (navigator.share with files) opens the Share sheet</td></tr><tr><td>Signature and sketches</td><td>HTML canvas with pointer events (finger and Apple Pencil)</td></tr><tr><td>PDF generation</td><td>pdf-lib or jsPDF, loaded from a pinned CDN version and cached</td></tr><tr><td>Tamper fingerprint</td><td>SHA-256 via Web Crypto API, printed on the PDF</td></tr><tr><td>Backup file</td><td>Single JSON file (plus embedded files) exported/imported via Share sheet and file picker</td></tr></table>
 <p>Next step: build a working prototype of the draft &gt; sign &gt; locked PDF</p>
-<p>flow and test it on the iPad.</p></section>
+<p>flow and test it on the iPad.</p>
+<h2>11. Current build (27 September 2026)</h2>
+<p>The prototype is built, deployed and installed as a PWA. Live address: https://davidfujioka2.github.io/feuille-de-temps/ . Every screen shows its page code at the bottom left and the version, day and time of the build at the bottom right.</p>
+<p><b>Screen layout (every page)</b></p>
+<ul>
+<li>Menu row 1: icons Calendrier, Feuille de temps, Journal, Livraison, Planification on the left; Photos and Paramètres on the right; Terminé at the far right when a page needs it.</li>
+<li>Menu row 2: page title on the left, date in the centre.</li>
+<li>Project row: one tag per active project, equal widths, white with a green outline. No project selected means all projects; tap a selected project again to return to all projects. Planification always has one project selected.</li>
+<li>Below: the page, in one fixed 1180 x 820 window (scaled to fit the iPad or the iPhone held sideways; double-tap zooms 2x on iPhone).</li>
+</ul>
+<p><b>Vocabulary</b></p>
+<ul>
+<li>Tag: one line of text, semicircle ends. Active = solid green; not selected = white with a green outline.</li>
+<li>Group: rounded rectangle that holds tags.</li>
+</ul>
+<p><b>Page codes</b></p>
+<table><tr><th>Code</th><th>Page</th></tr><tr><td>A1</td><td>Calendrier (month grid, plus a Feuille de temps column per week)</td></tr><tr><td>J1</td><td>Journal, all active projects: one group per project, status line on top, five section tags</td></tr><tr><td>J2</td><td>Journal, one project: the same group at full width</td></tr><tr><td>J3</td><td>Sous-traitants: Phases, Sous-traitant, Action, Zone, Travailleurs + Commentaire</td></tr><tr><td>J4</td><td>Livraisons: Fournisseurs, then Placer une commande / Réception commande</td></tr><tr><td>J5</td><td>Réunions et rencontres</td></tr><tr><td>J6</td><td>Événements et incidents</td></tr><tr><td>J7</td><td>Rapport journalier (draft, save, PDF, signature, approval)</td></tr><tr><td>PH1-PH5</td><td>Photos: journal photos, home, camera, sorting, gallery</td></tr><tr><td>R1</td><td>Paramètres (lists, favourites, active and inactive projects, backup, Tout enregistrer)</td></tr><tr><td>F1-F6</td><td>Feuille de temps: calendar, projects, workers, hours, week, its own settings</td></tr><tr><td>PL1</td><td>Planification (Échéancier)</td></tr><tr><td>H1</td><td>Aide (install guide and this document)</td></tr></table>
+<p><b>Journal flow</b></p>
+<ol>
+<li>Tap a date in the calendar: the Journal opens on all projects (J1).</li>
+<li>Tap a section tag in a project&#x27;s group: the tag turns solid green, the column widens to full width, the tag rises to the very top over the menu, pauses, turns white, doubles in height, pauses, then the table rises from the bottom.</li>
+<li>Complete the entry (for example Sans commentaire or Ajouter le commentaire; in Livraison, Accepter la quantité): the entry appears as a solid tag inside the large tag, then the app returns to J1 with the entry shown inside the project&#x27;s section tag.</li>
+<li>One entry per cycle; repeat for the next entry. There is no way back without completing the entry.</li>
+<li>Journal status on each group: Journal vide, Journal en cours, Journal approuvé. Approval is per project per day, through the Rapport (J7); an approved report is final.</li>
+</ol>
+<p><b>Livraison</b></p>
+<ul>
+<li>Left: suppliers, then subcontractors.</li>
+<li>Placer une commande (default): Catégorie, Sous-catégorie, Article, Quantité (units, tens, +100). Accepter la quantité saves the order line and returns to the Journal.</li>
+<li>Réception commande: validate a saved order line by line (complete, missing, comment), or record a Livraison sans commande with the same four columns.</li>
+<li>Materials come from the materials module catalogue (Charpenterie, Isolation, Ossature métallique, Gypse, then the secondary groups), plus Récents.</li>
+</ul>
+<p><b>Feuille de temps</b></p>
+<ul>
+<li>Covers all projects for the day; approved by week across projects.</li>
+<li>Tapping Feuille de temps in the Journal opens that day directly; the project row adds or removes projects; Continuer and Terminer are in the menu; the Voir feuille de temps button opens the week.</li>
+</ul>
+<p><b>Planification links</b></p>
+<ul>
+<li>Per project, per phase: sous-traitants, fournisseurs, actions and materials become favourites in the Journal and Livraison.</li>
+<li>Week activities (zone, sous-traitant, action) show in the Journal as dashed tags, one tap to confirm; offered all week, gone the following week. The Feuille de temps also lists planned activities first.</li>
+</ul>
+<p><b>Data on the device</b></p>
+<table><tr><th>Key</th><th>Content</th></tr><tr><td>journalChantier_v1</td><td>Journal days, entries, orders, lists, favourites, selected project</td></tr><tr><td>feuilleTemps_v13</td><td>Feuille de temps (employees, projects, hours, approvals)</td></tr><tr><td>chantierPlan_v1</td><td>Planification per project (phases, week activities, exported favourites)</td></tr><tr><td>IndexedDB journalPhotos</td><td>Photos, thumbnails, final report PDFs</td></tr></table>
+<p><b>Build and deploy</b></p>
+<ul>
+<li>Sources: Journal (jc/journal.html), Feuille de temps (lu/), Échéancier (eche/), materials catalogue (mat/).</li>
+<li>build_site.py builds site/ (all pages, page frame, service worker, manifest, icons), then the site is pushed to GitHub Pages. Each deploy changes the service-worker version so the installed app updates on the next launch (close and reopen once or twice).</li>
+</ul>
+<p><b>Open items</b></p>
+<ul>
+<li>Feuille de temps section in the Journal still opens the timesheet page rather than the in-place animation.</li>
+<li>Planification and Livraison views when no project is selected.</li>
+<li>One shared Paramètres for the Journal and the Feuille de temps.</li>
+<li>Automatic filing to OneDrive (needs Microsoft Graph or a Power Automate flow).</li>
+</ul></section>
 </main><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script></body></html>

@@ -732,11 +732,13 @@ button{cursor:pointer}
 #pgEntry[data-sec] .sgroup .stag.sel{flex:none;height:var(--selh,72px)}
 .stag.sel{background:var(--green);color:#fff}.stag.sel .ctag{background:#fff;color:var(--green-dark)}
 .ctag.plan{background:#fff;color:var(--green-dark);border-style:dashed}
+.otag.free{border-style:dashed!important;margin-top:8px;align-self:stretch}
+.backlnk{border:0;background:none;color:var(--green-dark);font-weight:850;font-size:inherit;padding:0;cursor:pointer}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 20 h 05</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-33</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 20 h 52</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-34</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1128,9 +1130,9 @@ function renderEntry(){
 function tagText(e){
   const short=t=>t&&t.length>48?t.slice(0,48)+'…':t;
   if(e.sec==='st')return [e.a,e.b,e.hours?fmtH(e.hours)+' h':''].filter(Boolean).join(' · ');
-  if(e.sec==='liv'&&e.kind==='envoi')return 'Envoyée · '+e.a;
+  if(e.sec==='liv'&&e.kind==='envoi')return 'Commande placée · '+e.a;
   if(e.sec==='liv'&&e.kind==='recu')return 'Reçue · '+e.a+(e.complete?' ✓':'');
-  if(e.sec==='liv'&&e.kind==='note')return 'Matériel reçu · '+e.a;
+  if(e.sec==='liv'&&e.kind==='note')return 'Reçu sans commande · '+e.a;
   if(e.sec==='liv')return e.a||'Livraison';
   if(e.sec==='reu')return e.a||'Rencontre';
   if(e.sec==='evt')return [e.a||'Événement',short(e.text)||e.b].filter(Boolean).join(' · ');
@@ -1273,7 +1275,7 @@ function lvFrom(e){const V=lvNew();V.sup=e.a;V.phase=e.phase||null;
 function renderLiv(){
   const V=U.V,L=lists(),el=$('#flow');
   const ready=!!(V.phase&&V.sup);let h='';
-  $('#winSent').textContent=ready?(V.mode==='envoi'?'Commande envoyée à '+V.sup:V.mode==='note'?'Matériel reçu de '+V.sup:'Commande reçue de '+V.sup):'';
+  $('#winSent').textContent=ready?(V.mode==='envoi'?'Commande placée chez '+V.sup:V.mode==='note'?'Livraison sans commande · '+V.sup:'Réception commande · '+V.sup):'';
   if(!ready){
     const PW=150,FW=710;
     h+=fxPhase(V.phase,'lvph',PW);
@@ -1297,7 +1299,7 @@ function renderLiv(){
       <div class="qrow3"><button class="nb h100 ${V.hund?'on':''}" data-fa="lvh" ${qd}>+100${V.hund?' (×'+V.hund+')':''}</button><button class="nb" data-fa="lvq0" ${tot?'':'disabled'}>Effacer</button><button class="nb ok" data-fa="lvqok" ${tot&&V.sel?'':'disabled'}>Ajouter ✓</button></div>
     </div>`;
   const past2=past.filter(o=>!orderDone(o)).length;
-  const pill=`<div class="pill2"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Préparer une commande</button><button class="${V.mode==='recu'?'on':''}" data-fa="lvmode" data-v="recu">Recevoir une commande${past2?` <small>${past2}</small>`:''}</button><button class="${V.mode==='note'?'on':''}" data-fa="lvmode" data-v="note">Réception de matériel</button></div>`;
+  const pill=`<div class="pill2"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Placer une commande</button><button class="${V.mode==='recu'||V.mode==='note'?'on':''}" data-fa="lvmode" data-v="recu">Réception commande${past2?` <small>${past2}</small>`:''}</button></div>`;
   if(V.mode==='envoi'||V.mode==='note'){const nt=V.mode==='note';
     const lines=V.items.map((x,i)=>({...x,i})).sort((p,q)=>byFr(p.mat,q.mat));
     const descs=[...new Set([...(S.descs||[]),...planFav().mat,...(S.supMats[V.sup]||[])])].sort(byFr);
@@ -1305,7 +1307,7 @@ function renderLiv(){
     body=`<div class="cmd3">
       <div class="c3l">${pill}
         <div class="pan">
-          <div class="gl">Matériaux</div>
+          <div class="gl">${nt?'<button class="backlnk" data-fa="lvmode" data-v="recu">‹ Commandes enregistrées</button> · Livraison sans commande':'Matériaux'}</div>
           <div class="scroll" style="flex:1;min-height:0">${descs.length?`<div class="mlist two" style="grid-template-rows:repeat(${Math.max(1,Math.ceil(descs.length/2))},auto)">${descs.map(d=>{const q=(V.items.find(x=>x.mat===d)||{}).qty||0;return `<div class="mrow ${q?'has':''}"><span class="mname">${esc(d)}</span><input class="mqin" type="number" inputmode="numeric" min="0" data-mq="${esc(d)}" value="${q||''}" placeholder="0" aria-label="Quantité ${esc(d)}">${[1,5,10].map(n=>`<button class="up3" data-fa="lvadd" data-v="${esc(d)}" data-d="${n}" aria-label="Ajouter ${n} ${esc(d)}"><svg viewBox="0 0 28 34" aria-hidden="true"><path d="M14 2 L26 15 H21 V32 H7 V15 H2 Z" fill="#fff" stroke="#236b43" stroke-width="2.4" stroke-linejoin="round"/></svg><span>${n}</span></button>`).join('')}</div>`}).join('')}</div>`:'<span class="empty-t">Aucun matériel encore : en ajouter un ci-dessous.</span>'}</div>
           <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Nouveau matériel" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div>
         </div>
@@ -1322,12 +1324,13 @@ function renderLiv(){
     const right=o?`<div class="gl">Commande du ${esc(shortDate(o.date))} · ${o.lines.length} ligne${o.lines.length>1?'s':''}</div>
         <div class="scroll" style="flex:1;min-height:0"><div class="rl3 head"><span>Matériel</span><span>Qté</span><span>Complété</span><span>Manquant</span><span>Commentaire</span></div>${V.recv.map((l,i)=>`<div class="rl3 ${l.done?'ok':''}"><b>${esc(l.mat)}</b><span class="q">${l.qty}</span><button class="chk sm ${l.done?'on':''}" data-fa="rvdone" data-i="${i}" aria-pressed="${l.done}" aria-label="Complété">${l.done?'✓':''}</button><div class="mini"><button data-fa="rvmiss" data-i="${i}" data-d="-1" aria-label="Moins" ${l.missing<=0?'disabled':''}>▼</button><b>${l.missing}</b><button data-fa="rvmiss" data-i="${i}" data-d="1" aria-label="Plus">▲</button></div><input class="inp rvnote" data-i="${i}" value="${esc(l.note||'')}" placeholder="Commentaire" autocomplete="off"></div>`).join('')}</div>
         <button class="bigbtn" data-fa="lvrecv">Terminé</button>`
-      :`<span class="empty-t" style="margin:auto;text-align:center">${past.length?'Choisir une commande à gauche.':'Aucune commande envoyée à '+esc(V.sup)+' pour ce projet.'}</span>`;
+      :`<span class="empty-t" style="margin:auto;text-align:center">${past.length?'Choisir une commande à gauche.':'Aucune commande enregistrée chez '+esc(V.sup)+' pour ce projet. Pour une livraison sans commande : bouton à gauche.'}</span>`;
     body=`<div class="cmd3 verify">
       <div class="c3l">${pill}
         <div class="pan">
           <div class="gl">Commandes · ${esc(V.sup)}</div>
-          <div class="scroll" style="flex:1;min-height:0"><div class="otags">${past.map(p=>`<button class="otag ${orderDone(p)?'done':''} ${V.recvId===p.id?'sel':''}" data-fa="rvpick" data-v="${p.id}">Commande du ${esc(shortDate(p.date))}${orderDone(p)?' ✓':''}<small>${p.lines.length} ligne${p.lines.length>1?'s':''} · ${orderDone(p)?'complète':'en attente'}</small></button>`).join('')||'<span class="empty-t">Aucune commande.</span>'}</div></div>
+          <div class="scroll" style="flex:1;min-height:0"><div class="otags">${past.map(p=>`<button class="otag ${orderDone(p)?'done':''} ${V.recvId===p.id?'sel':''}" data-fa="rvpick" data-v="${p.id}">Commande du ${esc(shortDate(p.date))}${orderDone(p)?' ✓':''}<small>${p.lines.length} ligne${p.lines.length>1?'s':''} · ${orderDone(p)?'complète':'en attente'}</small></button>`).join('')||'<span class="empty-t">Aucune commande enregistrée.</span>'}</div></div>
+          <button class="otag free" data-fa="lvmode" data-v="note">＋ Livraison sans commande<small>noter ce qui est arrivé</small></button>
         </div>
       </div>
       <div class="pan light">${right}</div></div>`;

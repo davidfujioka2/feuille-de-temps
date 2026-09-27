@@ -761,7 +761,7 @@ button{cursor:pointer}
 .oline.q span{text-align:center!important}
 .lvwrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px}
 .lvwrap .pill2{width:100%}
-.lv4{flex:1;min-height:0;display:grid;grid-template-columns:140px 160px minmax(0,1fr) 210px 240px;gap:8px}
+.lv4{flex:1;min-height:0;display:grid;grid-template-columns:150px 180px minmax(0,1fr) 330px;gap:8px}
 .lvcol{min-height:0;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px}
 .lvstack{display:flex;flex-direction:column;gap:4px;min-height:0}
 .lvc{min-height:34px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:12.5px;font-weight:850;padding:0 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -807,7 +807,9 @@ button{cursor:pointer}
 .ledl{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line-soft);padding:4px 0}
 .ledl b{flex:1;font-size:12px;font-weight:800;line-height:1.25}
 .ledq{display:flex;align-items:center;gap:4px}.ledq span{min-width:28px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
-.ledq button{width:28px;height:28px;border:1.5px solid var(--green);border-radius:50%;background:#fff;color:var(--green-dark);font-weight:850}
+.ledq button{min-width:40px;height:32px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-weight:850;font-size:13px;padding:0 8px}
+.ledq button.x{min-width:32px;border-color:var(--line);color:var(--muted)}
+.ledl.act{background:#f2faf5;border-radius:10px;padding:4px 6px}.ledl.zero span{color:var(--amber)}
 .lvcol.led .bigbtn{margin-top:auto;min-height:48px;font-size:15px}
 .lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
@@ -818,7 +820,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 40</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-12</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 42</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-13</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1448,23 +1450,23 @@ function renderLiv(){
     const g=V.g!=null?GR[V.g]:null,one=g&&g[1].length===1,sj=g?(one?0:V.s):null,sg=g&&sj!=null?g[1][sj]:null;
     const cats=GR.map((x,i)=>`<button class="lvc ${V.g===i?'on':''}" data-fa="lvg" data-v="${i}">${esc(x[0])}</button>`).join('');
     const subs=g?(one?`<span class="empty-t">${esc(g[0])}</span>`:g[1].map((x,j)=>`<button class="lvc ${sj===j?'on':''}" data-fa="lvs" data-v="${j}">${esc(x[0])}</button>`).join('')):'<span class="empty-t">Choisir une catégorie.</span>';
-    const its=sg?sg[1].map(m=>`<button class="mit ${V.sel===m?'on':''}" data-fa="lvsel" data-v="${esc(m)}">${esc(m)}</button>`).join(''):'<span class="empty-t">Choisir une sous-catégorie.</span>';
+    const its=sg?sg[1].map(m=>`<button class="mit ${V.items.some(x=>x.mat===m)?'on':''}" data-fa="lvpick" data-v="${esc(m)}">${esc(m)}</button>`).join(''):'<span class="empty-t">Choisir une sous-catégorie.</span>';
     const qd2=V.sel?'':'disabled',kp=(vals,act,cur)=>`<div class="kp">${vals.map(n=>`<button class="nb ${cur===n?'on':''}" data-fa="${act}" data-v="${n}" ${qd2}>${n}</button>`).join('')}</div>`;
     const qcol=`<div class="lvq ${V.sel?'':'off'}"><div class="lvq-h">${V.sel?esc(V.sel):'Choisir un article'}</div><div class="lvq-n">${tot||0}</div>
         <span class="lbl">Unités</span>${kp([1,2,3,4,5,6,7,8,9],'lvu',V.units)}<span class="lbl">Dizaines</span>${kp([10,20,30,40,50,60,70,80,90],'lvt',V.tens)}
         <div class="kp2"><button class="nb" data-fa="lvh" ${qd2}>+100${V.hund?' (×'+V.hund+')':''}</button><button class="nb" data-fa="lvq0" ${tot?'':'disabled'}>Effacer</button></div>
         <button class="bigbtn" data-fa="lvqok" ${tot&&V.sel?'':'disabled'}>Accepter la quantité</button></div>`;
-    const led=V.items.map(x=>`<div class="ledl"><b>${esc(x.mat)}</b><div class="ledq"><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="-1" aria-label="Moins">−</button><span>${x.qty}</span><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="1" aria-label="Plus">+</button></div></div>`).join('');
-    const ledger=`<div class="gl">${nt?'Reçu':'Bordereau'} · ${V.items.length} article${V.items.length>1?'s':''}</div><div class="scroll ledlist">${led||'<span class="empty-t">Accepter une quantité : l’article s’ajoute ici.</span>'}</div>
+    const led=V.items.map(x=>`<div class="ledl ${V.act===x.mat?'act':''} ${x.qty?'':'zero'}"><b>${esc(x.mat)}</b><div class="ledq"><span>${x.qty}</span><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="1" aria-label="Ajouter 1">+1</button><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="10" aria-label="Ajouter 10">+10</button><button class="x" data-fa="lvdel" data-v="${esc(x.mat)}" aria-label="Retirer">×</button></div></div>`).join('');
+    const okN=V.items.filter(x=>x.qty>0).length;
+    const ledger=`<div class="gl">${nt?'Reçu':'Bordereau'} · ${okN} article${okN>1?'s':''}</div><div class="scroll ledlist">${led||'<span class="empty-t">Toucher un article : il s’ajoute ici, puis +1 ou +10.</span>'}</div>
         ${nt?`<input class="inp" id="lvNote" placeholder="Détails (optionnel)" autocomplete="off" value="${esc(V.note||'')}">`:''}
-        <button class="bigbtn" data-fa="${nt?'lvnote':'lvsend'}" ${V.items.length?'':'disabled'}>Terminé</button>`;
+        <button class="bigbtn" data-fa="${nt?'lvnote':'lvsend'}" ${okN?'':'disabled'}>Terminé</button>`;
     body=`<div class="lvwrap">${pill}
       <div class="lv4">
         <div class="lvcol"><div class="gl">Catégorie</div><div class="scroll lvstack">${cats}</div></div>
         <div class="lvcol"><div class="gl">Sous-catégorie</div><div class="scroll lvstack">${subs}</div></div>
         <div class="lvcol"><div class="gl">Article</div><div class="scroll mitems">${its}</div>
           <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Autre article" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div></div>
-        <div class="lvcol">${qcol}</div>
         <div class="lvcol led">${ledger}</div>
       </div></div>`;
   }else{
@@ -1616,14 +1618,18 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvrph'){V.phase=null;renderLiv();return}
   if(a==='lvrsup'){V.sup=null;V.recvId=null;renderLiv();return}
   if(a==='lvmode'){V.mode=b.dataset.v;V.qpop=false;renderLiv();return}
-  if(a==='lvnote'){const t=($('#lvNote')?$('#lvNote').value:'').trim();ordersOf(V.sup).forEach(o=>o.lines.forEach(l=>{if(!l.done&&V.items.some(x=>x.mat===l.mat)){l.done=true;l.missing=0}}));
+  if(a==='lvnote'){V.items=V.items.filter(x=>x.qty>0);if(!V.items.length)return;const t=($('#lvNote')?$('#lvNote').value:'').trim();ordersOf(V.sup).forEach(o=>o.lines.forEach(l=>{if(!l.done&&V.items.some(x=>x.mat===l.mat)){l.done=true;l.missing=0}}));
     saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:V.items.map(x=>({...x})),b:V.items.map(x=>x.mat+' × '+x.qty).join(', '),c:'',text:t});return}
+  if(a==='lvpick'){const m=b.dataset.v,act=V.items.find(x=>x.mat===V.act);
+    if(act&&act.mat!==m&&!act.qty)V.items.splice(V.items.indexOf(act),1);
+    if(!V.items.some(x=>x.mat===m))V.items.push({mat:m,qty:0});V.act=m;if(!S.descs.includes(m)){S.descs.push(m);save()}renderLiv();return}
+  if(a==='lvdel'){const m=b.dataset.v;V.items=V.items.filter(x=>x.mat!==m);if(V.act===m)V.act=null;renderLiv();return}
   if(a==='lvsel'){V.sel=b.dataset.v;V.hund=0;V.tens=0;V.units=0;renderLiv();return}
-  if(a==='lvdescadd'){const t=($('#lvNewDesc').value||'').trim();if(!t)return;if(!S.descs.includes(t))S.descs.push(t);save();V.g=0;V.s=0;V.sel=t;V.hund=0;V.tens=0;V.units=0;renderLiv();return}
+  if(a==='lvdescadd'){const t=($('#lvNewDesc').value||'').trim();if(!t)return;if(!S.descs.includes(t))S.descs.push(t);save();V.g=0;V.s=0;const act=V.items.find(x=>x.mat===V.act);if(act&&!act.qty&&act.mat!==t)V.items.splice(V.items.indexOf(act),1);if(!V.items.some(x=>x.mat===t))V.items.push({mat:t,qty:0});V.act=t;renderLiv();return}
   if(a==='lvqopen'){if(V.sel){V.qpop=true;V.hund=0;V.tens=0;V.units=0;renderLiv()}return}
   if(a==='lvqclose'){V.qpop=false;V.hund=0;renderLiv();return}
   if(a==='lvh'){V.hund=(V.hund||0)+1;renderLiv();return}
-  if(a==='lvadd'){const m=b.dataset.v,n=Number(b.dataset.d),ex=V.items.find(x=>x.mat===m);if(ex){ex.qty=Math.max(0,ex.qty+n);if(!ex.qty)V.items.splice(V.items.indexOf(ex),1)}else if(n>0)V.items.push({mat:m,qty:n});renderLiv();return}
+  if(a==='lvadd'){const m=b.dataset.v,n=Number(b.dataset.d),ex=V.items.find(x=>x.mat===m);V.act=m;if(ex){ex.qty=Math.max(0,ex.qty+n);if(!ex.qty)V.items.splice(V.items.indexOf(ex),1)}else if(n>0)V.items.push({mat:m,qty:n});renderLiv();return}
   if(a==='lvu'){const n=Number(b.dataset.v);V.units=V.units===n?0:n;renderLiv();return}
   if(a==='lvt'){const n=Number(b.dataset.v);V.tens=V.tens===n?0:n;renderLiv();return}
   if(a==='lvq0'){V.hund=0;V.tens=0;V.units=0;renderLiv();return}
@@ -1632,7 +1638,7 @@ $('#flow').addEventListener('click',e=>{
     V.sel=null;V.hund=0;V.tens=0;V.units=0;save();renderLiv();return}
   if(a==='lvqok'){const q=(V.hund||0)*100+(V.tens||0)+(V.units||0);if(!q)return;const ex=V.items.find(x=>x.mat===V.sel);if(ex)ex.qty=q;else V.items.push({mat:V.sel,qty:q});V.sel=null;V.hund=0;V.tens=0;V.units=0;V.qpop=false;renderLiv();return}
   if(a==='lvrm'){V.items.splice(Number(b.dataset.i),1);renderLiv();return}
-  if(a==='lvsend'){lvSend();return}
+  if(a==='lvsend'){V.items=V.items.filter(x=>x.qty>0);if(!V.items.length)return;lvSend();return}
   if(a==='rvpick'){const o=S.orders.find(x=>x.id===b.dataset.v);V.recvId=o.id;V.recv=JSON.parse(JSON.stringify(o.lines));renderLiv();return}
   if(a==='rvdone'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value});const l=V.recv[Number(b.dataset.i)];l.done=!l.done;if(l.done)l.missing=0;renderLiv();return}
   if(a==='rvmiss'){$$('.rvnote').forEach(inp=>{V.recv[Number(inp.dataset.i)].note=inp.value});const l=V.recv[Number(b.dataset.i)];l.missing=Math.max(0,Math.min(l.qty,l.missing+Number(b.dataset.d)));if(l.missing)l.done=false;renderLiv();return}

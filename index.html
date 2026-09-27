@@ -761,12 +761,13 @@ button{cursor:pointer}
 .oline.q span{text-align:center!important}
 .lvwrap{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px}
 .lvwrap .pill2{width:100%}
-.lv4{flex:1;min-height:0;display:grid;grid-template-columns:150px 180px minmax(0,1fr) 330px;gap:8px}
+.lv4{flex:1;min-height:0;display:grid;grid-template-columns:150px 180px minmax(0,1fr) 440px;gap:8px}
 .lvcol{min-height:0;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px}
 .lvstack{display:flex;flex-direction:column;gap:4px;min-height:0}
 .lvc{min-height:34px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:12.5px;font-weight:850;padding:0 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lvc.on{background:var(--green);color:#fff}
-.lvcol .mitems{flex:1;min-height:0;align-content:flex-start;overflow:auto}
+.lvcol .mitems{flex:1;min-height:0;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:5px;overflow:auto}
+.lvcol .mitems .mit{justify-content:flex-start;white-space:normal;line-height:1.25}
 .lvq{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0}.lvq.off{opacity:.55}
 .lvq-h{font-size:12.5px;font-weight:850;color:var(--deep);min-height:32px}
 .lvq-n{font-size:30px;font-weight:900;color:var(--green-dark);text-align:center;font-variant-numeric:tabular-nums}
@@ -806,7 +807,7 @@ button{cursor:pointer}
 .lvcol.led{gap:6px}.ledlist{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px}
 .ledl{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line-soft);padding:4px 0}
 .ledl b{flex:1;font-size:12px;font-weight:800;line-height:1.25}
-.ledq{display:flex;align-items:center;gap:4px}.ledq span{min-width:28px;text-align:center;font-weight:900;font-variant-numeric:tabular-nums}
+.ledq{display:flex;align-items:center;gap:6px}.ledq span{min-width:34px;margin-right:14px;text-align:right;font-weight:900;font-variant-numeric:tabular-nums}
 .ledq button{min-width:40px;height:32px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-weight:850;font-size:13px;padding:0 8px}
 .ledq button.x{min-width:32px;border-color:var(--line);color:var(--muted)}
 .ledl.act{background:#f2faf5;border-radius:10px;padding:4px 6px}.ledl.zero span{color:var(--amber)}
@@ -826,7 +827,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 44</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-14</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 45</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-15</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">

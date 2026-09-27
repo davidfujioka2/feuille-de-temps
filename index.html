@@ -836,7 +836,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 08</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-21</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 14</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-23</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1127,19 +1127,20 @@ function renderCal(){
     const d0=parse(ws);for(let j=0;j<7;j++){const x=new Date(d0);x.setDate(d0.getDate()+j);if(((FT.added||{})[fmt(x)]||[]).length)return ['draft','En cours']}return ['','Vide']};
   const CV=S.calView||'cal',PP=S.viewAll?ACTIVE():[S.project],pl=(n,a,b)=>n+' '+(n>1?b:a);
   const line=(n,a,b,c)=>n?`<span class="cst ${c}">${pl(n,a,b)}</span>`:'';
+  const doc=(items,d1,dN)=>{let first=true;return items.filter(x=>x[0]).map(([n,a,b,c])=>{const t=(first?n+' '+(n>1?dN:d1)+' ':n+' ')+(n>1?b:a);first=false;return `<span class="cst ${c}">${t}</span>`}).join('')};
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);
     const Ds=PP.map(p=>S.days[p+'|'+ds]).filter(Boolean);
     let st='',body='';
     if(CV==='fdt'){const A=((FT.added||{})[ds]||[]).filter(p=>PP.includes(p)),ok=!!(FT.approved||{})[ds];
-      body=ok?line(A.length,'approuvé','approuvés','ok'):line(A.length,'en cours','en cours','wip');st=A.length?(ok?'ok':'draft'):''}
+      body=doc([ok?[A.length,'approuvée','approuvées','ok']:[A.length,'en cours','en cours','wip']],'feuille de temps','feuilles de temps');st=A.length?(ok?'ok':'draft'):''}
     else if(CV==='liv'){const O=S.orders.filter(o=>o.date===ds&&PP.includes(o.project));
       const toR=O.filter(o=>!o.lines.some(l=>l.done)).length,part=O.filter(o=>o.lines.some(l=>l.done)&&!orderDone(o)).length,rec=O.filter(orderDone).length;
       const nl=Ds.reduce((t,x)=>t+x.entries.filter(e=>e.sec==='liv'&&e.kind==='note').length,0);
       body=line(toR,'commande à recevoir','commandes à recevoir','bad')+line(part,'commande partielle','commandes partielles','bad')+line(rec,'commande reçue','commandes reçues','ok')+line(nl,'livraison','livraisons','ok');
       st=toR||part?'draft':rec||nl?'ok':''}
     else{const nOk=Ds.filter(x=>x.status==='approved').length,nW=Ds.filter(x=>x.status!=='approved'&&(x.entries.length||x.photos.length||x.fdt)).length;
-      body=line(nOk,'approuvé','approuvés','ok')+line(nW,'en cours','en cours','wip');st=nW?'draft':nOk?'ok':''}
+      body=doc([[nOk,'approuvé','approuvés','ok'],[nW,'en cours','en cours','wip']],'journal de chantier','journaux de chantier');st=nW?'draft':nOk?'ok':''}
     if(i%7===0)var wsKey=ds;
     h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${body}</button>`;
     if(i%7===6){const [c,t]=wkSt(wsKey);h+=`<button class="cal-fw ${c}" data-fweek="${wsKey}"><b>Feuille de temps</b><span>${t}</span></button>`}

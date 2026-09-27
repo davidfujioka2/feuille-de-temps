@@ -35,7 +35,7 @@ const add=(i,n)=>{let c=0;for(;;i++){if(work(i)&&++c===n)return i}};
 const nxt=i=>{i++;while(!work(i))i++;return i};
 const prv=i=>{i--;while(!work(i))i--;return i};
 const S=13,W0=6;
-const PH=[{n:'Démo',f:'#8A5A36',t:'#FFFFFF',s:'none',d:'#5C3A20'},{n:'Rough',f:'#639922',t:'#FFFFFF',s:'none',d:'#3B6D11'},{n:'Systèmes int.',f:'#F2EBDA',t:'#633806',s:'#C9BC98',d:'#633806'},{n:'Finition',f:'#378ADD',t:'#FFFFFF',s:'none',d:'#236b43'}];
+const PH=[{n:'Démolition',f:'#8A5A36',t:'#FFFFFF',s:'none',d:'#5C3A20'},{n:'Rough',f:'#639922',t:'#FFFFFF',s:'none',d:'#3B6D11'},{n:'Systèmes intérieurs',f:'#F2EBDA',t:'#633806',s:'#C9BC98',d:'#633806'},{n:'Finition',f:'#378ADD',t:'#FFFFFF',s:'none',d:'#236b43'}];
 const MN=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],JN=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const ZN=['Sous-sol garage','Sous-sol existant','Rez-de-chaussée','Deuxième étage','Troisième étage','Extérieur'];
 const CATS=[
@@ -52,7 +52,7 @@ rows[0].t[1].res={st:['Plomberie JG','Desrosiers Électrique Inc.'],ac:['Plomber
 rows[5].t[0].res={st:['MultiGestion JP'],ac:['Retrait des débris'],fo:['Patrick Morin'],ma:['Conteneur']};
 const N=Math.max(...rows.map(r=>r.t[3].e))+5;
 const VG=[6.5,N],VZ=[W0-0.5,W0+22];
-let mode='w',edit=false,view=[...VG],raf=null,det=null,u=0,araf=null,vals={ac:'',ma:'',cm:''},err={},wu=1;
+let mode='g',edit=false,view=[...VG],raf=null,det=null,u=0,araf=null,vals={ac:'',ma:'',cm:''},err={},wu=1;
 let wk=13,dsel=14,exp={},pick={zo:null,st:null,fo:null,ac:null},esel=null;
 const approved=new Set([13]);
 let entries=[

@@ -712,7 +712,7 @@ button{cursor:pointer}
 .c5top{flex:0 0 33%;display:flex;flex-direction:column;border-bottom:2px solid var(--line);min-height:0}
 .c5bot{flex:1;display:flex;flex-direction:column;min-height:0}.c5bot .cm{flex:1;min-height:0}
 .c5top .wk.row{flex:1;display:grid;grid-template-columns:auto auto;align-content:center;align-items:center;justify-content:center;gap:6px 12px;padding:6px}
-.c5top .wk.row .lbl{margin:0!important;text-align:right}.c5top .wk.row .hint{grid-column:1 / span 2;text-align:center}
+.c5top .wk.row .lbl{margin:0!important;text-align:right}.c5top .wk.row .hint{display:none}
 .c5top .wk.row .cnt button,.c5top .wk.row .hrs button{width:38px;height:38px}
 .c5bot.wait .cm{opacity:.55}
 #rows.expand{animation:colexp .45s cubic-bezier(.2,.8,.2,1);transform-origin:var(--ox,50%) 0}
@@ -727,11 +727,16 @@ button{cursor:pointer}
 #pgEntry[data-sec] .jrow2-t{padding:0}
 #pgEntry[data-sec] .jrow2-t:has(.jtag){padding:0 16px 10px}
 #pgEntry[data-sec] .win{padding-top:6px;animation:slideup .35s ease-out}
+#pgEntry[data-sec] .rows.gmode .grid,#pgEntry[data-sec] .rows.gmode .grid>.grow{flex:none}
+#pgEntry[data-sec] .sgroup .stag:not(.sel),#pgEntry[data-sec] .sgroup .gstat{display:none}
+#pgEntry[data-sec] .sgroup .stag.sel{flex:none;height:var(--selh,72px)}
+.stag.sel{background:var(--green);color:#fff}.stag.sel .ctag{background:#fff;color:var(--green-dark)}
+.ctag.plan{background:#fff;color:var(--green-dark);border-style:dashed}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 19 h 55</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-30</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 20 h 02</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-31</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1038,7 +1043,7 @@ $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
   const fw=e.target.closest('[data-fweek]');if(fw){location.href='./feuille.html?w='+fw.dataset.fweek;return}
   const d=e.target.closest('[data-day]');if(d){U.date=d.dataset.day;resetDraft();U.spread=0;
-    if(S.viewAll){go('entry');return}
+    S.viewAll=true;save();go('entry');return;
     go(locked()?'read':'entry')}
 });
 
@@ -1059,32 +1064,48 @@ const phasesOf=c=>S.phaseMap[c]||[];
 const JROWS=[['fdt',1,'Employés','Feuille de temps du jour'],['st',2,'Sous-traitants','Par phase du projet'],['liv',3,'Livraisons','Commandes envoyées et reçues'],['reu',4,'Réunions et rencontres','Intervenants, sujets, horaire'],['evt',5,'Événements et incidents','Visites, conformité, incidents']];
 
 function resetDraft(){Object.assign(U,{sec:null,vals:{},step:0,text:'',editIndex:null,labour:false,W:null})}
-function openWin(){const k=U.winSec,pg=$('#pgEntry');
-  if(k&&k!=='fdt'&&!S.viewAll){pg.dataset.sec=k;const r=$('#rows .jrow2[data-k="'+k+'"]');
-    if(r){let el=r,y=0;while(el&&el.id!=='ipad'){y+=el.offsetTop;el=el.offsetParent}$('#win').style.top=(y+r.offsetHeight+6)+'px'}}
-  $('#win').hidden=false;drawTnav()}
+function jpos(el){let y=0;while(el&&el.id!=='ipad'){y+=el.offsetTop;el=el.offsetParent}return y}
+function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .sgroup'),t=g&&k&&k!=='fdt'&&!S.viewAll?g.querySelector('.stag[data-row="'+k+'"]'):null;
+  if(!t){win.hidden=false;drawTnav();return}
+  const wait=Math.max(0,(U.expandUntil||0)-Date.now());
+  setTimeout(()=>{
+    const others=[...g.querySelectorAll('.stag,.gstat')].filter(x=>x!==t),th=t.offsetHeight;
+    t.style.flex='none';t.style.height=th+'px';pg.style.setProperty('--selh',th+'px');t.classList.add('sel');
+    others.forEach(x=>{const h=x.offsetHeight;x.style.flex='none';x.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0,paddingTop:'0px',paddingBottom:'0px',marginTop:'0px',borderWidth:'0px'}],{duration:500,easing:'ease-in-out',fill:'forwards'})});
+    setTimeout(()=>{pg.dataset.sec=k;others.forEach(x=>x.getAnimations().forEach(a=>a.cancel()));
+      win.style.top=(jpos(t)+t.offsetHeight+10)+'px';win.hidden=false;
+      win.animate([{transform:'translateY(80px)',opacity:0},{transform:'none',opacity:1}],{duration:500,easing:'ease-out'});drawTnav()},500)
+  },wait)}
 function closeWin(){resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){
   /* un groupe par projet : une étiquette par section du rapport, avec son statut */
-  const P=ACTIVE(),cur=S.project;
+  const P=S.viewAll?ACTIVE():[S.project],cur=S.project,sec=$('#pgEntry').dataset.sec||'';
   const NAMES={fdt:'Feuille de temps',st:'Sous-traitants',liv:'Livraisons',reu:'Réunions',evt:'Événements'};
   const groups=P.map(p=>{S.project=p;const D=day(),ok=D.status==='approved';
     const tags=JROWS.map(([k])=>{
       const inner=k==='fdt'?(D.fdt?'<span class="ctag">✓ Remplie</span>':''):D.entries.map((e,i)=>e.sec===k?`<span class="ctag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`:'').join('');
-      return `<div class="stag ${inner?'has':''}" ${k==='fdt'?'data-gfdt="1"':`data-row="${k}"`}><b>${NAMES[k]}</b>${inner?`<div class="cin">${inner}</div>`:''}</div>`}).join('');
+      const pl=k==='st'&&!S.viewAll&&!ok?plannedToday().map(x=>`<span class="ctag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</span>`).join(''):'';
+      const all=inner+pl;
+      return `<div class="stag ${all?'has':''} ${sec===k?'sel':''}" ${k==='fdt'?'data-gfdt="1"':`data-row="${k}"`}><b>${NAMES[k]}</b>${all?`<div class="cin">${all}</div>`:''}</div>`}).join('');
     const n=D.entries.length+(D.fdt?1:0),st=ok?'ok':n?'wip':'';
     return `<div class="sgroup" data-cp="${esc(p)}"><div class="gstat ${st}">${ok?'Journal approuvé':n?'Journal en cours':'Journal vide'}</div>${tags}</div>`}).join('');
   S.project=cur;
   $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
-  $('#finish').hidden=true;$('#rows').classList.add('gmode');
+  $('#finish').hidden=S.viewAll;$('#rows').classList.add('gmode');
+  const X=U.expandFrom;U.expandFrom=null;
+  if(X&&!S.viewAll){const g=$('#rows .sgroup'),W=g.offsetWidth;U.expandUntil=Date.now()+1000;
+    g.animate([{marginLeft:X.fx*W+'px',width:X.fw*W+'px'},{marginLeft:'0px',width:W+'px'}],{duration:1000,easing:'cubic-bezier(.4,0,.2,1)'})}
 }
+function expandFrom(p){const g=[...$$('#rows .sgroup')].find(x=>x.dataset.cp===p);
+  if(g&&g.parentElement){const r=g.parentElement.getBoundingClientRect(),b=g.getBoundingClientRect();return {fx:(b.left-r.left)/r.width,fw:b.width/r.width}}
+  const P=ACTIVE(),i=Math.max(0,P.indexOf(p));return {fx:i/P.length,fw:1/P.length}}
 function renderEntry(){
   if(!ACTIVE().includes(S.project))S.project=ACTIVE()[0];
   $('#projBar2').innerHTML=`<button class="${S.viewAll?'on':''}" data-proj2="__all">Tous</button>`+ACTIVE().map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-proj2="${esc(p)}">${esc(p)}</button>`).join('');
   $('#finish').hidden=false;$('#rows').classList.remove('gmode');
-  if(S.viewAll){$('#dayLbl').textContent='';renderGrid();if(!$('#win').hidden)renderWin();return}
+  $('#dayLbl').textContent='';renderGrid();if(!$('#win').hidden)renderWin();return;
   const D=day();
   $('#entrySub').textContent=S.project+' · '+dayLbl(U.date)+(D.rev?' · révision '+D.rev:'');
   $('#dayLbl').textContent=D.photos.length?D.photos.length+' photo'+(D.photos.length>1?'s':''):'';
@@ -1122,7 +1143,7 @@ $('#rows').addEventListener('click',e=>{
   const gf=e.target.closest('[data-gfdt]');if(gf){location.href='./feuille.html?d='+U.date;return}
   const gr=e.target.closest('[data-grep]');if(gr){S.project=gr.dataset.grep;S.viewAll=false;save();U.spread=0;go('read');return}
   const cp=e.target.closest('[data-cp]');if(cp){S.project=cp.dataset.cp;if(locked()){S.viewAll=false;save();go('read');return}
-    if(S.viewAll){const P=ACTIVE();U.expandFrom=(P.indexOf(S.project)+.5)/P.length;S.viewAll=false;save();drawPbar();
+    if(S.viewAll){U.expandFrom=expandFrom(S.project);S.viewAll=false;save();drawPbar();
       if(e.target.closest('[data-gfdt]'))return;
       renderEntry();drawTnav();if(!e.target.closest('[data-row]'))return}}
   const pb=e.target.closest('[data-plan]');if(pb){const x=plannedToday().find(p=>p.id===pb.dataset.plan);if(!x)return;
@@ -1775,7 +1796,7 @@ const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps','./feuille.html'
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
 function drawPbar(){const P=ACTIVE(),h=P.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-pb="${esc(p)}">${esc(p)}</button>`).join('');$$('.pbar').forEach(n=>{n.innerHTML=h;n.style.setProperty('--n',P.length)})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const p=b.dataset.pb;
-  if(!S.viewAll&&S.project===p)S.viewAll=true;else{if(S.viewAll){const P=ACTIVE();U.expandFrom=(P.indexOf(p)+.5)/P.length}S.viewAll=false;S.project=p}save();drawPbar();
+  if(!S.viewAll&&S.project===p)S.viewAll=true;else{if(S.viewAll&&U.page==='entry')U.expandFrom=expandFrom(p);S.viewAll=false;S.project=p}save();drawPbar();
   const pg=U.page;
   if(pg==='cal')renderCal();
   else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}

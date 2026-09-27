@@ -784,7 +784,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 09</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-4</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 12</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-5</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1908,7 +1908,7 @@ function drawTnav(){drawPbar();const act=(U.page==='entry'&&!$('#win').hidden&&U
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
-  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}});
+  if(k==='cal')go('cal');else if(k==='prm')go('prm');else if(k==='pho')go('ph');else if(k==='liv')openLiv();else if(k==='jou'){U.date=fmt(today);resetDraft();S.viewAll=true;save();go('entry')}});
 
 /* ===================== MODULE PHOTOS ===================== */
 S.media=S.media||[];
@@ -2065,7 +2065,7 @@ $('#galG').addEventListener('click',async e=>{const c=e.target.closest('[data-gi
 });
 
 function openLiv(){U.date=fmt(today);resetDraft();S.viewAll=false;save();if(locked()){go('read');toast('Journal du jour approuvé');return}go('entry');U.V=lvNew();U.winSec='liv';renderEntry();openWin();renderWin()}
-window.__route=h=>{if(h==='#liv'){openLiv();return}if(h==='#journal'){U.date=fmt(today);resetDraft();go(locked()?'read':'entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
+window.__route=h=>{if(h==='#liv'){openLiv();return}if(h==='#journal'){U.date=fmt(today);resetDraft();S.viewAll=true;save();go('entry')}else if(h==='#prm'){go('prm')}else if(h==='#ph'){go('ph')}else{go('cal')}};
 go('cal');
 addEventListener('hashchange',()=>window.__route(location.hash));if(location.hash)window.__route(location.hash);
 })();

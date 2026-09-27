@@ -1770,7 +1770,7 @@ $('#toCalBtn').onclick=()=>go('calendar');
 
 renderAll();
 </script>
-<style>#projectsPage .ip-head{display:none!important}#pool{display:none!important}.ip-body,.ip-body.no-pool{grid-template-columns:1fr!important}</style>
+<style>#projectsPage .ip-head{display:none!important}#pool{display:none!important}#projectsPage .ip-foot{display:none!important}.ip-body,.ip-body.no-pool{grid-template-columns:1fr!important}</style>
 <script>
 /* pont avec le cadre : la rangée des projets ajoute ou retire un projet ; Continuer est dans le menu */
 window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.selectedDate])||1,mg:()=>state.mgMode||'proj',week:()=>{try{state.sheetWeek=fmt(startOfWeek(new Date(state.selectedDate+'T12:00')))}catch(e){}go('timesheet')},added:()=>added().slice(),
@@ -1796,7 +1796,7 @@ html.phone.zoomed .stage{display:block!important;min-height:0}
 window.__fit=function(){const el=document.getElementById('ipad'),app=document.getElementById('app'),fdt=app&&!document.querySelector('.stage');if(!el&&!app)return;
   const cs=getComputedStyle(document.getElementById('safeProbe'));
   const L=parseFloat(cs.paddingLeft)||0,R=parseFloat(cs.paddingRight)||0,T=parseFloat(cs.paddingTop)||0,B=parseFloat(cs.paddingBottom)||0;
-  const phone=Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
+  const phone=window===window.top&&Math.min(innerWidth,innerHeight)<600;document.documentElement.classList.toggle('phone',phone);
   if(!phone)window.__Z=1;const Z=window.__Z||1;document.documentElement.classList.toggle('zoomed',Z>1);
   const HH=document.querySelector('.apphdr')?(phone?35:58):0;
   const m=phone?0:8,s=Math.min(1,(innerWidth-L-R-m)/1180,(innerHeight-T-B-m-HH)/820)*Z;window.__S=s;

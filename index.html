@@ -783,11 +783,16 @@ button{cursor:pointer}
 .fdtp button.on{background:var(--green);color:#fff}
 .fdtnext{height:42px;padding:0 20px;border:0;border-radius:12px;background:#173d2d;color:#fff;font-size:15px;font-weight:850;flex-shrink:0}.fdtnext:disabled{opacity:.4}
 .fdtframe{flex:1;min-height:0;width:100%;border:0;border-radius:14px;background:#fff}
+.lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
+.lvchoice button.on{background:var(--green);color:#fff}.lvchoice button.on span{color:#e6f4ec}
+#pgEntry.ov .pill2{display:none}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 24</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-7</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 28</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-8</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1162,10 +1167,16 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const sm={style:{}},TT=k==='fdt'?118:10;if(k==='fdt')pg.classList.add('ovm');
     await tween(1000,p=>{Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,TT,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,168,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
+    if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+196)+'px';
+      ch.innerHTML='<button data-lvc="envoi"><b>Commande placée par surintendant</b><span>Choisir le matériel et la quantité</span></button><button data-lvc="recu"><b>Commande reçue au chantier</b><span>Valider une commande ou noter une livraison</span></button>';
+      $('#ipad').appendChild(ch);U.lvch=ch;
+      const m=await new Promise(res=>ch.onclick=e=>{const b=e.target.closest('[data-lvc]');if(b)res(b.dataset.lvc)});
+      ch.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lvc===m));await sleep(250);ch.remove();U.lvch=null;
+      U.V.mode=m;const hb=f.querySelector('.fhead b');if(hb)hb.textContent=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';renderWin()}
     pg.dataset.sec=k;win.style.top=(TT+180)+'px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
     await tween(1000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';
   },wait)}
-function closeWin(){U.pendSel=null;if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
+function closeWin(){U.pendSel=null;if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){

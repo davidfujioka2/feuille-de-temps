@@ -791,6 +791,16 @@ button{cursor:pointer}
 .lvsp .gl{margin:0}
 .lvspg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .lvspg button{min-height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:13.5px;font-weight:850;padding:0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvsp.rc{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.lvspl,.lvspr{display:flex;flex-direction:column;gap:8px;min-width:0}
+.lvspg.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lvsph{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.lvol{display:flex;flex-direction:column;gap:6px}
+.lvo{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:10px;text-align:left;border:1.5px solid var(--green);border-radius:18px;background:#fff;color:var(--green-dark);padding:8px 14px}
+.lvo b{font-size:14px;font-weight:850}.lvo span{grid-column:1;font-size:12px;color:var(--muted);font-weight:700}
+.lvo em{grid-row:1 / span 2;grid-column:2;align-self:center;font-style:normal;font-size:12px;font-weight:850;color:var(--amber)}
+.lvo.done{border-color:var(--green-line)}.lvo.done em{color:var(--green-dark)}
+.lvo.on{background:var(--green);color:#fff}.lvo.on span,.lvo.on em{color:#fff}
 .lvspg button.on{background:var(--green);color:#fff}
 #win{z-index:61}
 .lvcol.led{gap:6px}.ledlist{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px}
@@ -808,7 +818,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 37</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-11</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 40</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-12</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1194,11 +1204,21 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
       U.V.mode=m==='recu'?'note':m;const hb=f.querySelector('.fhead b'),ttl=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';if(hb)hb.textContent=ttl;
       const Ls=lists(),fo=Ls.four.filter(x=>!x.off),stl=Ls.st.filter(x=>!x.off&&x.label!==BC&&!fo.some(o=>o.label===x.label));
       const sp=document.createElement('div');sp.className='lvsp';const spTop=TT+196+134;Object.assign(sp.style,{top:spTop+'px',transform:'translateY(700px)'});
-      sp.innerHTML=`<div class="gl">Fournisseurs</div><div class="lvspg">${fo.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div><div class="gl">Sous-traitants</div><div class="lvspg">${stl.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div>`;
+      const supB=xs=>xs.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('');
+      if(m==='recu'){const oB=o=>{const n=o.lines.length,dn=orderDone(o);return `<button class="lvo ${dn?'done':''}" data-lvo="${o.id}"><b>${esc(o.sup)}</b><span>${esc(o.project)} · ${esc(shortDate(o.date))} · ${n} article${n>1?'s':''}</span><em>${dn?'Reçue':'En attente'}</em></button>`};
+        const mine=S.orders.filter(o=>o.project===S.project).sort((a,b)=>orderDone(a)-orderDone(b)||b.date.localeCompare(a.date)||b.created-a.created).slice(0,12);
+        const others=S.orders.filter(o=>o.project!==S.project&&!orderDone(o)).sort((a,b)=>b.date.localeCompare(a.date));
+        sp.classList.add('rc');
+        sp.innerHTML=`<div class="lvspl"><div class="gl">Fournisseurs</div><div class="lvspg c2">${supB(fo)}</div><div class="gl">Sous-traitants</div><div class="lvspg c2">${supB(stl)}</div><p class="lvsph">Sans commande : choisir le fournisseur.</p></div>
+          <div class="lvspr"><div class="gl">Commandes · ${esc(S.project)}</div><div class="lvol">${mine.map(oB).join('')||'<span class="empty-t">Aucune commande pour ce projet.</span>'}</div>
+          <div class="gl">Autres commandes ouvertes</div><div class="lvol">${others.map(oB).join('')||'<span class="empty-t">Aucune.</span>'}</div></div>`}
+      else sp.innerHTML=`<div class="gl">Fournisseurs</div><div class="lvspg">${supB(fo)}</div><div class="gl">Sous-traitants</div><div class="lvspg">${supB(stl)}</div>`;
       $('#ipad').appendChild(sp);U.lvsp=sp;
       await tween(1000,p=>{sp.style.transform=`translateY(${L(700,0,p)}px)`});sp.style.transform='';
-      const sup=await new Promise(res=>sp.onclick=e=>{const b=e.target.closest('[data-lvsp]');if(b){b.classList.add('on');res(b.dataset.lvsp)}});
-      U.V.sup=sup;U.lvNoSup=true;if(hb)hb.textContent=ttl+' · '+sup;await sleep(200);renderWin()}
+      const pick=await new Promise(res=>sp.onclick=e=>{const b=e.target.closest('[data-lvsp],[data-lvo]');if(b){b.classList.add('on');res(b)}});
+      if(pick.dataset.lvo){const o=S.orders.find(x=>x.id===pick.dataset.lvo);U.V.mode='recu';U.V.sup=o.sup;U.V.recvId=o.id;U.V.recv=JSON.parse(JSON.stringify(o.lines));U.lvNoSup=true;if(hb)hb.textContent=ttl+' · '+o.sup}
+      else{U.V.sup=pick.dataset.lvsp;U.lvNoSup=true;if(hb)hb.textContent=ttl+' · '+U.V.sup}
+      await sleep(200);renderWin()}
     pg.dataset.sec=k;win.style.top=(TT+180)+'px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
     await tween(1000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';
     if(U.lvch){U.lvch.remove();U.lvch=null}if(U.lvsp){U.lvsp.remove();U.lvsp=null}

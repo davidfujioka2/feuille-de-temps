@@ -745,11 +745,22 @@ button{cursor:pointer}
 .lvt{border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:12.5px;font-weight:850;padding:5px 11px;white-space:nowrap}
 .lvt.sm{font-size:11.5px;padding:4px 9px;border-color:var(--green-line)}
 .lvt.on{background:var(--green);color:#fff;border-color:var(--green)}
+.macc{display:flex;flex-direction:column;gap:6px}
+.mgrp{display:flex;align-items:center;gap:8px;min-height:46px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);padding:0 18px;font-size:15px;text-align:left}
+.mgrp b{flex:1;font-weight:850}.mgrp i{font-style:normal;opacity:.7}.mgrp em{font-style:normal;background:var(--green);color:#fff;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:850}
+.mgrp.on{background:var(--green);color:#fff}.mgrp.on em{background:#fff;color:var(--green-dark)}
+.msub{display:flex;flex-wrap:wrap;gap:6px;padding:4px 6px 8px 18px;align-items:flex-start}
+.msub .lvt{font-size:13px;padding:6px 13px}
+.mitems{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 6px}
+.mit{border:1.5px solid var(--green-line);border-radius:999px;background:#fff;color:var(--text);font-size:12.5px;font-weight:750;padding:6px 12px;display:inline-flex;align-items:center;gap:6px;text-align:left}
+.mit.on{background:var(--green);border-color:var(--green);color:#fff}.mit em{font-style:normal;background:#fff;color:var(--green-dark);border-radius:999px;padding:0 7px;font-size:11.5px;font-weight:850}
+.oline.q{grid-template-columns:1fr 30px 34px 30px!important}.oline.q button{width:30px;height:30px;border:1.5px solid var(--green);border-radius:50%;background:#fff;color:var(--green-dark);font-size:16px;font-weight:850}
+.oline.q span{text-align:center!important}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 22 h 22</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-39</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 11 h 27</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-1</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1332,21 +1343,27 @@ function renderLiv(){
     const lines=V.items.map((x,i)=>({...x,i})).sort((p,q)=>byFr(p.mat,q.mat));
     const descs=[...new Set([...(S.descs||[]),...planFav().mat,...(S.supMats[V.sup]||[])])].sort(byFr);
     const total=lines.reduce((t,x)=>t+x.qty,0);
-    const GR=[['Récents',[['Récents',descs]]],...MATCAT];if(V.g==null)V.g=descs.length?0:1;if(V.g>=GR.length)V.g=0;const gr=GR[V.g];if(V.s==null||V.s>=gr[1].length)V.s=0;
-    const mats=gr[1][V.s]?gr[1][V.s][1]:[];
-    const lvLevels=`<div class="lvl1">${GR.map((g,i)=>`<button class="lvt ${V.g===i?'on':''}" data-fa="lvg" data-v="${i}">${esc(g[0])}</button>`).join('')}</div>${gr[1].length>1?`<div class="lvl2">${gr[1].map((x,i)=>`<button class="lvt sm ${V.s===i?'on':''}" data-fa="lvs" data-v="${i}">${esc(x[0])}</button>`).join('')}</div>`:''}`;
+    /* sections (Charpenterie, Isolation…) qui s'ouvrent sur leurs sous-groupes, puis sur les articles en étiquettes */
+    const GR=[...(descs.length?[['Récents',[['Récents',descs]]]]:[]),...MATCAT];
+    const qOf=m=>(V.items.find(x=>x.mat===m)||{}).qty||0;
+    const cnt=g=>g[1].reduce((t,sg)=>t+sg[1].filter(m=>qOf(m)).length,0);
+    const macc=GR.map((g,i)=>{const open=V.g===i,n=cnt(g);
+      let h=`<button class="mgrp ${open?'on':''}" data-fa="lvg" data-v="${i}"><b>${esc(g[0])}</b>${n?`<em>${n}</em>`:''}<i>${open?'▴':'▾'}</i></button>`;
+      if(open){const one=g[1].length===1,sj=one?0:V.s,sg=sj!=null?g[1][sj]:null;
+        h+='<div class="msub">'+(one?'':g[1].map((x,j)=>{const n2=x[1].filter(m=>qOf(m)).length;return `<button class="lvt ${sj===j?'on':''}" data-fa="lvs" data-v="${j}">${esc(x[0])}${n2?' · '+n2:''}</button>`}).join(''))
+          +(sg?`<div class="mitems">${sg[1].map(m=>{const q=qOf(m);return `<button class="mit ${q?'on':''}" data-fa="lvadd" data-v="${esc(m)}" data-d="1">${esc(m)}${q?`<em>${q}</em>`:''}</button>`}).join('')}</div>`:'')+'</div>'}
+      return h}).join('');
     body=`<div class="cmd3">
       <div class="c3l">${pill}
         <div class="pan">
           <div class="gl">${nt?'<button class="backlnk" data-fa="lvmode" data-v="recu">‹ Commandes enregistrées</button> · Livraison sans commande':'Matériaux'}</div>
-          ${lvLevels}
-          <div class="scroll" style="flex:1;min-height:0">${mats.length?`<div class="mlist">${mats.map(d=>{const q=(V.items.find(x=>x.mat===d)||{}).qty||0;return `<div class="mrow ${q?'has':''}"><span class="mname">${esc(d)}</span><input class="mqin" type="number" inputmode="numeric" min="0" data-mq="${esc(d)}" value="${q||''}" placeholder="0" aria-label="Quantité ${esc(d)}">${[1,5,10].map(n=>`<button class="up3" data-fa="lvadd" data-v="${esc(d)}" data-d="${n}" aria-label="Ajouter ${n} ${esc(d)}"><svg viewBox="0 0 28 34" aria-hidden="true"><path d="M14 2 L26 15 H21 V32 H7 V15 H2 Z" fill="#fff" stroke="#236b43" stroke-width="2.4" stroke-linejoin="round"/></svg><span>${n}</span></button>`).join('')}</div>`}).join('')}</div>`:'<span class="empty-t">Aucun matériel encore : en ajouter un ci-dessous.</span>'}</div>
+          <div class="scroll macc" style="flex:1;min-height:0">${macc}</div>
           <div class="cm-new"><input class="inp" id="lvNewDesc" placeholder="Nouveau matériel" autocomplete="off"><button class="btn go" data-fa="lvdescadd">Ajouter</button></div>
         </div>
       </div>
       <div class="pan light">
         <div class="gl">${nt?'Reçu':'Commande'} · ${lines.length} ligne${lines.length>1?'s':''}</div>
-        <div class="scroll" style="flex:1;min-height:0">${lines.length?lines.map(x=>`<div class="oline sm"><b>${esc(x.mat)}</b><span>${x.qty}</span><button data-fa="lvrm" data-i="${x.i}" aria-label="Retirer la ligne">×</button></div>`).join(''):'<span class="empty-t">Utiliser ▲ ▼ à gauche : les lignes s’ajoutent ici.</span>'}</div>
+        <div class="scroll" style="flex:1;min-height:0">${lines.length?lines.map(x=>`<div class="oline sm q"><b>${esc(x.mat)}</b><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="-1" aria-label="Moins">−</button><span>${x.qty}</span><button data-fa="lvadd" data-v="${esc(x.mat)}" data-d="1" aria-label="Plus">+</button></div>`).join(''):'<span class="empty-t">Toucher un article à gauche : chaque toucher ajoute 1.</span>'}</div>
         ${lines.length?`<div class="osum">Total <b>${total}</b></div>`:''}
         ${nt?`<input class="inp" id="lvNote" placeholder="Détails (optionnel)" autocomplete="off" value="${esc(V.note||'')}">`:''}
         <button class="bigbtn" data-fa="${nt?'lvnote':'lvsend'}" ${lines.length||nt?'':'disabled'}>Terminé</button>
@@ -1493,9 +1510,9 @@ $('#flow').addEventListener('click',e=>{
   if(a==='cmkeep'){stDone(W.text);return}
   // livraisons
   const V=U.V;
-  if(a==='lvsup'){V.sup=b.dataset.v;V.recvId=null;V.reveal=true;renderLiv();return}
-  if(a==='lvg'){V.g=Number(b.dataset.v);V.s=0;renderLiv();return}
-  if(a==='lvs'){V.s=Number(b.dataset.v);renderLiv();return}
+  if(a==='lvsup'){V.sup=b.dataset.v;V.recvId=null;renderLiv();return}
+  if(a==='lvg'){const g=Number(b.dataset.v);V.g=V.g===g?null:g;V.s=null;renderLiv();return}
+  if(a==='lvs'){const j=Number(b.dataset.v);V.s=V.s===j?null:j;renderLiv();return}
   if(a==='lvph'){V.phase=b.dataset.v;V.reveal=!!V.sup;renderLiv();return}
   if(a==='lvrph'){V.phase=null;renderLiv();return}
   if(a==='lvrsup'){V.sup=null;V.recvId=null;renderLiv();return}

@@ -811,6 +811,12 @@ button{cursor:pointer}
 .ledq button.x{min-width:32px;border-color:var(--line);color:var(--muted)}
 .ledl.act{background:#f2faf5;border-radius:10px;padding:4px 6px}.ledl.zero span{color:var(--amber)}
 .lvcol.led .bigbtn{margin-top:auto;min-height:48px;font-size:15px}
+.tline{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px 10px}
+.tline .tl{font-size:14px;font-weight:850;color:var(--deep)}.tline .tc{font-size:26px;font-weight:900;color:var(--deep)}.tline .tap{font-size:15px;font-weight:850;color:var(--green-dark);margin-right:8px}
+.tdg{display:flex;flex-direction:column;align-items:center;gap:3px}.tdg b{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--deep);line-height:1}
+.tdg button{width:40px;height:30px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:17px;font-weight:850;line-height:1}
+.tdg button.p{background:var(--green);color:#fff}.tdg button:disabled{opacity:.35}
+.tsum{display:block;text-align:center;color:var(--muted);font-size:12px;margin:4px 0 2px}
 .lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
@@ -820,7 +826,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 42</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-13</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 44</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-14</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1513,7 +1519,7 @@ S.commentsReu=S.commentsReu||[];
 S.usedInter=S.usedInter||[];
 const hm=m=>{const h=Math.floor(m/60),n=m%60;return h+' h'+(n?' '+pad(n):'')};
 const durTxt=d=>d<60?d+' min':Math.floor(d/60)+' h'+(d%60?' '+pad(d%60):'');
-function reuNew(){const n=new Date(),m=Math.min(17,Math.max(5,n.getHours()))*60;return {phase:null,who:null,subj:[],start:Math.min(m,23*60+45),dur:30,step:'who',text:''}}
+function reuNew(){return {phase:null,who:null,subj:[],start:8*60,dur:30,step:'who',text:''}}
 function reuFrom(e){return {phase:e.phase||null,who:e.a,subj:(e.subjects||[]).slice(),start:e.start!=null?e.start:9*60,dur:e.dur||30,step:'comment',text:e.text||''}}
 function reuEntry(text){const R=U.R;return {sec:'reu',phase:R.phase,a:R.who||'',subjects:R.subj.slice(),start:R.start,dur:R.dur,text:text!=null?text:R.text}}
 function renderReu(){
@@ -1527,10 +1533,11 @@ function renderReu(){
   const sopts=L.sujet.filter(x=>!x.off);
   h+=fxCol(2,'Sujets',SW,`<div class="fb scroll"><div class="vlist1">${sopts.map(x=>`<button class="chip ${R.subj.includes(x.label)?'on':''}" data-fa="rusub" data-v="${esc(x.label)}">${R.subj.includes(x.label)?'✓ ':''}${esc(x.label)}</button>`).join('')}</div></div><div class="fadd" style="flex-direction:column"><input class="inp dash" id="fNew" placeholder="Autre sujet" autocomplete="off"><button class="btn out" data-fa="runewsub" style="width:100%">Ajouter</button></div>`);
   const H=Math.floor(R.start/60),M=R.start%60;
-  const timeBox=`<div class="tbox">
-      <div class="tcell"><span class="lbl2">Heure</span><div class="tctl"><button data-fa="rutm" data-d="-60" aria-label="Heure moins">−</button><b>${H} h</b><button class="p" data-fa="rutm" data-d="60" aria-label="Heure plus">+</button></div><div class="tctl"><button data-fa="rutm" data-d="-15" aria-label="Moins 15 minutes">−</button><b>${pad(M)} min</b><button class="p" data-fa="rutm" data-d="15" aria-label="Plus 15 minutes">+</button></div></div>
-      <div class="tcell"><span class="lbl2">Durée</span><div class="tctl"><button data-fa="rudur" data-d="-15" aria-label="Moins 15 minutes" ${R.dur<=15?'disabled':''}>−</button><b>${durTxt(R.dur)}</b><button class="p" data-fa="rudur" data-d="15" aria-label="Plus 15 minutes">+</button></div><small>${hm(R.start)} à ${hm((R.start+R.dur)%(24*60))}</small></div>
-    </div>`;
+  const sh=Math.floor(R.start/60),sm=R.start%60,h12=((sh+11)%12)+1,ap=sh<12?'am':'pm',dh=Math.floor(R.dur/60),dm=R.dur%60;
+  const dg=(val,act,big,small)=>`<div class="tdg"><button class="p" data-fa="${act}" data-d="${big}" aria-label="Plus">+</button><b>${pad(val)}</b><button data-fa="${act}" data-d="-${big}" aria-label="Moins" ${small?'disabled':''}>−</button></div>`;
+  const timeBox=`<div class="tline"><span class="tl">Heure :</span>${dg(h12,'rutm',60)}<span class="tc">:</span>${dg(sm,'rutm',15)}<span class="tap">${ap}</span>
+      <span class="tl">durant</span>${dg(dh,'rudur',60,R.dur<=60)}<span class="tc">:</span>${dg(dm,'rudur',15,R.dur<=15)}<span class="tl">heure${R.dur>=120?'s':''}</span></div>
+      <small class="tsum">${hm(R.start)} à ${hm((R.start+R.dur)%(24*60))}</small>`;
   h+=fxCol(3,'Heure, durée et commentaire',CW,timeBox+fxComments(S.commentsReu.slice(0,60),{pick:'rucm',add:'rucmadd',none:'rucmnone',keep:'rucmkeep'},ready,R.text,U.editIndex!=null,'Choisir l’intervenant et au moins un sujet.'),ready?'':'wait');
   el.innerHTML=h;
 }

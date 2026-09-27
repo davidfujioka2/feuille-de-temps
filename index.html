@@ -734,12 +734,14 @@ button{cursor:pointer}
 .ctag.plan{background:#fff;color:var(--green-dark);border-style:dashed}
 .otag.free{border-style:dashed!important;margin-top:8px;align-self:stretch}
 .backlnk{border:0;background:none;color:var(--green-dark);font-weight:850;font-size:inherit;padding:0;cursor:pointer}
-.ftag{position:absolute;z-index:60;box-sizing:border-box;border:1.5px solid var(--green);border-radius:30px;background:var(--green);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 28px rgba(23,61,45,.22);overflow:hidden;pointer-events:none}
+.ftag{position:absolute;z-index:60;box-sizing:border-box;border:1.5px solid var(--green);border-radius:30px;background:var(--green);color:#fff;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px;padding:12px 24px;box-shadow:0 10px 28px rgba(23,61,45,.22);overflow:hidden;pointer-events:none}
 .ftag b{font-size:20px;font-weight:850}
-.ftag .fchips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:96%;min-height:0}
+.ftag .fchips{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-auto-columns:max-content;justify-content:start;align-content:start;gap:6px 10px;min-height:0;width:100%;overflow:hidden}
 .fdone{position:absolute;right:18px;bottom:14px;height:42px;padding:0 20px;border:0;border-radius:999px;background:#173d2d;color:#fff;font-size:15px;font-weight:850;pointer-events:auto;opacity:0;transition:opacity .4s}
 .ftag.ready .fdone{opacity:1}
-.fchip{background:#fff;color:var(--green-dark);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:800;white-space:nowrap}.ftag small{font-size:14px;font-weight:750;opacity:0}
+.fchip{background:#fff;color:var(--green-dark);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:800;white-space:nowrap}.ftag .fhead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
+.ftag .fp,.ftag .fd{font-size:14px;font-weight:800;opacity:var(--mo,0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftag .fd{text-align:right}.ftag .fhead b{text-align:center}
 #pgEntry.ov .top,#pgEntry.ov .srow,#pgEntry.ov .pbar,#pgEntry.ov #rows{visibility:hidden}
 #pgEntry.ov.ovm .top,#pgEntry.ov.ovm .srow{visibility:visible}
 .lvl1,.lvl2{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 6px}
@@ -785,7 +787,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 21</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-6</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 24</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-7</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1149,7 +1151,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
   setTimeout(async()=>{
     /* l'étiquette monte tout en haut, par-dessus le menu : on doit finir la saisie pour revenir */
     let el=t,x=0,y=0;while(el&&el.id!=='ipad'){x+=el.offsetLeft;y+=el.offsetTop;el=el.offsetParent}
-    const f=document.createElement('div');f.className='ftag';f.innerHTML=`<b>${NM[k]||''}</b><small>${esc(S.project)} · ${esc(dayLbl(U.date))}</small><div class="fchips"></div>`;
+    const f=document.createElement('div');f.className='ftag';f.innerHTML=`<div class="fhead"><span class="fp">${esc(S.project)}</span><b>${NM[k]||''}</b><span class="fd">${esc(dayLbl(U.date))}</span></div><div class="fchips"></div>`;
     Object.assign(f.style,{left:x+'px',top:y+'px',width:t.offsetWidth+'px',height:t.offsetHeight+'px'});$('#ipad').appendChild(f);U.ftag=f;
     pg.classList.add('ov');
     /* interpolation par minuterie : fluide sur iPad et fiable partout */
@@ -1157,8 +1159,8 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=(ms,fn)=>new Promise(res=>{const t0=Date.now(),id=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/ms);fn(ease(p));if(p>=1){clearInterval(id);res()}},16)});
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const sm=f.querySelector('small'),TT=k==='fdt'?118:10;if(k==='fdt')pg.classList.add('ovm');
-    await tween(1000,p=>{Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,TT,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,168,p)+'px'});sm.style.opacity=p});
+    const sm={style:{}},TT=k==='fdt'?118:10;if(k==='fdt')pg.classList.add('ovm');
+    await tween(1000,p=>{Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,TT,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,168,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     pg.dataset.sec=k;win.style.top=(TT+180)+'px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
     await tween(1000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';

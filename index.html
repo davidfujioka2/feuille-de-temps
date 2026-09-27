@@ -783,6 +783,10 @@ button{cursor:pointer}
 .fdtp button.on{background:var(--green);color:#fff}
 .fdtnext{height:42px;padding:0 20px;border:0;border-radius:12px;background:#173d2d;color:#fff;font-size:15px;font-weight:850;flex-shrink:0}.fdtnext:disabled{opacity:.4}
 .fdtframe{flex:1;min-height:0;width:100%;border:0;border-radius:14px;background:#fff}
+.ftag .fchips.liv2{display:grid;grid-auto-flow:row;grid-template-columns:1fr 1fr;grid-template-rows:none;gap:14px}
+.fgrp{display:flex;flex-direction:column;gap:5px;min-width:0}.fgrp em{font-style:normal;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;opacity:.85}
+.fgc{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;gap:5px 8px;justify-content:start;overflow:hidden}
+.fgrp i{font-size:12.5px;opacity:.75}
 .lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
@@ -792,7 +796,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 28</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-8</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 30</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-9</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1123,6 +1127,9 @@ function resetDraft(){Object.assign(U,{sec:null,vals:{},step:0,text:'',editIndex
 /* les choix faits dans le tableau apparaissent en étiquettes pleines dans la grande étiquette */
 function ftagChips(){const f=U.ftag;if(!f)return;const c=f.querySelector('.fchips');if(!c)return;
   const k=U.winSec,L=day().entries.filter(e=>e.sec===k);
+  if(k==='liv'){const it=e=>e.items&&e.items.length?e.items.map(x=>x.mat+' × '+x.qty).join(', '):(e.b||'');
+    const pl=L.filter(e=>e.kind==='envoi'),rc=L.filter(e=>e.kind!=='envoi');
+    c.classList.add('liv2');c.innerHTML=`<div class="fgrp"><em>Commandes placées</em><div class="fgc">${pl.map(e=>`<span class="fchip">${esc(it(e))}</span>`).join('')||'<i>Aucune</i>'}</div></div><div class="fgrp"><em>Reçu au chantier</em><div class="fgc">${rc.map(e=>`<span class="fchip">${esc(e.a)} · ${esc(it(e))}</span>`).join('')||'<i>Aucune</i>'}</div></div>`;return}
   if(k==='fdt'){c.innerHTML=day().fdt?'<span class="fchip">✓ Feuille de temps approuvée</span>':'';return}
   c.innerHTML=L.map(e=>`<span class="fchip" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`).join('')}
 function secFresh(){const k=U.winSec;resetDraft();U.winSec=k;
@@ -1172,7 +1179,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
       $('#ipad').appendChild(ch);U.lvch=ch;
       const m=await new Promise(res=>ch.onclick=e=>{const b=e.target.closest('[data-lvc]');if(b)res(b.dataset.lvc)});
       ch.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lvc===m));await sleep(250);ch.remove();U.lvch=null;
-      U.V.mode=m;const hb=f.querySelector('.fhead b');if(hb)hb.textContent=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';renderWin()}
+      U.V.mode=m==='recu'?'note':m;const hb=f.querySelector('.fhead b');if(hb)hb.textContent=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';renderWin()}
     pg.dataset.sec=k;win.style.top=(TT+180)+'px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
     await tween(1000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';
   },wait)}
@@ -1396,7 +1403,8 @@ function renderLiv(){
   if(V.mode==='envoi'||V.mode==='note'){const nt=V.mode==='note';
     /* catégorie > sous-catégorie > article > quantité ; accepter crée l'étiquette et ramène au journal */
     const descs=[...new Set([...(S.descs||[]),...planFav().mat,...(S.supMats[V.sup]||[])])].sort(byFr);
-    const GR=[...(descs.length?[['Récents',[['Récents',descs]]]]:[]),...MATCAT];
+    const pend=nt?[...new Set(ordersOf(V.sup).flatMap(o=>o.lines.filter(l=>!l.done).map(l=>l.mat)))]:[];
+    const GR=[...(pend.length?[['Commandé',[['En attente',pend]]]]:[]),...(descs.length?[['Récents',[['Récents',descs]]]]:[]),...MATCAT];
     const g=V.g!=null?GR[V.g]:null,one=g&&g[1].length===1,sj=g?(one?0:V.s):null,sg=g&&sj!=null?g[1][sj]:null;
     const cats=GR.map((x,i)=>`<button class="lvc ${V.g===i?'on':''}" data-fa="lvg" data-v="${i}">${esc(x[0])}</button>`).join('');
     const subs=g?(one?`<span class="empty-t">${esc(g[0])}</span>`:g[1].map((x,j)=>`<button class="lvc ${sj===j?'on':''}" data-fa="lvs" data-v="${j}">${esc(x[0])}</button>`).join('')):'<span class="empty-t">Choisir une catégorie.</span>';
@@ -1407,7 +1415,7 @@ function renderLiv(){
         <div class="kp2"><button class="nb" data-fa="lvh" ${qd2}>+100${V.hund?' (×'+V.hund+')':''}</button><button class="nb" data-fa="lvq0" ${tot?'':'disabled'}>Effacer</button></div>
         ${nt?`<input class="inp" id="lvNote" placeholder="Détails (optionnel)" autocomplete="off" value="${esc(V.note||'')}">`:''}
         <button class="bigbtn" data-fa="lvqok" ${tot&&V.sel?'':'disabled'}>Accepter la quantité</button></div>`;
-    body=`<div class="lvwrap">${pill}${nt?'<div class="gl" style="margin:2px 0 0"><button class="backlnk" data-fa="lvmode" data-v="recu">‹ Commandes enregistrées</button> · Livraison sans commande</div>':''}
+    body=`<div class="lvwrap">${pill}
       <div class="lv4">
         <div class="lvcol"><div class="gl">Catégorie</div><div class="scroll lvstack">${cats}</div></div>
         <div class="lvcol"><div class="gl">Sous-catégorie</div><div class="scroll lvstack">${subs}</div></div>
@@ -1578,7 +1586,7 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvqok'&&(V.mode==='envoi'||V.mode==='note')){const q=(V.hund||0)*100+(V.tens||0)+(V.units||0);if(!q||!V.sel)return;
     const it={mat:V.sel,qty:q};if(!S.descs.includes(V.sel))S.descs.push(V.sel);
     if(V.mode==='envoi'){V.items=[it];lvSend()}
-    else saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:[it],b:it.mat+' × '+it.qty,c:'',text:($('#lvNote')?$('#lvNote').value:'').trim()});
+    else{ordersOf(V.sup).forEach(o=>o.lines.forEach(l=>{if(!l.done&&l.mat===it.mat){l.done=true;l.missing=0}}));saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:[it],b:it.mat+' × '+it.qty,c:'',text:($('#lvNote')?$('#lvNote').value:'').trim()})}
     return}
   if(a==='lvqok'){const q=(V.hund||0)*100+(V.tens||0)+(V.units||0);if(!q)return;const ex=V.items.find(x=>x.mat===V.sel);if(ex)ex.qty=q;else V.items.push({mat:V.sel,qty:q});V.sel=null;V.hund=0;V.tens=0;V.units=0;V.qpop=false;renderLiv();return}
   if(a==='lvrm'){V.items.splice(Number(b.dataset.i),1);renderLiv();return}

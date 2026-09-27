@@ -787,6 +787,12 @@ button{cursor:pointer}
 .fgrp{display:flex;flex-direction:column;gap:5px;min-width:0}.fgrp em{font-style:normal;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;opacity:.85}
 .fgc{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;gap:5px 8px;justify-content:start;overflow:hidden}
 .fgrp i{font-size:12.5px;opacity:.75}
+.lvsp{position:absolute;left:12px;right:12px;bottom:12px;z-index:58;background:#fff;border:1.5px solid var(--green);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;overflow:auto;box-shadow:0 -6px 20px rgba(23,61,45,.12)}
+.lvsp .gl{margin:0}
+.lvspg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lvspg button{min-height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-size:13.5px;font-weight:850;padding:0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvspg button.on{background:var(--green);color:#fff}
+#win{z-index:61}
 .lvchoice{position:absolute;left:12px;right:12px;z-index:59;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .lvchoice button{min-height:120px;border:2px solid var(--green);border-radius:30px;background:#fff;color:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
@@ -796,7 +802,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 30</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-9</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 35</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-10</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1178,12 +1184,20 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
       ch.innerHTML='<button data-lvc="envoi"><b>Commande placée par surintendant</b><span>Choisir le matériel et la quantité</span></button><button data-lvc="recu"><b>Commande reçue au chantier</b><span>Valider une commande ou noter une livraison</span></button>';
       $('#ipad').appendChild(ch);U.lvch=ch;
       const m=await new Promise(res=>ch.onclick=e=>{const b=e.target.closest('[data-lvc]');if(b)res(b.dataset.lvc)});
-      ch.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lvc===m));await sleep(250);ch.remove();U.lvch=null;
-      U.V.mode=m==='recu'?'note':m;const hb=f.querySelector('.fhead b');if(hb)hb.textContent=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';renderWin()}
+      ch.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lvc===m));
+      U.V.mode=m==='recu'?'note':m;const hb=f.querySelector('.fhead b'),ttl=m==='envoi'?'Commande placée par surintendant':'Commande reçue au chantier';if(hb)hb.textContent=ttl;
+      const Ls=lists(),fo=Ls.four.filter(x=>!x.off),stl=Ls.st.filter(x=>!x.off&&x.label!==BC&&!fo.some(o=>o.label===x.label));
+      const sp=document.createElement('div');sp.className='lvsp';const spTop=TT+196+134;Object.assign(sp.style,{top:spTop+'px',transform:'translateY(700px)'});
+      sp.innerHTML=`<div class="gl">Fournisseurs</div><div class="lvspg">${fo.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div><div class="gl">Sous-traitants</div><div class="lvspg">${stl.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div>`;
+      $('#ipad').appendChild(sp);U.lvsp=sp;
+      await tween(1000,p=>{sp.style.transform=`translateY(${L(700,0,p)}px)`});sp.style.transform='';
+      const sup=await new Promise(res=>sp.onclick=e=>{const b=e.target.closest('[data-lvsp]');if(b){b.classList.add('on');res(b.dataset.lvsp)}});
+      U.V.sup=sup;U.lvNoSup=true;if(hb)hb.textContent=ttl+' · '+sup;await sleep(200);renderWin()}
     pg.dataset.sec=k;win.style.top=(TT+180)+'px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
     await tween(1000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';
+    if(U.lvch){U.lvch.remove();U.lvch=null}if(U.lvsp){U.lvsp.remove();U.lvsp=null}
   },wait)}
-function closeWin(){U.pendSel=null;if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
+function closeWin(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){
@@ -1383,10 +1397,10 @@ function renderLiv(){
   const V=U.V,L=lists(),el=$('#flow');
   const ready=!!V.sup;let h='';
   $('#winSent').textContent=ready?(V.mode==='envoi'?'Commande placée chez '+V.sup:V.mode==='note'?'Livraison sans commande · '+V.sup:'Réception commande · '+V.sup):'';
-  const SUPW=250,OW=1148-G-SUPW;
+  const SUPW=U.lvNoSup&&ready?0:250,OW=1148-(SUPW?G+SUPW:0);
   const opts=L.four.filter(x=>!x.off),stFav=L.st.filter(x=>!x.off&&x.label!==BC&&!opts.some(o=>o.label===x.label));
   const sl=xs=>`<div class="vlist1">${xs.map(x=>`<button class="chip ${V.sup===x.label?'on':''}" data-fa="lvsup" data-v="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div>`;
-  h+=fxCol(1,'Fournisseurs',SUPW,`<div class="fb scroll"><div class="gl" style="margin:0 0 6px">Fournisseurs</div>${sl(opts)}<div class="gl" style="margin:12px 0 6px">Sous-traitants</div>${sl(stFav)}</div>`);
+  if(SUPW)h+=fxCol(1,'Fournisseurs',SUPW,`<div class="fb scroll"><div class="gl" style="margin:0 0 6px">Fournisseurs</div>${sl(opts)}<div class="gl" style="margin:12px 0 6px">Sous-traitants</div>${sl(stFav)}</div>`);
   if(!ready){h+=`<div class="fcol next" style="width:${OW}px"><div class="fh"><span class="num">2</span><b>Commande</b></div><div class="fnext" style="font-size:15px">Choisir un fournisseur ou un sous-traitant à gauche.</div></div>`;el.innerHTML=h;return}
   const past=ordersOf(V.sup);
   const ribbon=`<div class="ribbon"><button class="${V.mode==='envoi'?'on':''}" data-fa="lvmode" data-v="envoi">Commande envoyée</button><button class="${V.mode==='recu'?'on':''}" data-fa="lvmode" data-v="recu">Commande reçue${past.length?` <small>${past.filter(o=>!orderDone(o)).length} en attente</small>`:''}</button></div>`;

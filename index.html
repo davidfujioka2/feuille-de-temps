@@ -799,6 +799,9 @@ button{cursor:pointer}
 .lvol{display:flex;flex-direction:column;gap:6px}
 .lvo{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:10px;text-align:left;border:1.5px solid var(--green);border-radius:18px;background:#fff;color:var(--green-dark);padding:8px 14px}
 .lvo b{font-size:14px;font-weight:850}.lvo span{grid-column:1;font-size:12px;color:var(--muted);font-weight:700}
+.lvoli{grid-column:1 / span 2;grid-row:3;list-style:none;margin:6px 0 0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:2px}
+.lvoli li{font-size:12.5px;font-weight:700;color:var(--text);border-left:2px solid var(--green-line);padding-left:8px}.lvoli li.ok{color:var(--muted)}.lvoli li.more{color:var(--muted);font-style:italic;border-left-color:transparent}
+.lvo.on .lvoli li{color:#fff}
 .lvo em{grid-row:1 / span 2;grid-column:2;align-self:center;font-style:normal;font-size:12px;font-weight:850;color:var(--amber)}
 .lvo.done{border-color:var(--green-line)}.lvo.done em{color:var(--green-dark)}
 .lvo.on{background:var(--green);color:#fff}.lvo.on span,.lvo.on em{color:#fff}
@@ -827,7 +830,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 45</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-15</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 16 h 47</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-16</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1214,7 +1217,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
       const Ls=lists(),fo=Ls.four.filter(x=>!x.off),stl=Ls.st.filter(x=>!x.off&&x.label!==BC&&!fo.some(o=>o.label===x.label));
       const sp=document.createElement('div');sp.className='lvsp';const spTop=TT+196+134;Object.assign(sp.style,{top:spTop+'px',transform:'translateY(700px)'});
       const supB=xs=>xs.map(x=>`<button data-lvsp="${esc(x.label)}">${esc(x.label)}</button>`).join('');
-      if(m==='recu'){const oB=o=>{const n=o.lines.length,dn=orderDone(o);return `<button class="lvo ${dn?'done':''}" data-lvo="${o.id}"><b>${esc(o.sup)}</b><span>${esc(o.project)} · ${esc(shortDate(o.date))} · ${n} article${n>1?'s':''}</span><em>${dn?'Reçue':'En attente'}</em></button>`};
+      if(m==='recu'){const oB=o=>{const n=o.lines.length,dn=orderDone(o);return `<button class="lvo ${dn?'done':''}" data-lvo="${o.id}"><b>${esc(o.sup)}</b><span>${esc(o.project)} · ${esc(shortDate(o.date))} · ${n} article${n>1?'s':''}</span><em>${dn?'Reçue':'En attente'}</em><ul class="lvoli">${o.lines.slice(0,5).map(l=>`<li class="${l.done?'ok':''}">${esc(l.mat)} × ${l.qty}${l.done?' ✓':''}</li>`).join('')}${n>5?`<li class="more">+ ${n-5} autre${n-5>1?'s':''}</li>`:''}</ul></button>`};
         const mine=S.orders.filter(o=>o.project===S.project).sort((a,b)=>orderDone(a)-orderDone(b)||b.date.localeCompare(a.date)||b.created-a.created).slice(0,12);
         const others=S.orders.filter(o=>o.project!==S.project&&!orderDone(o)).sort((a,b)=>b.date.localeCompare(a.date));
         sp.classList.add('rc');

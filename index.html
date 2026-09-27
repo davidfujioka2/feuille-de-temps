@@ -734,11 +734,14 @@ button{cursor:pointer}
 .ctag.plan{background:#fff;color:var(--green-dark);border-style:dashed}
 .otag.free{border-style:dashed!important;margin-top:8px;align-self:stretch}
 .backlnk{border:0;background:none;color:var(--green-dark);font-weight:850;font-size:inherit;padding:0;cursor:pointer}
+.ftag{position:absolute;z-index:60;box-sizing:border-box;border:1.5px solid var(--green);border-radius:30px;background:var(--green);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 28px rgba(23,61,45,.22);overflow:hidden;pointer-events:none}
+.ftag b{font-size:20px;font-weight:850}.ftag small{font-size:14px;font-weight:750;opacity:0}
+#pgEntry.ov .top,#pgEntry.ov .srow,#pgEntry.ov .pbar,#pgEntry.ov #rows{visibility:hidden}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 20 h 52</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-34</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Samedi 21 h 02</b> <span style="opacity:.75">26 septembre 2026 · v2026-09-26-35</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1069,16 +1072,28 @@ function resetDraft(){Object.assign(U,{sec:null,vals:{},step:0,text:'',editIndex
 function jpos(el){let y=0;while(el&&el.id!=='ipad'){y+=el.offsetTop;el=el.offsetParent}return y}
 function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .sgroup'),t=g&&k&&k!=='fdt'&&!S.viewAll?g.querySelector('.stag[data-row="'+k+'"]'):null;
   if(!t){win.hidden=false;drawTnav();return}
-  t.classList.add('sel');U.pendSel=null;const wait=Math.max(250,(U.expandUntil||0)-Date.now());
-  setTimeout(()=>{
-    const others=[...g.querySelectorAll('.stag,.gstat')].filter(x=>x!==t),th=t.offsetHeight;
-    t.style.flex='none';t.style.height=th+'px';pg.style.setProperty('--selh',th+'px');t.classList.add('sel');
-    others.forEach(x=>{const h=x.offsetHeight;x.style.flex='none';x.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0,paddingTop:'0px',paddingBottom:'0px',marginTop:'0px',borderWidth:'0px'}],{duration:500,easing:'ease-in-out',fill:'forwards'})});
-    setTimeout(()=>{pg.dataset.sec=k;others.forEach(x=>x.getAnimations().forEach(a=>a.cancel()));
-      win.style.top=(jpos(t)+t.offsetHeight+10)+'px';win.hidden=false;
-      win.animate([{transform:'translateY(80px)',opacity:0},{transform:'none',opacity:1}],{duration:500,easing:'ease-out'});drawTnav()},500)
+  t.classList.add('sel');U.pendSel=null;const wait=Math.max(350,(U.expandUntil||0)-Date.now());
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms)),NM={st:'Sous-traitants',liv:'Livraisons',reu:'Réunions et rencontres',evt:'Événements et incidents'};
+  setTimeout(async()=>{
+    /* l'étiquette monte tout en haut, par-dessus le menu : on doit finir la saisie pour revenir */
+    let el=t,x=0,y=0;while(el&&el.id!=='ipad'){x+=el.offsetLeft;y+=el.offsetTop;el=el.offsetParent}
+    const f=document.createElement('div');f.className='ftag';f.innerHTML=`<b>${NM[k]||''}</b><small>${esc(S.project)} · ${esc(dayLbl(U.date))}</small>`;
+    Object.assign(f.style,{left:x+'px',top:y+'px',width:t.offsetWidth+'px',height:t.offsetHeight+'px'});$('#ipad').appendChild(f);U.ftag=f;
+    pg.classList.add('ov');
+    /* interpolation par minuterie : fluide sur iPad et fiable partout */
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const tween=(ms,fn)=>new Promise(res=>{const t0=Date.now(),id=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/ms);fn(ease(p));if(p>=1){clearInterval(id);res()}},16)});
+    const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
+    await tween(1000,p=>Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,10,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,84,p)+'px'}));
+    await sleep(1000);
+    await tween(2000,p=>{f.style.backgroundColor=`rgb(${L(47,255,p)|0},${L(138,255,p)|0},${L(87,255,p)|0})`;f.style.color=`rgb(${L(255,35,p)|0},${L(255,107,p)|0},${L(255,67,p)|0})`});
+    const sm=f.querySelector('small');
+    await tween(2000,p=>{f.style.height=L(84,168,p)+'px';sm.style.opacity=p});
+    await sleep(1000);
+    pg.dataset.sec=k;win.style.top='190px';win.style.transform='translateY(640px)';win.hidden=false;drawTnav();
+    await tween(2000,p=>{win.style.transform=`translateY(${L(640,0,p)}px)`});win.style.transform='';
   },wait)}
-function closeWin(){U.pendSel=null;resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
+function closeWin(){U.pendSel=null;if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
 function renderGrid(){

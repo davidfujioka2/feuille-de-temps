@@ -845,7 +845,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 16 h 33</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-7</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 18 h 30</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-8</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1989,7 +1989,7 @@ async function reportPdfBlob(){
   for(let y=0,i=0;y<canvas.height;y+=sliceH,i++){const c=document.createElement('canvas');c.width=canvas.width;c.height=Math.min(sliceH,canvas.height-y);c.getContext('2d').drawImage(canvas,0,y,c.width,c.height,0,0,c.width,c.height);if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,c.height*pw/c.width)}
   return pdf.output('blob');
 }
-const pdfName=(proj,date,final)=>`${slug(proj)}__Rapports__${date}${final?'':'__brouillon'}.pdf`;
+const pdfName=(proj,date,final)=>`${String(proj).replace(/[\/:*?"<>|]/g,'-').trim()} journal ${date}${final?'':' brouillon'}.pdf`;
 async function shareReportPdf(){
   const D=day(),ok=D.status==='approved',nm=pdfName(S.project,U.date,ok);toast('Création du PDF…');
   try{const b=await reportPdfBlob(),fl=new File([b],nm,{type:'application/pdf'});

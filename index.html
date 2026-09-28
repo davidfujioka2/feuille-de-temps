@@ -836,7 +836,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Dimanche 17 h 25</b> <span style="opacity:.75">27 septembre 2026 · v2026-09-27-28</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 1 h 50</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-1</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1220,7 +1220,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=(ms,fn)=>new Promise(res=>{const t0=Date.now(),id=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/ms);fn(ease(p));if(p>=1){clearInterval(id);res()}},16)});
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const sm={style:{}},TT=k==='fdt'?118:10;if(k==='fdt')pg.classList.add('ovm');
+    const sm={style:{}},TT=118;pg.classList.add('ovm');
     await tween(1000,p=>{Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,TT,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,168,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+196)+'px';
@@ -2012,6 +2012,7 @@ function drawTnav(){drawPbar();const act=U.page==='cal'?(S.calView||'cal'):(U.pa
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
+  if(U.ftag||!$('#win').hidden)closeWin();
   if(k==='cal'||k==='jou'||k==='fdt'||k==='liv'){S.calView=k;save();go('cal');render()}else if(k==='prm')go('prm');else if(k==='pho')go('ph')});
 
 /* ===================== MODULE PHOTOS ===================== */

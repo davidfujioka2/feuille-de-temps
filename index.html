@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr">
-<head>
+<head><script>window.CH_HIDE=['cal','pho','liv','pla']</script><style>.tnav a[data-k="cal"],.tnav a[data-tn="cal"],.tnav a[data-k="pho"],.tnav a[data-tn="pho"],.tnav a[data-k="liv"],.tnav a[data-tn="liv"],.tnav a[data-k="pla"],.tnav a[data-tn="pla"]{display:none!important}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
@@ -836,11 +836,12 @@ button{cursor:pointer}
 .prj .inp{flex:1;min-height:40px;font-weight:800}.prj button{min-width:40px;height:40px;border:1.5px solid var(--green);border-radius:999px;background:#fff;color:var(--green-dark);font-weight:850}
 .prj button:disabled{opacity:.3}.prj button.st{min-width:84px}.prj button.st.on{background:var(--green);color:#fff}
 .prj button.x{border-color:var(--line);color:var(--muted)}.prj button.x.sure{border-color:var(--red);color:var(--red);min-width:84px}.prj.off .inp{color:var(--muted)}
+.prm-grp.prm-st{width:100%;font-size:13px;color:var(--deep);border-bottom:2px solid var(--green);padding-bottom:4px;margin-top:10px}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--deep);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 1 h 57</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-3</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 2 h 00</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-4</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1046,7 +1047,7 @@ try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
 S=S||{};
 S.project=S.project||'2565 Aird'; S.month=S.month||fmt(new Date(today.getFullYear(),today.getMonth(),1));
 S.days=S.days||{}; S.fav=S.fav||{}; S.off=S.off||{}; S.added=S.added||{};
-S.projList=S.projList&&S.projList.length?S.projList:PROJECTS.slice();PROJECTS.splice(0,PROJECTS.length,...S.projList);BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));
+const HIDE=window.CH_HIDE||[];if(HIDE.includes(S.calView||'cal'))S.calView='jou';S.projList=S.projList&&S.projList.length?S.projList:PROJECTS.slice();PROJECTS.splice(0,PROJECTS.length,...S.projList);BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));
 S.tags=S.tags||{who:'',act:'',zones:[],imp:'Normale',note:''};
 Object.values(S.days).forEach(D=>{D.entries=(D.entries||[]).map(e=>{if(e.sec)return e;const f=k=>(e[k]||[])[0]||'',T=f('type'),su=f('suite')==='Aucune suite'?'':f('suite');
   if((e.act||[]).includes('Livraison')||T==='Livraison')return {id:e.id,sec:'liv',a:f('who'),b:f('mats'),c:f('etat'),text:e.note||''};
@@ -1922,14 +1923,16 @@ function renderPrm(){
     $('#prmNew').placeholder='Nouveau sous-traitant';return}
   $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
   if(k==='proj'){$('#prmTitle').textContent='Projets';$('#prmStats').textContent=PROJECTS.length+' projets · '+ACTIVE().length+' actifs · modifier le nom, l’ordre ou l’état';
-    $('#prmItems').innerHTML=PROJECTS.map((p,i)=>{const off=!!S.off['proj|'+p];return `<div class="prj ${off?'off':''}"><input class="inp" data-pjn="${i}" value="${esc(p)}" aria-label="Nom du projet"><button data-pju="${i}" ${i?'':'disabled'} aria-label="Monter">▲</button><button data-pjd="${i}" ${i<PROJECTS.length-1?'':'disabled'} aria-label="Descendre">▼</button><button class="st ${off?'':'on'}" data-pjo="${i}">${off?'Inactif':'Actif'}</button><button class="x" data-pjx="${i}" aria-label="Retirer">×</button></div>`}).join('');
+    const prow=(p,i)=>{const off=!!S.off['proj|'+p];return `<div class="prj ${off?'off':''}"><input class="inp" data-pjn="${i}" value="${esc(p)}" aria-label="Nom du projet"><button data-pju="${i}" ${i?'':'disabled'} aria-label="Monter">▲</button><button data-pjd="${i}" ${i<PROJECTS.length-1?'':'disabled'} aria-label="Descendre">▼</button><button class="st ${off?'':'on'}" data-pjo="${i}">${off?'Inactif':'Actif'}</button><button class="x" data-pjx="${i}" aria-label="Retirer">×</button></div>`};const PI=PROJECTS.map((p,i)=>[p,i]),pa=PI.filter(([p])=>!S.off['proj|'+p]),pz=PI.filter(([p])=>S.off['proj|'+p]);
+    $('#prmItems').innerHTML=`<div class="prm-grp">Actifs · ${pa.length}</div>`+pa.map(([p,i])=>prow(p,i)).join('')+(pz.length?`<div class="prm-grp">Inactifs · ${pz.length}</div>`+pz.map(([p,i])=>prow(p,i)).join(''):'');
     $('#prmNew').placeholder='Nouveau projet';return}
   $('#prmTitle').textContent=LIST_LBL[k];
   const all=L[k],nf=all.filter(x=>x.fav&&!x.off).length,no=all.filter(x=>x.off).length;
   $('#prmStats').textContent=all.length+' pastilles · '+nf+' favoris · '+no+' désactivées';
-  let g=null;
-  $('#prmItems').innerHTML=all.map(x=>{const h=x.group!==g?`<div class="prm-grp">${esc(x.group)}</div>`:'';g=x.group;
-    return h+`<span class="it ${x.off?'off':x.fav?'fav':''}"><b>${esc(x.label)}</b><button class="f" data-pf="${esc(x.label)}" aria-label="${x.fav?'Retirer des favoris':'Mettre en favori'} : ${esc(x.label)}">★</button><button class="o" data-po="${esc(x.label)}" aria-label="${x.off?'Réactiver':'Désactiver'} : ${esc(x.label)}">⊘</button></span>`}).join('');
+  let g=null;const A=all.filter(x=>!x.off),Z=all.filter(x=>x.off),ML=(n,a)=>a.length?`<div class="prm-grp prm-st">${n} · ${a.length}</div>`:'';
+  const one=x=>{const h=x.group!==g?`<div class="prm-grp">${esc(x.group)}</div>`:'';g=x.group;
+    return h+`<span class="it ${x.off?'off':x.fav?'fav':''}"><b>${esc(x.label)}</b><button class="f" data-pf="${esc(x.label)}" aria-label="${x.fav?'Retirer des favoris':'Mettre en favori'} : ${esc(x.label)}">★</button><button class="o" data-po="${esc(x.label)}" aria-label="${x.off?'Réactiver':'Désactiver'} : ${esc(x.label)}">⊘</button></span>`};
+  $('#prmItems').innerHTML=ML('Actifs',A)+A.map(one).join('')+(g=null,ML('Inactifs',Z))+Z.map(one).join('');
   $('#prmNew').placeholder='Ajouter à « '+LIST_LBL[k]+' »';
 }
 function projSave(){S.projList=PROJECTS.slice();BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));if(!PROJECTS.includes(S.project))S.project=ACTIVE()[0];save();drawPbar()}
@@ -2013,7 +2016,7 @@ function saveBackup(){
 
 /* ===================== MENU D'ICÔNES (rangée d'en-tête) ===================== */
 const TNAV_ICO={pho:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',fdt:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',jou:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/>',liv:'<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/>',pla:'<path d="M4 6h9M7 11h10M10 16h10"/><path d="M3 3v18"/>',prm:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'};
-const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps',null],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['prm','Paramètres',null]];
+const TNAV=[['cal','Calendrier',null],['fdt','Feuille de temps',null],['jou','Journal',null],['pho','Photos',null],['liv','Livraison',null],['prm','Paramètres',null]].filter(x=>!HIDE.includes(x[0]));
 const TNAV_ACTIVE={cal:'cal',entry:'jou',read:'jou',photos:'pho',prm:'prm',ph:'pho',cam:'pho',rev:'pho',gal:'pho'};
 function drawPbar(){const P=ACTIVE(),h=P.map(p=>`<button class="${!S.viewAll&&p===S.project?'on':''}" data-pb="${esc(p)}">${esc(p)}</button>`).join('');$$('.pbar').forEach(n=>{n.innerHTML=h;n.style.setProperty('--n',P.length)})}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const p=b.dataset.pb;

@@ -334,7 +334,7 @@ document.getElementById('allocT').addEventListener('click',e=>{const b=e.target.
   if(det){det.p=p;render();drawAlloc();return}edit=false;mode=mode==='w'?'g':mode;det={row:rows[0],p};u=0;animDet(1);drawAlloc()});
 setInterval(drawAlloc,600);
 /* ---------- calendrier des projets ---------- */
-const PROJS=(()=>{const A=['2565 Aird','2575 Aird','625 Place Théberge','2020 St-Timothée','3165 Holt'];let off={};try{off=(JSON.parse(localStorage.getItem('journalChantier_v1'))||{}).off||{}}catch(e){}const a=A.filter(p=>!off['proj|'+p]);return a.length?a:A})();
+const PROJS=(()=>{let A=['2565 Aird','2575 Aird','625 Place Théberge','2020 St-Timothée','3165 Holt'];let off={};try{const J=JSON.parse(localStorage.getItem('journalChantier_v1'))||{};off=J.off||{};if(J.projList&&J.projList.length)A=J.projList}catch(e){}const a=A.filter(p=>!off['proj|'+p]);return a.length?a:A})();
 let pcStart=(()=>{const t=new Date(),d=new Date(t.getFullYear(),t.getMonth(),t.getDate());d.setDate(d.getDate()-d.getDay());return d})();
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 function planOf(p){let pl=null;try{pl=(JSON.parse(localStorage.getItem(PLAN_KEY)||'{}')[p])||null}catch(e){}

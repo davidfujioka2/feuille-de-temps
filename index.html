@@ -845,7 +845,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 6 h 13</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-5</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 16 h 33</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-7</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1878,11 +1878,11 @@ function renderRead(){
   $('#paper').innerHTML=html;fillBurned($('#paper'));
   $('#readSide').innerHTML=ok?`<span class="lbl">Rapport approuvé</span><p>Signé par ${SUP} le ${esc(stamp(D.approvedAt))}. Le rapport est final et ne peut plus être modifié.</p>
       ${D.history.length?`<p>${D.history.map(h=>'Rév. '+h.rev+' approuvée le '+esc(stamp(h.at))).join('<br>')}</p>`:''}
-      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px"><button class="btn out" id="savePdf">📄 Enregistrer le PDF</button><button class="btn go" data-go="cal">Retour au calendrier</button></div>`
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px"><button class="btn out" id="savePdf">📄 Enregistrer</button><button class="btn out" id="sharePdf">↗ Partager</button><button class="btn go" data-go="cal">Retour au calendrier</button></div>`
     :`<span class="lbl">Rapport</span>
       <button class="btn rs" data-go="entry">Modifier</button>
-      <button class="btn rs" id="saveQuit">Enregistrer</button>
-      <button class="btn" id="savePdf" style="height:40px;font-size:13px">📄 PDF brouillon</button>
+      <button class="btn rs" id="savePdf">📄 Enregistrer</button>
+      <button class="btn rs" id="sharePdf">↗ Partager</button>
       <button class="btn go rs" id="approve" disabled>Approuver</button>
       <span class="lbl" style="margin-top:8px">Signature</span>
       <canvas class="sigpad2" id="sigpad2"></canvas>
@@ -1905,7 +1905,8 @@ $('#spread').addEventListener('click',e=>{const l=e.target.closest('[data-edit]'
 $('#spPrev').onclick=()=>{U.spread=Math.max(0,U.spread-1);renderRead()};
 $('#spNext').onclick=()=>{U.spread++;renderRead()};
 $('#readSide').addEventListener('click',e=>{
-  if(e.target.id==='savePdf'){saveReportPdf();return}
+  if(e.target.closest('#savePdf')){save();saveReportPdf();return}
+  if(e.target.closest('#sharePdf')){save();shareReportPdf();return}
   if(e.target.id==='saveQuit'){save();go('cal');toast('Journal enregistré')}
   else if(e.target.id==='approve'){if(!U.sigInk){toast('Signer d’abord');return}const D=day();D.sig=$('#sigpad2').toDataURL('image/png');D.status='approved';D.approvedAt=Date.now();save();renderRead();toast('Journal approuvé');setTimeout(storeFinalPdf,300)}
   else if(e.target.id==='newRev'){const D=day();D.history.push({rev:D.rev,at:D.approvedAt});D.rev++;D.status='draft';D.sig=null;D.approvedAt=null;save();go('entry');toast('Révision '+D.rev+' ouverte')}
@@ -1989,6 +1990,12 @@ async function reportPdfBlob(){
   return pdf.output('blob');
 }
 const pdfName=(proj,date,final)=>`${slug(proj)}__Rapports__${date}${final?'':'__brouillon'}.pdf`;
+async function shareReportPdf(){
+  const D=day(),ok=D.status==='approved',nm=pdfName(S.project,U.date,ok);toast('Création du PDF…');
+  try{const b=await reportPdfBlob(),fl=new File([b],nm,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[fl]})){try{await navigator.share({files:[fl],title:'Rapport journalier · '+S.project+' · '+U.date})}catch(x){if(x&&x.name!=='AbortError')throw x}return}
+    saveFile(b,nm);toast('Partage non disponible : PDF enregistré')}catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
+}
 async function saveReportPdf(){
   const D=day(),ok=D.status==='approved';toast('Création du PDF…');
   try{const b=await reportPdfBlob();saveFile(b,pdfName(S.project,U.date,ok));toast('PDF prêt')}catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
@@ -2212,7 +2219,9 @@ addEventListener('hashchange',()=>window.__route(location.hash));if(location.has
 })();
 </script>
 
-<style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
+<style>@media (orientation:portrait) and (max-width:600px){html.phone .stage{visibility:hidden}
+html.phone body::after{content:'↻\ATourner le téléphone\Aà l’horizontale';position:fixed;left:0;top:0;width:100vw;height:100vh;box-sizing:border-box;white-space:pre-line;zoom:1;line-height:1.5;display:flex;align-items:center;justify-content:center;padding:32px;text-align:center;font:800 20px -apple-system,'Segoe UI',sans-serif;color:#173d2d;background:#f3f5f4;z-index:9999}}
+html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}
 html.phone .ipad{border-radius:0!important;box-shadow:none!important;margin:0 auto!important}
 html.phone body{display:flex;justify-content:center;align-items:center}

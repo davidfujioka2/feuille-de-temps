@@ -1020,7 +1020,7 @@ canvas.sig{display:block;width:100%;height:120px;border-bottom:1.5px solid #333;
 <div id="toast" class="toast" role="status"></div>
 
 <script>
-const projects=['2575 Aird','625 Place Théberge','2565 Aird','2020 St-Timothée','3165 Holt'];
+const projects=(()=>{const A=['2575 Aird','625 Place Théberge','2565 Aird','2020 St-Timothée','3165 Holt'];try{const J=JSON.parse(localStorage.getItem('journalChantier_v1'))||{},L=J.projList&&J.projList.length?J.projList:A,off=J.off||{},a=L.filter(p=>!off['proj|'+p]);return a.length?a:L}catch(e){return A}})();
 const trades=['Menuisier','Manœuvre'];
 const tradePlural={Menuisier:'Menuisiers',Manœuvre:'Manœuvres'};
 const employees={
@@ -1750,7 +1750,62 @@ function renderTimesheet(){
   const ub=$('#tsUnapprove');if(ub)ub.onclick=()=>{delete state.weekApproved[ws];save();renderTimesheet();renderCalendar()};
   mountSigs();
 }
-$('#tsApprove').onclick=()=>{const ws=state.sheetWeek;state.weekApproved[ws]=Date.now();save();flash();setTimeout(()=>{renderTimesheet();renderCalendar()},180)};
+$('#tsApprove').onclick=()=>{const ws=state.sheetWeek;state.weekApproved[ws]=Date.now();save();flash();setTimeout(()=>{renderTimesheet();renderCalendar()},180);setTimeout(()=>tsExport(ws),400)};
+/* ---------- export de la feuille de temps : un PDF et un JSON (format Monday) par projet ---------- */
+const OUTBOX='chantierOutbox_v1',DBXK='chantierDropbox_v1',DBX_APP='ikahlgofasunxgg';
+const J0=()=>{try{return JSON.parse(localStorage.getItem('journalChantier_v1'))||{}}catch(e){return {}}};
+const supName=()=>J0().supName||'Steeve Pitre';
+const fsafe=t=>String(t||'').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim();
+const p2=n=>String(n).padStart(2,'0'),stampName=(d=new Date())=>`${fmt(d)} ${p2(d.getHours())}-${p2(d.getMinutes())}-${p2(d.getSeconds())}`;
+const DAYN=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+function tsData(ws){const [y,m,d0]=ws.split('-').map(Number),start=new Date(y,m-1,d0),days=[...Array(7)].map((_,i)=>addDays(start,i)),fri=fmt(days[5]);
+  const per={};const add=(p,name,trade,di,h)=>{if(!h)return;const P=(per[p] ||= {});const r=(P[name] ||= {name,trade,days:[0,0,0,0,0,0,0]});r.days[di]+=h};
+  days.forEach((d,di)=>{const ds=fmt(d);projects.forEach(p=>{const key=`${ds}||${p}`,L=state.links[key],H=state.hours[key],C=state.laborCounts[key];
+    if(L&&C)trades.forEach(t=>{const n=C[t]||0,arr=L[t]||[];for(let i=0;i<n;i++){const name=arr[i];if(name)add(p,name,t,di,((H&&H[`${t}|${i}`])||[]).reduce((s,e)=>s+e.h,0))}});
+    add(p,supName(),'Surintendant',di,(state.supHours[ds]||{})[p]||0)})});
+  return {start,days,fri,per}}
+function tsJson(ws,p,rows,fri){const r2=x=>Math.round(x*100)/100;
+  return {type:'feuille de temps',id:p+'|'+fri,version:1,statut:'approuvé',cree:new Date().toISOString(),projet:p,semaine_debut:ws,semaine_finissant_le:fri,surintendant:supName(),
+    elements:Object.values(rows).sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(r=>({nom:r.name,"Employé":r.name,"Métier":r.trade,Entreprise:companyOf(r.name),
+      sous_elements:[{nom:p,...Object.fromEntries(DAYN.map((n,i)=>[n,r2(r.days[i])])),"Total heures":r2(r.days.reduce((a,b)=>a+b,0))}]}))}}
+function loadPdfLib(){return window.jspdf?Promise.resolve():new Promise((res,rej)=>{const x=document.createElement('script');x.src='./lib/jspdf.umd.min.js';x.onload=res;x.onerror=()=>rej(new Error('PDF non chargé'));document.head.appendChild(x)})}
+async function tsPdf(ws,p,rows,start,days,fri){await loadPdfLib();const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'landscape'});
+  const W=pdf.internal.pageSize.getWidth(),M=40;let y=48;const dl=d=>`${d.getDate()} ${monthNames[d.getMonth()]}`;
+  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.setTextColor(47,138,87);pdf.text((J0().coName||'Beaudoin Capital').toUpperCase(),M,y);
+  pdf.setTextColor(23,32,42);pdf.setFontSize(20);pdf.text(p+' · Feuille de temps',M,y+=26);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(11);pdf.text(`Semaine finissant le ${fri} · du ${dl(days[0])} au ${dl(days[6])} ${days[6].getFullYear()} · Surintendant : ${supName()}`,M,y+=18);
+  const cols=[160,90,...Array(7).fill(52),60],x0=[M];cols.forEach((c,i)=>x0.push(x0[i]+c));y+=26;
+  const row=(cells,bold,fill)=>{if(fill){pdf.setFillColor(...fill);pdf.rect(M,y-13,x0[x0.length-1]-M,20,'F')}pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(10);
+    cells.forEach((c,i)=>pdf.text(String(c),i<2?x0[i]+4:x0[i]+cols[i]-6,y,{align:i<2?'left':'right'}));pdf.setDrawColor(223,228,225);pdf.line(M,y+7,x0[x0.length-1],y+7);y+=20};
+  row(['Employé','Métier',...days.map((d,i)=>DAYN[i].slice(0,3)+' '+d.getDate()),'Total'],true,[232,243,236]);
+  const tot=[0,0,0,0,0,0,0];const fh=h=>h?(Math.round(h*100)/100).toString().replace('.',','):'—';
+  Object.values(rows).sort((a,b)=>a.name.localeCompare(b.name,'fr')).forEach(r=>{r.days.forEach((h,i)=>tot[i]+=h);row([r.name,r.trade,...r.days.map(fh),fh(r.days.reduce((a,b)=>a+b,0))])});
+  row(['Total','',...tot.map(fh),fh(tot.reduce((a,b)=>a+b,0))],true,[243,245,244]);
+  y+=24;pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(91,100,112);pdf.text(`Approuvée le ${new Date(state.weekApproved[ws]||Date.now()).toLocaleString('fr-CA')} · généré par Chantier`,M,y);
+  pdf.setProperties({title:p+' · Feuille de temps · semaine finissant le '+fri,subject:'Feuille de temps '+p+' '+fri,author:supName(),keywords:[p,'Feuille de temps',fri,supName(),...Object.keys(rows)].join(', '),creator:'Chantier · '+(J0().coName||'Beaudoin Capital')});
+  return pdf.output('datauristring').split(',')[1]}
+const obx=()=>{try{return JSON.parse(localStorage.getItem(OUTBOX)||'[]')}catch(e){return []}};
+const obxSet=a=>{try{localStorage.setItem(OUTBOX,JSON.stringify(a))}catch(e){}};
+async function tsExport(ws){try{const {start,days,fri,per}=tsData(ws),box=obx().filter(x=>x.week!==ws);
+    for(const [p,rows] of Object.entries(per)){const dir=fsafe(p)+'/Feuilles de temps';
+      box.push({id:'fdt|'+p+'|'+ws,week:ws,name:`${fsafe(p)} feuille de temps semaine finissant le ${fri}.pdf`,dir,mime:'application/pdf',b64:await tsPdf(ws,p,rows,start,days,fri),mode:'overwrite'});
+      box.push({id:'fdtj|'+p+'|'+ws,week:ws,name:`${stampName()} feuille de temps ${fsafe(p)}.json`,dir:'Monday',mime:'application/json',text:JSON.stringify(tsJson(ws,p,rows,fri),null,2),mode:'add'})}
+    obxSet(box);const r=await obxFlush();flashMsg(r)}catch(e){flashMsg({err:e.message})}}
+/* envoi direct si Dropbox est connecté (même connexion que le journal) */
+const dbx=()=>{try{return JSON.parse(localStorage.getItem(DBXK)||'{}')}catch(e){return {}}};
+async function dbxAccess(){const D=dbx();if(!D.refresh)return null;if(D.access&&D.exp>Date.now())return D.access;
+  const r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',body:new URLSearchParams({grant_type:'refresh_token',refresh_token:D.refresh,client_id:DBX_APP})});const j=await r.json();if(!r.ok)throw new Error(j.error_description||'Dropbox');
+  D.access=j.access_token;D.exp=Date.now()+(j.expires_in||14400)*1000-60000;localStorage.setItem(DBXK,JSON.stringify(D));return D.access}
+const dbxArg=o=>JSON.stringify(o).replace(/[\u007f-￿]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
+async function obxFlush(){const t=await dbxAccess().catch(()=>null);const box=obx();if(!t)return {wait:box.length};let ok=0;const left=[];
+  const root=((dbx().dir||'/JOURNAL DE CHANTIER').trim().replace(/\/+$/,''));
+  for(const x of box){try{const body=x.b64?Uint8Array.from(atob(x.b64),c=>c.charCodeAt(0)):new Blob([x.text],{type:x.mime});
+      const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/octet-stream','Dropbox-API-Arg':dbxArg({path:root+'/'+x.dir+'/'+x.name,mode:x.mode==='overwrite'?'overwrite':'add',autorename:x.mode!=='overwrite',mute:true})},body});
+      if(!r.ok)throw 0;ok++}catch(e){left.push(x)}}
+  obxSet(left);return {ok,wait:left.length}}
+function flashMsg(r){const m=r.err?'Export impossible : '+r.err:r.ok&&!r.wait?`Feuille de temps envoyée dans Dropbox ✓`:r.ok?`${r.ok} envoyé(s) · ${r.wait} en attente`:`Feuille de temps prête · envoi au prochain « Tout enregistrer »`;
+  let t=document.getElementById('tsToast');if(!t){t=document.createElement('div');t.id='tsToast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#173d2d;color:#fff;font:800 14px -apple-system,Segoe UI,sans-serif;padding:12px 18px;border-radius:999px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2)';document.body.appendChild(t)}
+  t.textContent=m;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,4000)}
 function renderAll(){
   if(!['calendar','projects','hours','timesheet','manage'].includes(state.currentPage))state.currentPage='calendar';
   renderCalendar();renderProjects();renderHours();renderTimesheet();renderManage();

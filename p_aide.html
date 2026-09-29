@@ -267,5 +267,24 @@ table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}th,td{bo
 <li>Planification and Livraison views when no project is selected.</li>
 <li>One shared Paramètres for the Journal and the Feuille de temps.</li>
 <li>Automatic filing to OneDrive (needs Microsoft Graph or a Power Automate flow).</li>
+</ul>
+<p>## 12. Photo module spec (requested 2026-09-28, not built)</p>
+<ul>
+<li><b>Camera:</b> 60%×60% live view, centred. Top: projects (+ Aucun projet). Left: sous-traitants, fournisseurs, actions, plus a &quot;Choisir information&quot; button that opens all menus with Terminé. Right: zones. Bottom: commentaire, plus sous-traitant à aviser (Déficience / Correctif / Coordination).</li>
+<li><b>Tags on photo (top left):</b> Projet (red with white text until chosen; required), Date, Commentaire (dotted border = draggable). Zone/action/sous-traitant tags are transparent with black bold text.</li>
+<li><b>Measuring tape:</b> press and drag draws a dimension line with end bars; value and unit are set with rollers (e.g. 3.0 po/pi/m).</li>
+<li><b>Modes:</b></li>
+<li>Photo en rafale: continuous shots; tags stay on; tap a tag to toggle it.</li>
+<li>Conserver les étiquettes.</li>
+<li>Figer les étiquettes (locked while moving).</li>
+<li>Photo d&#x27;un document: saved as Documents, not Photos; formal stamp top left with projet, date, comment, signature.</li>
+<li><b>Storage:</b> Dropbox (or OneDrive) photos folder, per project, then per week.</li>
+<li><b>Revoir les photos:</b> photo in the top-right corner, tags on the left and below (projet → sous-traitants → actions → description). One of each makes a tag. Swipes:</li>
+<li>right = tag + save + archive;</li>
+<li>left = delete / put aside;</li>
+<li>down = skip (keep unprocessed);</li>
+<li>up = favourite.</li>
+<li><b>Journal signature step:</b> &quot;Ajouter des photos&quot; shows that project&#x27;s photos of the week, favourites first.</li>
+<li>Next: agree on the naming conventions for everything.</li>
 </ul></section>
 </main><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script></body></html>

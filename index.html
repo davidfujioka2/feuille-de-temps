@@ -845,7 +845,7 @@ button{cursor:pointer}
 .toast.show{opacity:1;transform:translateX(-50%)}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 21 h 02</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-12</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 21 h 43</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-13</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -982,7 +982,7 @@ button{cursor:pointer}
   <section id="pgPrm" class="page" hidden>
     <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
-      <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="dbxBtn">Dropbox</button><button class="btn out" id="bkBtn">💾 Sauvegarde</button><button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
+      <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="dbxBtn">Compte et Dropbox</button><button class="btn out" id="bkBtn">💾 Sauvegarde</button><button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
     </header>
     <div class="srow"><b class="sdate"></b><span class="sname"></span></div><div class="pbar"></div>
     <div class="prm">
@@ -1003,7 +1003,7 @@ button{cursor:pointer}
 (function(){
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const IPAD_W=1180, SUP='Steeve Pitre', CO='Beaudoin Capital';
+const IPAD_W=1180;let CO='Beaudoin Capital',SUP='Steeve Pitre';
 const PROJECTS=['2565 Aird','2575 Aird','625 Place Théberge','2020 St-Timothée','3165 Holt'];
 const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const DAYS=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
@@ -1052,7 +1052,7 @@ S=S||{};
 S.project=S.project||'2565 Aird'; S.month=S.month||fmt(new Date(today.getFullYear(),today.getMonth(),1));
 S.days=S.days||{}; S.fav=S.fav||{}; S.off=S.off||{}; S.added=S.added||{};
 const HIDE=window.CH_HIDE||[];if(HIDE.includes(S.calView||'cal'))S.calView='jou';S.projList=S.projList&&S.projList.length?S.projList:PROJECTS.slice();PROJECTS.splice(0,PROJECTS.length,...S.projList);BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));
-S.tags=S.tags||{who:'',act:'',zones:[],imp:'Normale',note:''};
+S.tags=S.tags||{who:'',act:'',zones:[],imp:'Normale',note:''};if(S.supName)SUP=S.supName;if(S.coName)CO=S.coName;
 Object.values(S.days).forEach(D=>{D.entries=(D.entries||[]).map(e=>{if(e.sec)return e;const f=k=>(e[k]||[])[0]||'',T=f('type'),su=f('suite')==='Aucune suite'?'':f('suite');
   if((e.act||[]).includes('Livraison')||T==='Livraison')return {id:e.id,sec:'liv',a:f('who'),b:f('mats'),c:f('etat'),text:e.note||''};
   if(['Incident','Accident','Visite'].includes(T))return {id:e.id,sec:'evt',a:T,b:f('who'),c:su,text:e.note||''};
@@ -1863,7 +1863,7 @@ function renderRead(){
   const totH=st.reduce((t,x)=>t+(x.e.hours||0),0);
   let n=0;const sec=t=>`<h2><span>${++n}.</span> ${t}</h2>`;
   let html=`<header class="rh">
-      <div class="rh-l"><div class="rco">BEAUDOIN CAPITAL</div><div class="rti">Journal de chantier</div></div>
+      <div class="rh-l"><div class="rco">${esc(CO.toUpperCase())}</div><div class="rti">Journal de chantier</div></div>
       <table class="rmeta"><tr><th>Projet</th><td>${esc(S.project)}</td></tr><tr><th>Date</th><td>${esc(dayLbl(U.date))}</td></tr><tr><th>Surintendant</th><td>${SUP}</td></tr><tr><th>Révision</th><td>${D.rev||0}</td></tr><tr><th>Statut</th><td>${ok?'Approuvé':'Brouillon'}</td></tr></table>
     </header>`;
   html+=sec('Main-d’œuvre')+`<p>${D.fdt?'La feuille de temps du jour a été remplie.':'<em>Feuille de temps non remplie.</em>'}</p>`;
@@ -1873,7 +1873,7 @@ function renderRead(){
   html+=sec('Événements et incidents')+tbl(['Événement','Sous-traitant','Commentaire'],evt.map(({e,i})=>`<tr${ed(i)}><td>${esc(e.a||'—')}</td><td>${esc(e.b||'—')}</td><td>${esc(e.text||'')}</td></tr>`),'Aucun événement.');
   if(D.photos.length)html+=sec('Photos')+`<div class="rph">${D.photos.map(p=>`<figure><div class="im" data-burn="${p.id}"></div><figcaption>${esc([p.zones&&p.zones.length?'Zone '+p.zones.join(', '):'',p.who,p.act].filter(Boolean).join(' · ')||'Photo')}</figcaption></figure>`).join('')}</div>`;
   html+=`<div class="rsig"><div class="rsig-l">${ok?'Approuvé par':'Signature du surintendant'}<br><b>${SUP}</b>, surintendant${ok?'<br>le '+esc(stamp(D.approvedAt)):''}</div><div class="rsig-box">${ok&&D.sig?`<img src="${D.sig}" alt="Signature">`:''}</div></div>`;
-  html+=`<footer class="rf"><span>Beaudoin Capital · Journal de chantier · ${esc(S.project)}</span><span>${esc(U.date)}${D.rev?' · Rév. '+D.rev:''}</span></footer>`;
+  html+=`<footer class="rf"><span>${esc(CO)} · Journal de chantier · ${esc(S.project)}</span><span>${esc(U.date)}${D.rev?' · Rév. '+D.rev:''}</span></footer>`;
   if(!ok)html+='<div class="rwm">BROUILLON</div>';
   $('#paper').innerHTML=html;fillBurned($('#paper'));
   $('#readSide').innerHTML=ok?`<span class="lbl">Rapport approuvé</span><p>Signé par ${SUP} le ${esc(stamp(D.approvedAt))}. Le rapport est final et ne peut plus être modifié.</p>
@@ -1987,19 +1987,31 @@ async function reportPdfBlob(){
   const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait'});
   const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),sliceH=Math.floor(canvas.width*ph/pw);
   for(let y=0,i=0;y<canvas.height;y+=sliceH,i++){const c=document.createElement('canvas');c.width=canvas.width;c.height=Math.min(sliceH,canvas.height-y);c.getContext('2d').drawImage(canvas,0,y,c.width,c.height,0,0,c.width,c.height);if(i)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,pw,c.height*pw/c.width)}
+  try{const D=day(),kw=[S.project,U.date,'Journal de chantier',SUP,...new Set((D.entries||[]).flatMap(e=>[e.a,e.b,e.c,...(e.items||[]).map(i=>i.mat),...(e.subjects||[])]).filter(Boolean))];
+    pdf.setProperties({title:S.project+' · Journal de chantier · '+U.date,subject:'Journal de chantier '+S.project+' '+U.date,author:SUP,keywords:kw.join(', '),creator:'Chantier · '+CO})}catch(e){}
   return pdf.output('blob');
 }
-const pdfName=(proj,date,final)=>`${String(proj).replace(/[\/:*?"<>|]/g,'-').trim()} journal ${date}${final?'':' brouillon'}.pdf`;
+const fsafe=t=>String(t||'').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim();
+const pdfName=(proj,date,final)=>`${date} ${fsafe(proj)}${final?'':' brouillon'}.pdf`;
+const stampName=(d=new Date())=>`${fmt(d)} ${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+/* vendredi de la semaine (semaine du lundi au dimanche) */
+const friOf=ds=>{const d=new Date(ds+'T12:00:00'),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k+4);return fmt(d)};
+/* dossiers Dropbox, relatifs au dossier principal */
+const DIRS={journal:p=>fsafe(p)+'/Journal de chantier',fdt:p=>fsafe(p)+'/Feuilles de temps',photo:(p,ds)=>p?fsafe(p)+'/Photos/Semaine finissant le '+friOf(ds):'Photos',doc:(p,t)=>fsafe(p||'Sans projet')+'/Documents/'+fsafe(t||'Document'),monday:()=>'Monday',perso:()=>fsafe(SUP)};
+const withDir=(file,dir)=>{file.dir=dir;return file};
+/* nom de photo : date heure projet étiquettes, coupé à 120 caractères pour la recherche Windows */
+const photoName=m=>{const t=new Date(m.at);let n=[fmt(t),pad(t.getHours())+'-'+pad(t.getMinutes())+'-'+pad(t.getSeconds()),m.project||'Sans projet',m.sub,m.act,m.zone,m.note].map(fsafe).filter(Boolean).join(' ');
+  return (n.length>120?n.slice(0,120).trim():n)+'.jpg'};
 async function shareReportPdf(){
   const D=day(),ok=D.status==='approved',nm=pdfName(S.project,U.date,ok);toast('Création du PDF…');
-  try{const b=await reportPdfBlob(),fl=new File([b],nm,{type:'application/pdf'}),fj=journalJsonFile(S.project,U.date,D);
+  try{const b=await reportPdfBlob(),fl=journalPdfFile(b,S.project,U.date,ok),fj=journalJsonFile(S.project,U.date,D);
     if(navigator.canShare&&navigator.canShare({files:[fl,fj]})){try{await navigator.share({files:[fl,fj],title:'Rapport journalier · '+S.project+' · '+U.date})}catch(x){if(x&&x.name!=='AbortError')throw x}return}
     saveFile(b,nm);toast('Partage non disponible : PDF enregistré')}catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
 }
 async function saveReportPdf(){
   const D=day(),ok=D.status==='approved';toast('Création du PDF…');
   try{const b=await reportPdfBlob(),nm=pdfName(S.project,U.date,ok);
-    if(dbxOn()){try{await dbxUpload(b,nm);await dbxUpload(journalJsonFile(S.project,U.date,D),jsonName(S.project,U.date,ok));if(ok){D.pdfExported=true;save()}toast('PDF et JSON enregistrés dans Dropbox ✓');return}catch(x){toast('Dropbox : '+x.message+' · PDF téléchargé')}}
+    if(dbxOn()){try{await dbxUpload(journalPdfFile(b,S.project,U.date,ok),nm);const jf=journalJsonFile(S.project,U.date,D);await dbxUpload(jf,jf.name);if(ok){D.pdfExported=true;save()}toast('PDF et JSON enregistrés dans Dropbox ✓');return}catch(x){toast('Dropbox : '+x.message+' · PDF téléchargé')}}
     saveFile(b,nm);toast('PDF prêt')}catch(e){toast('PDF impossible : '+(e&&e.message||'erreur'))}
 }
 const PHL={demo:'Démolition',sys:'Systèmes intérieurs',rough:'Rough',fin:'Finition',gen:'Général',spec:'Spécialité'};
@@ -2015,17 +2027,20 @@ function journalJson(proj,date,D){const L=[],r=o=>L.push({Section:'',"Sous-trait
   return {type:'journal',id:proj+'|'+date,version:(D.rev||0)+1,statut:ok?'approuvé':'brouillon',cree:new Date().toISOString(),
     element:{nom:proj+' Journal de chantier '+date,Projet:proj,Date:date,Statut:ok?'Approuvé':'Brouillon',Surintendant:SUP,"Approuvé le":D.approvedAt?new Date(D.approvedAt).toISOString():'',PDF:pdfName(proj,date,ok),"Feuille de temps remplie":!!D.fdt},
     sous_elements:L}}
-const jsonName=(proj,date,final)=>pdfName(proj,date,final).replace(/\.pdf$/,'.json');
-const journalJsonFile=(proj,date,D)=>new File([JSON.stringify(journalJson(proj,date,D),null,2)],jsonName(proj,date,D.status==='approved'),{type:'application/json'});
+const jsonName=(proj,date,final)=>stampName()+' journal '+fsafe(proj)+'.json';
+const journalJsonFile=(proj,date,D)=>withDir(new File([JSON.stringify(journalJson(proj,date,D),null,2)],jsonName(proj,date,D.status==='approved'),{type:'application/json'}),DIRS.monday());
+const journalPdfFile=(b,proj,date,final)=>withDir(new File([b],pdfName(proj,date,final),{type:'application/pdf'}),DIRS.journal(proj));
 async function storeFinalPdf(){try{const k=dk(),b=await reportPdfBlob();await putBlob('pdf|'+k,b);const D=day();D.pdfStored=true;D.pdfExported=false;save()}catch(e){}}
 /* --- tout enregistrer : un seul partage --- */
 async function prepareAll(){
   toast('Préparation…');const files=[],marks=[];
-  for(const [k,D] of Object.entries(S.days)){if(D.pdfStored&&!D.pdfExported){const b=await getBlob('pdf|'+k);if(b){const [p,d]=k.split('|');files.push(new File([b],pdfName(p,d,true),{type:'application/pdf'}));marks.push(()=>{});files.push(journalJsonFile(p,d,D));marks.push(()=>{D.pdfExported=true})}}}
+  for(const [k,D] of Object.entries(S.days)){if(D.pdfStored&&!D.pdfExported){const b=await getBlob('pdf|'+k);if(b){const [p,d]=k.split('|');files.push(journalPdfFile(b,p,d,true));marks.push(()=>{});files.push(journalJsonFile(p,d,D));marks.push(()=>{D.pdfExported=true})}}}
   for(const m of S.media.filter(x=>x.status==='arch'&&!x.exported)){const b=await getBlob(m.id);if(!b)continue;const t=new Date(m.at);
-    files.push(new File([b],`${slug(m.project||'Sans projet')}__${m.type==='photo'?'Photos':MTL[m.type].replace(/\s+/g,'-')}__${slug(m.zone||'sans-zone')}__${m.date}_${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.jpg`,{type:'image/jpeg'}));marks.push(()=>{m.exported=true})}
+    files.push(withDir(new File([b],photoName(m),{type:'image/jpeg'}),m.type==='photo'?DIRS.photo(m.project,m.date):DIRS.doc(m.project,MTL[m.type])));marks.push(()=>{m.exported=true})}
+  try{const OB='chantierOutbox_v1',box=JSON.parse(localStorage.getItem(OB)||'[]');box.forEach(x=>{const body=x.b64?Uint8Array.from(atob(x.b64),c=>c.charCodeAt(0)):x.text;const fl=withDir(new File([body],x.name,{type:x.mime}),x.dir);fl.mode=x.mode;files.push(fl);
+    marks.push(()=>{try{localStorage.setItem(OB,JSON.stringify(JSON.parse(localStorage.getItem(OB)||'[]').filter(y=>y.id!==x.id)))}catch(e){}})})}catch(e){}
   const data={app:'Chantier',version:1,exported:new Date().toISOString(),journal:S,feuilleDeTemps:(()=>{try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'null')}catch(e){return null}})()};
-  files.push(new File([JSON.stringify(data)],`Sauvegardes__Chantier__${fmt(new Date())}.json`,{type:'application/json'}));marks.push(()=>{S.lastBackup=Date.now()});
+  files.push(withDir(new File([JSON.stringify(data)],`${stampName()} sauvegarde ${fsafe(SUP)}.json`,{type:'application/json'}),DIRS.perso()+'/Sauvegardes'));marks.push(()=>{S.lastBackup=Date.now()});
   U.exportFiles=files;U.exportMarks=marks;
   const ov=$('#ovl');ov.hidden=false;
   ov.innerHTML=`<div class="sigbox"><h2>Tout enregistrer</h2><p>${files.length} fichier${files.length>1?'s':''} prêt${files.length>1?'s':''} : rapports approuvés, photos archivées et sauvegarde (seulement ce qui est nouveau).</p><div class="row"><button class="btn" id="exCancel">Annuler</button>${dbxOn()?`<button class="btn" id="exGo">Partager…</button><button class="btn go" id="exDbx" style="min-width:220px">Envoyer vers Dropbox</button>`:`<button class="btn go" id="exGo" style="min-width:220px">Envoyer vers Fichiers / OneDrive</button>`}</div></div>`;
@@ -2057,8 +2072,8 @@ async function dbxAccess(){const D=dbx();if(!D.refresh)throw new Error('Dropbox 
   const j=await dbxToken({grant_type:'refresh_token',refresh_token:D.refresh,client_id:DBX_APP});D.access=j.access_token;D.exp=Date.now()+(j.expires_in||14400)*1000-60000;dbxSet(D);return D.access}
 /* l'en-tête Dropbox-API-Arg n'accepte que l'ASCII : accents échappés en \uXXXX */
 const dbxArg=o=>JSON.stringify(o).replace(/[\u007f-￿]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
-async function dbxUpload(blob,name){const t=await dbxAccess();
-  const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/octet-stream','Dropbox-API-Arg':dbxArg({path:dbxDir()+'/'+name,mode:'add',autorename:true,mute:true})},body:blob});
+async function dbxUpload(blob,name,dir){const t=await dbxAccess();dir=dir||blob.dir||'';
+  const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/octet-stream','Dropbox-API-Arg':dbxArg({path:dbxDir()+'/'+(dir?dir+'/':'')+name,mode:blob.mode==='overwrite'?'overwrite':'add',autorename:blob.mode!=='overwrite',mute:true})},body:blob});
   if(!r.ok){const x=await r.text().catch(()=>'');throw new Error('Dropbox '+r.status+(x?' · '+x.slice(0,120):''))}return r.json()}
 /* envoie une liste de fichiers ; marque chacun seulement s'il est bien arrivé */
 async function dbxSendAll(files,marks){let ok=0,bad=0;for(let i=0;i<files.length;i++){toast('Envoi vers Dropbox… '+(i+1)+' / '+files.length);
@@ -2068,12 +2083,13 @@ async function dbxSendAll(files,marks){let ok=0,bad=0;for(let i=0;i<files.length
 const dbxTeamCode=()=>{const D=dbx();return 'CH1-'+btoa(encodeURIComponent(JSON.stringify({r:D.refresh,d:dbxDir()})))};
 function dbxUseCode(c){const j=JSON.parse(decodeURIComponent(atob(c.trim().replace(/^CH1-/,''))));if(!j.r)throw new Error('code invalide');dbxSet({refresh:j.r,dir:j.d,team:true})}
 function dbxPanel(){const ov=$('#ovl'),D=dbx();ov.hidden=false;
-  ov.innerHTML=D.refresh?`<div class="sigbox"><h2>Dropbox connecté</h2><p>Les fichiers vont dans le dossier Dropbox <b>${esc(dbxDir())}</b>. Aucun choix d’emplacement à faire.</p>
+  const who=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><span class="lbl">Surintendant</span><input class="inp" id="supName" value="${esc(SUP)}" autocomplete="name"></div><div><span class="lbl">Entreprise</span><input class="inp" id="coName" value="${esc(CO)}" autocomplete="organization"></div></div>`;
+  ov.innerHTML=D.refresh?`<div class="sigbox"><h2>Compte et Dropbox</h2>${who}<p>Les fichiers vont dans le dossier Dropbox <b>${esc(dbxDir())}</b>. Aucun choix d’emplacement à faire.</p>
       ${D.team?'':`<span class="lbl">Dossier</span><input class="inp" id="dbxDir" value="${esc(dbxDir())}" autocomplete="off" autocapitalize="off" spellcheck="false">
       <span class="lbl">Code pour les employés</span><p style="margin:0;font-size:12.5px">À donner en privé. Il permet d’envoyer des fichiers dans ce dossier. Pour couper l’accès à tous : Dropbox → Paramètres → Applications connectées → retirer Chantier.</p>
       <textarea class="inp" id="dbxTeam" readonly style="height:64px;font:12px ui-monospace,Menlo,monospace">${esc(dbxTeamCode())}</textarea>`}
       <a class="btn out" href="${DBX_JOIN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Rejoindre le dossier JOURNAL DE CHANTIER</a><div class="row"><button class="btn" id="dbxOff">Déconnecter</button>${D.team?'':'<button class="btn" id="dbxCopy">Copier le code</button>'}<button class="btn" id="dbxTest">Fichier test</button><button class="btn go" id="dbxClose" style="min-width:120px">Fermer</button></div></div>`
-    :`<div class="sigbox"><h2>Connecter Dropbox</h2>
+    :`<div class="sigbox"><h2>Compte et Dropbox</h2>${who}
       <span class="lbl">1 · Rejoindre le dossier partagé</span><p style="margin:0">Ouvrir le lien, se connecter à Dropbox, puis toucher « Ajouter à mon Dropbox ». Le dossier doit rester à la racine, sans changer son nom.</p><a class="btn out" href="${DBX_JOIN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Rejoindre le dossier JOURNAL DE CHANTIER</a>
       <span class="lbl">2 · Connecter l’application</span>
       <p style="margin:0">1. Toucher « Ouvrir Dropbox », se connecter, puis « Autoriser ».<br>2. Copier le code affiché, revenir ici et le coller.</p>
@@ -2082,6 +2098,8 @@ function dbxPanel(){const ov=$('#ovl'),D=dbx();ov.hidden=false;
       <span class="lbl">Ou code d’équipe</span><input class="inp" id="dbxTeamIn" placeholder="Coller le code d’équipe (CH1-…)" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="row"><button class="btn" id="dbxClose">Annuler</button><button class="btn go" id="dbxGo" style="min-width:180px">Connecter</button></div></div>`;
   const op=$('#dbxOpen');if(op)dbxAuthUrl().then(u=>op.href=u);
+  $('#supName').onchange=e=>{const v=e.target.value.trim();if(v){S.supName=v;SUP=v;save();toast('Surintendant : '+v)}};
+  $('#coName').onchange=e=>{const v=e.target.value.trim();if(v){S.coName=v;CO=v;save();toast('Entreprise : '+v)}};
   const dir=$('#dbxDir');if(dir)dir.onchange=()=>{const d=dbx();d.dir=dir.value;dbxSet(d);dbxPanel();toast('Dossier : '+dbxDir())};
   ov.onclick=async e=>{const id=e.target.id;
     if(id==='dbxClose'){ov.hidden=true;return}

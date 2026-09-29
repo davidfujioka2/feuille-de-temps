@@ -1102,6 +1102,7 @@ button{cursor:pointer}
 .dact button.go{background:#1f7a4a;border-color:#1f7a4a;color:#fff}.dact button.go[disabled]{background:#eef8f1;color:#1f7a4a;opacity:1}
 .dact button.alt{border-color:#8f99a3;color:#3b4550;border-style:dashed}
 .dm-jou.off{background:repeating-linear-gradient(135deg,#f4f5f6 0 12px,#eceef0 12px 24px)}.doff{flex:1;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#5b6470;text-align:center}
+.dbxmsg{min-height:0;font-size:15px;font-weight:800;line-height:1.35;border-radius:12px}.dbxmsg:not(:empty){padding:10px 12px;background:#eef1f3}.dbxmsg.ok{background:#eef8f1;color:#14532d}.dbxmsg.bad{background:#fdecea;color:#8a1c14}
 .it .lg{position:relative;overflow:hidden;width:30px;height:30px;border-radius:6px;border:1.5px dashed var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:14px;background:#fff center/contain no-repeat;flex:none}.it .lg.has{border-style:solid;color:transparent}.it .lg input{position:absolute;inset:0;opacity:0}
 .lgopt{width:100%;display:flex;align-items:center;gap:16px;padding:6px 0 10px;font-size:13.5px;font-weight:700}.lgopt span{color:var(--muted);font-weight:600}
 .rlogo{height:16px;max-width:48px;object-fit:contain;vertical-align:-3px;margin-right:6px}
@@ -1115,7 +1116,7 @@ button{cursor:pointer}
 
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 28</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-13</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 38</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-14</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -2637,8 +2638,8 @@ const dbxSet=o=>{try{localStorage.setItem(DBX_K,JSON.stringify(o))}catch(e){}};
 const dbxOn=()=>!!dbx().refresh;
 const dbxDir=()=>{let d=(dbx().dir||'/JOURNAL DE CHANTIER').trim().replace(/\/+$/,'');return d.startsWith('/')?d:'/'+d};
 const b64u=a=>btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-async function dbxAuthUrl(){const v=b64u(crypto.getRandomValues(new Uint8Array(48))),ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));
-  const D=dbx();D.verifier=v;dbxSet(D);
+async function dbxAuthUrl(){const D=dbx();const v=D.verifier||b64u(crypto.getRandomValues(new Uint8Array(48))),ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));
+  D.verifier=v;dbxSet(D);
   return 'https://www.dropbox.com/oauth2/authorize?'+new URLSearchParams({client_id:DBX_APP,response_type:'code',code_challenge:ch,code_challenge_method:'S256',token_access_type:'offline'})}
 async function dbxToken(body){const r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',body:new URLSearchParams(body)});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error_description||j.error||('Dropbox '+r.status));return j}
 async function dbxConnect(code){const D=dbx();const j=await dbxToken({code:code.trim(),grant_type:'authorization_code',code_verifier:D.verifier,client_id:DBX_APP});
@@ -2663,7 +2664,7 @@ function dbxPanel(){const ov=$('#ovl'),D=dbx();ov.hidden=false;
       ${D.team?'':`<span class="lbl">Dossier</span><input class="inp" id="dbxDir" value="${esc(dbxDir())}" autocomplete="off" autocapitalize="off" spellcheck="false">
       <span class="lbl">Code pour les employés</span><p style="margin:0;font-size:12.5px">À donner en privé. Il permet d’envoyer des fichiers dans ce dossier. Pour couper l’accès à tous : Dropbox → Paramètres → Applications connectées → retirer Chantier.</p>
       <textarea class="inp" id="dbxTeam" readonly style="height:64px;font:12px ui-monospace,Menlo,monospace">${esc(dbxTeamCode())}</textarea>`}
-      <a class="btn out" href="${DBX_JOIN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Rejoindre le dossier JOURNAL DE CHANTIER</a><div class="row"><button class="btn" id="dbxOff">Déconnecter</button>${D.team?'':'<button class="btn" id="dbxCopy">Copier le code</button>'}<button class="btn" id="dbxTest">Fichier test</button><button class="btn go" id="dbxClose" style="min-width:120px">Fermer</button></div></div>`
+      <a class="btn out" href="${DBX_JOIN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Rejoindre le dossier JOURNAL DE CHANTIER</a><div class="row"><button class="btn" id="dbxOff">Déconnecter</button>${D.team?'':'<button class="btn" id="dbxCopy">Copier le code</button>'}<button class="btn" id="dbxTest">Fichier test</button><button class="btn go" id="dbxClose" style="min-width:120px">Fermer</button></div><div class="dbxmsg" id="dbxMsg"></div></div>`
     :`<div class="sigbox"><h2>Compte et Dropbox</h2>${who}
       <span class="lbl">1 · Rejoindre le dossier partagé</span><p style="margin:0">Ouvrir le lien, se connecter à Dropbox, puis toucher « Ajouter à mon Dropbox ». Le dossier doit rester à la racine, sans changer son nom.</p><a class="btn out" href="${DBX_JOIN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Rejoindre le dossier JOURNAL DE CHANTIER</a>
       <span class="lbl">2 · Connecter l’application</span>
@@ -2671,19 +2672,29 @@ function dbxPanel(){const ov=$('#ovl'),D=dbx();ov.hidden=false;
       <a class="btn out" id="dbxOpen" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Ouvrir Dropbox</a>
       <input class="inp" id="dbxCode" placeholder="Code Dropbox" autocomplete="off" autocapitalize="off" spellcheck="false">
       <span class="lbl">Ou code d’équipe</span><input class="inp" id="dbxTeamIn" placeholder="Coller le code d’équipe (CH1-…)" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <div class="row"><button class="btn" id="dbxClose">Annuler</button><button class="btn go" id="dbxGo" style="min-width:180px">Connecter</button></div></div>`;
+      <div class="dbxmsg" id="dbxMsg"></div><div class="row"><button class="btn" id="dbxClose">Annuler</button><button class="btn" id="dbxNew">Recommencer</button><button class="btn go" id="dbxGo" style="min-width:180px">Connecter</button></div></div>`;
   const op=$('#dbxOpen');if(op)dbxAuthUrl().then(u=>op.href=u);
   $('#supName').onchange=e=>{const v=e.target.value.trim();if(v){S.supName=v;SUP=v;save();toast('Surintendant : '+v)}};
   $('#coName').onchange=e=>{const v=e.target.value.trim();if(v){S.coName=v;CO=v;save();toast('Entreprise : '+v)}};
   const dir=$('#dbxDir');if(dir)dir.onchange=()=>{const d=dbx();d.dir=dir.value;dbxSet(d);dbxPanel();toast('Dossier : '+dbxDir())};
-  ov.onclick=async e=>{const id=e.target.id;
+  const msg=(t,ok)=>{const m=$('#dbxMsg');if(m){m.textContent=t;m.className='dbxmsg '+(ok===true?'ok':ok===false?'bad':'')}};
+  const why=x=>{const t=String(x&&x.message||x||'');if(/verifier|invalid_grant|code/i.test(t))return 'Le code Dropbox n’est plus valide. Toucher « Recommencer », puis Ouvrir Dropbox et coller le nouveau code tout de suite.';
+    if(/missing_scope|files\.content\.write/i.test(t))return 'L’app Dropbox n’a pas la permission d’écrire : dans dropbox.com/developers → Permissions, cocher files.content.write puis Submit, et recommencer la connexion.';
+    if(/Failed to fetch|NetworkError|Load failed/i.test(t))return 'Pas de connexion Internet, ou Dropbox bloqué. Réessayer avec le Wi-Fi ou les données cellulaires.';
+    if(/401|expired|invalid_access_token/i.test(t))return 'La connexion a expiré : toucher Déconnecter, puis se reconnecter.';
+    if(/409|path/i.test(t))return 'Dossier introuvable ou non accessible : vérifier le nom du dossier (Dossier) et l’accès « Full Dropbox ».';return 'Erreur Dropbox : '+t};
+  ov.onclick=async e=>{const id=(e.target.closest('button')||{}).id||e.target.id;
     if(id==='dbxClose'){ov.hidden=true;return}
+    if(id==='dbxNew'){const d=dbx();delete d.verifier;dbxSet(d);dbxPanel();setTimeout(()=>msg('Nouveau lien prêt : toucher Ouvrir Dropbox.'),50);return}
     if(id==='dbxOff'){dbxSet({});toast('Dropbox déconnecté');dbxPanel();return}
     if(id==='dbxCopy'){const t=$('#dbxTeam');try{await navigator.clipboard.writeText(t.value);toast('Code copié')}catch(x){t.select();toast('Code sélectionné')}return}
     if(id==='dbxGo'){const tc=$('#dbxTeamIn').value,c=$('#dbxCode').value;
-      try{if(tc.trim()){dbxUseCode(tc);await dbxAccess()}else if(c.trim()){toast('Connexion…');await dbxConnect(c)}else{toast('Coller un code');return}toast('Dropbox connecté');dbxPanel()}
-      catch(x){dbxSet({});toast('Connexion impossible : '+x.message)}return}
-    if(id==='dbxTest'){try{await dbxUpload(new Blob(['Test Chantier '+new Date().toLocaleString('fr-CA')],{type:'text/plain'}),'test chantier.txt');toast('Test envoyé ✓')}catch(x){toast('Envoi impossible : '+x.message)}}};
+      if(!tc.trim()&&!c.trim()){msg('Coller d’abord le code donné par Dropbox (ou le code d’équipe CH1-…).',false);return}
+      if(c.trim().startsWith('CH1-')){msg('Ce code commence par CH1- : c’est un code d’équipe. Le coller dans le champ « Ou code d’équipe ».',false);return}
+      msg('Connexion à Dropbox…');const keep=dbx();
+      try{if(tc.trim()){dbxUseCode(tc);await dbxAccess()}else{await dbxConnect(c)}dbxPanel();setTimeout(()=>msg('✓ Dropbox connecté. Toucher « Fichier test » pour vérifier.',true),50);toast('Dropbox connecté')}
+      catch(x){const d=keep;delete d.refresh;dbxSet(d);msg(why(x),false)}return}
+    if(id==='dbxTest'){msg('Envoi du fichier test…');try{await dbxUpload(new Blob(['Test Chantier '+new Date().toLocaleString('fr-CA')],{type:'text/plain'}),'test chantier.txt','');msg('✓ « test chantier.txt » est dans '+dbxDir()+'.',true)}catch(x){msg(why(x),false)}}};
 }
 
 async function savePhotos(list){

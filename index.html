@@ -992,14 +992,15 @@ button{cursor:pointer}
 .pz.rise{animation:pzrise .5s ease-out}@keyframes pzrise{from{transform:translateY(70px);opacity:.25}to{transform:none;opacity:1}}
 #flow .picked{display:none!important}
 /* fenêtre Ajouter les employés */
-.fallbar{display:flex;justify-content:center;padding:0 0 8px}.fallbar button{height:52px;padding:0 26px;border:0;border-radius:14px;background:var(--pacc,#141b22);color:#fff;font:900 17px -apple-system,Segoe UI,sans-serif;cursor:pointer}
+.fallbar{display:flex;justify-content:center;gap:10px;padding:0 0 8px}.fallbar .fsign{background:#1f7a4a}.fapd{height:52px;display:flex;align-items:center;padding:0 22px;border-radius:14px;background:#eef8f1;border:2px solid #1f7a4a;color:#14532d;font:900 16px -apple-system,Segoe UI,sans-serif}
+.dm-fdt.locked .fcnt,.dm-fdt.locked .fsr,.dm-fdt.locked .dact{pointer-events:none;opacity:.45}.fallbar button{height:52px;padding:0 26px;border:0;border-radius:14px;background:var(--pacc,#141b22);color:#fff;font:900 17px -apple-system,Segoe UI,sans-serif;cursor:pointer}
 .fsup{display:flex;flex-direction:column;align-items:stretch;gap:8px;border:2px solid #cfd6db;border-radius:14px;padding:10px 12px;background:#fff;margin:10px 0 14px}.fsr{display:flex;align-items:center;justify-content:space-between}.fsup.on{border-color:#141b22}.fsup span{min-width:0;display:flex;flex-direction:column;line-height:1.2;text-align:center}.fsup span b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsup span small{font-size:10.5px;color:#5b6470;font-weight:800}.fsup .fh2{min-width:56px;text-align:center;font-size:22px}.fsup .fmin{width:48px!important;height:48px!important;border-radius:50%!important;border:2px solid #141b22!important;background:#fff!important;font-size:20px!important;font-weight:900;padding:0!important;min-height:0!important;display:flex;align-items:center;justify-content:center}.fsup .fmin:disabled{opacity:.3}
 .fcnt{display:flex;align-items:center;gap:4px}.fcnt .fadd{flex:1;min-width:0;min-height:56px;border:2px dashed #8f99a3;border-radius:14px;background:#fff;color:#3b4550;font:850 14px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;gap:6px;padding:0 8px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .fcnt .fadd span{font-size:26px;color:#1f5fae;line-height:1}.fcnt.on .fadd{border-style:solid;border-color:#1f5fae;background:#e6eefa;color:#123b6e}
 .fcnt b{min-width:22px;text-align:center;font-size:20px}.fcnt .fmin{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid #cfd6db;background:#fff;font-size:20px;font-weight:900;cursor:pointer}.fcnt .fmin:disabled{opacity:.3}
 .flist{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700;color:#3b4550;max-height:120px;overflow:auto}.flist span{background:#eef1f3;border-radius:8px;padding:3px 8px}
-.fd2 .fdm{width:1100px}.fd2-body{flex:1;min-height:0;display:flex;gap:12px;padding:12px 16px}
-.fd2-side{width:230px;flex:none;background:#fff;border:2px solid var(--pacc,#173d2d);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;animation:fdl .4s cubic-bezier(.2,.8,.2,1)}@keyframes fdl{from{transform:translateX(200px)}to{transform:none}}
+.fd2 .fdm{width:1150px}.fd2-body.still .fd2-side,.fd2-body.still .fd2-main,.fd2-body.still .fd2-done{animation:none!important}.fd2-body{flex:1;min-height:0;display:flex;gap:12px;padding:12px 16px}
+.fd2-side{width:200px;flex:none;background:#fff;border:2px solid var(--pacc,#173d2d);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;animation:fdl .4s cubic-bezier(.2,.8,.2,1)}@keyframes fdl{from{transform:translateX(200px)}to{transform:none}}
 .fd2-done{width:22px;flex:none;margin-right:-8px;border-radius:12px;background:var(--pa,#173d2d);color:#fff;display:flex;align-items:center;justify-content:center;animation:fdc .4s ease-out}.fd2-done span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:900;white-space:nowrap}@keyframes fdc{from{width:230px}to{width:22px}}
 .fd2-side>b{font-size:16px;color:var(--pacc-d,#141b22)}.fd2-sl{display:flex;flex-direction:column;gap:3px}.fd2-sl small{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#5b6470}
 .fd2-sl span{border:1.5px dashed #9aa4ad;border-radius:8px;padding:4px 8px;font-size:13px;font-weight:700;color:#8f99a3}.fd2-sl span.on{border-style:solid;border-color:#1f5fae;color:#123b6e;background:#e6eefa}
@@ -1009,8 +1010,11 @@ button{cursor:pointer}
 .fd2-col .chips{display:flex;flex-wrap:wrap;gap:6px}.fd2-col .chip{min-height:48px!important;border-radius:999px!important;padding:4px 16px!important;font-weight:800;font-size:15px;border:2px solid #1f5fae!important;background:#e6eefa!important;color:#123b6e!important;cursor:pointer}.fd2-col .chip.on{background:#1f5fae!important;color:#fff!important}
 .fd2-col .inp{height:50px;font-size:16px}.fd2-col .none{color:#8f99a3;font-size:13px}
 .fd2-hrs{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;overflow:auto}
-.fd2-row{display:grid;grid-template-columns:1fr auto auto 200px;gap:12px;align-items:center;border-bottom:1px solid var(--line-soft);padding:6px 0}.fd2-row>b{font-size:16px}
-.fd2-row .fdh button{width:46px;height:46px}.fd2-row .fdh b{font-size:22px;min-width:70px}.fd2-row .fdq{display:flex;gap:4px}.fd2-row .fdq button{min-width:44px}
+.fd2-row{display:grid;grid-template-columns:minmax(120px,1fr) 150px 100px auto auto 150px;gap:12px;align-items:center;border-bottom:1px solid var(--line-soft);padding:6px 0}.fd2-row>b{font-size:16px}
+.fd2-row .fdh{gap:6px}.fd2-row .fdh button{width:44px;height:44px}.fd2-row .fdh b{font-size:20px;min-width:56px}.fd2-row .fdq{display:flex;gap:3px}.fd2-row .fdq button{min-width:38px;padding:0}.fd2-row>b{font-size:15px;line-height:1.2}
+.fd2-sel{height:46px;border-radius:12px;border:2px dashed #9aa4ad;background:#fff;font:800 13.5px -apple-system,Segoe UI,sans-serif;padding:0 8px;min-width:0;color:#5b6470}
+.fd2-sel[data-sk="act"].on{border:2px solid #0f7d80;background:#e2f4f4;color:#0b5557}.fd2-sel[data-sk="zone"].on{border:2px solid #5b4aa8;background:#eeebfa;color:#3e3180;font-family:ui-monospace,Menlo,Consolas,monospace}
+.fd2-all{display:flex;gap:8px;align-items:center;padding:6px 0 8px;border-bottom:2px solid var(--line)}.fd2-all b{font-size:13px}.fd2-all .fd2-sel{width:200px}
 .fd2-tot{text-align:right;font-size:18px;font-weight:900}.fd2-tot em{font-style:normal;font-size:13px;color:#5b6470;font-weight:800}.fd2-tot.hi em{color:#b86200}
 .fdm-x.alt{margin-left:auto;background:#fff;color:#141b22;border:2px solid #141b22}.fdm-x.alt+.fdm-x{margin-left:8px}
 .fdm-ov{position:absolute;inset:0;z-index:8000;background:rgba(20,27,34,.45);display:flex;align-items:center;justify-content:center;animation:fmin .3s ease-out}.fdm-ov.out{animation:fmout .25s ease-in forwards}
@@ -1106,7 +1110,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 05</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-10</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 11</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-11</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1547,7 +1551,7 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
-document.addEventListener('click',e=>{const fsb=e.target.closest('#rows [data-fs]');if(fsb){e.stopPropagation();e.preventDefault();ftSup(fsb.dataset.fs,Number(fsb.dataset.d));return}const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
+document.addEventListener('click',e=>{const sg=e.target.closest('#rows [data-fsign]');if(sg){e.stopPropagation();e.preventDefault();fdtSign();return}const fsb=e.target.closest('#rows [data-fs]');if(fsb){e.stopPropagation();e.preventDefault();ftSup(fsb.dataset.fs,Number(fsb.dataset.d));return}const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
   const fg=e.target.closest('#rows [data-fgo]');if(fg){e.stopPropagation();e.preventDefault();U.fdtAll=null;fdtFlow([fg.dataset.fgo]);return}
   const fa=e.target.closest('#rows [data-fall]');if(fa){e.stopPropagation();e.preventDefault();const F=ftGet(),q=ACTIVE().filter(p=>{const C=(F.laborCounts||{})[U.date+'||'+p]||{};return (C.Menuisier||0)+(C['Manœuvre']||0)+(C.Autre||0)>0});if(!q.length){toast('Ajouter d’abord le nombre d’employés par projet');return}U.fdtAll=q;fdtFlow(q);return}
   const m=e.target.closest('#rows [data-fdm]');if(m){e.stopPropagation();e.preventDefault();fdtModal(m.dataset.fdm);return}const b=e.target.closest('#rows [data-ga]');if(!b)return;e.stopPropagation();e.preventDefault();const p=b.closest('.sgroup').dataset.cp,a=b.dataset.ga;
@@ -1596,6 +1600,25 @@ function fdtModal(p){const ds=U.date;U.fm2={p,emps:[],act:'',zone:'',h:8};const 
   ov.addEventListener('keydown',e=>{if(e.target.id==='fdNewE'&&e.key==='Enter'){e.preventDefault();ov.querySelector('[data-fx="newe"]').click()}})}
 
 /* ---- feuille de temps par projet : compter, nommer, puis les heures (total du jour à droite) ---- */
+function fdtSign(){const ds=U.date,d=new Date(ds+'T12:00:00'),fri=d.getDay()===5,F=ftGet();
+  const P=ACTIVE().filter(p=>{const k=ds+'||'+p;return Object.keys(((F.hours||{})[k])||{}).length||((F.supHours||{})[ds]||{})[p]});
+  if(!P.length){toast('Aucune heure à approuver');return}
+  const ov=document.createElement('div');ov.className='fdm-ov';ov.innerHTML=`<div class="sigbox" style="width:640px"><h2 style="font-size:24px">Signer et approuver ${fri?'la semaine':'la journée'}</h2>
+    <p style="margin:0;font-size:17px">${esc(dayLbl(ds))} · ${P.map(esc).join(', ')}<br>Signé par <b>${esc(SUP)}</b></p>${fri?'<p style="margin:0;font-size:15px">Le vendredi, la semaine complète est approuvée : la feuille de chaque projet part en PDF et en JSON.</p>':''}
+    <canvas class="sigpad2" id="fsig" style="height:160px;width:100%"></canvas><p style="margin:0;font-size:16px;font-weight:800;color:#b42318">Une fois approuvée, la feuille ne peut plus être modifiée.</p>
+    <div class="row"><button class="btn" data-sg="no" style="height:58px;min-width:160px">Annuler</button><button class="btn" data-sg="clr" style="height:58px">Effacer</button><button class="btn go" data-sg="ok" style="height:58px;min-width:220px">Signer et approuver</button></div></div>`;
+  $('#ipad').appendChild(ov);const c=$('#fsig');c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;const x=c.getContext('2d');x.lineWidth=5;x.lineCap='round';x.strokeStyle='#17202a';let dn=false,ink=false;
+  const pt=e=>{const b=c.getBoundingClientRect();return [(e.clientX-b.left)/b.width*c.width,(e.clientY-b.top)/b.height*c.height]};
+  c.onpointerdown=e=>{dn=true;try{c.setPointerCapture(e.pointerId)}catch(q){}const [a,b]=pt(e);x.beginPath();x.moveTo(a,b)};c.onpointermove=e=>{if(!dn)return;const [a,b]=pt(e);x.lineTo(a,b);x.stroke();ink=true};c.onpointerup=c.onpointercancel=()=>dn=false;
+  ov.onclick=e=>{const k=(e.target.closest('[data-sg]')||{}).dataset;if(!k||!k.sg)return;
+    if(k.sg==='no'){ov.remove();return}if(k.sg==='clr'){x.clearRect(0,0,c.width,c.height);ink=false;return}
+    if(!ink){toast('Signer d’abord');return}const F2=ftGet(),sig=c.toDataURL('image/png');['approved','approvedAt','signed','review'].forEach(q=>F2[q] ||= {});
+    const days=fri?[...Array(7)].map((_,i)=>{const z=new Date(d);z.setDate(d.getDate()-5+i);return fmt(z)}):[ds];
+    days.forEach(z=>{const has=Object.keys(F2.links||{}).some(k=>k.startsWith(z+'||'))||Object.keys((F2.supHours||{})[z]||{}).length;if(has||z===ds){F2.approved[z]=true;F2.approvedAt[z]=Date.now();F2.signed[z]={sig,at:Date.now()};F2.review[z]=true}});
+    if(fri){const ws=days[0];F2.weekApproved ||= {};F2.weekSigned ||= {};F2.weekApproved[ws]=Date.now();F2.weekSigned[ws]={sig,at:Date.now(),by:SUP}}
+    ftPut(F2);ov.remove();renderGrid();toast(fri?'Semaine approuvée · export en cours…':'Journée approuvée ✓');
+    if(fri){const fr=document.createElement('iframe');fr.style.cssText='position:absolute;width:10px;height:10px;opacity:0;pointer-events:none';fr.src='./p_feuille.html?export='+days[0];document.body.appendChild(fr);
+      const done=ev=>{if(ev.data&&ev.data.fdtExported){removeEventListener('message',done);fr.remove();toast('Feuilles de temps envoyées ✓')}};addEventListener('message',done);setTimeout(()=>fr.remove(),30000)}}}
 function ftSup(p,d){const F=ftGet();F.supHours ||= {};const D=(F.supHours[U.date] ||= {});D[p]=Math.max(0,Math.min(16,(D[p]||0)+d));if(!D[p])delete D[p];F.added ||= {};const A=(F.added[U.date] ||= []);if(D[p]&&!A.includes(p))A.push(p);ftPut(F);renderGrid()}
 function ftCount(p,t,d){const F=ftGet(),key=U.date+'||'+p;['laborCounts','links','added'].forEach(k=>F[k] ||= {});const C=(F.laborCounts[key] ||= {});C[t]=Math.max(0,(C[t]||0)+d);
   const A=(F.added[U.date] ||= []);if(!A.includes(p)&&(C.Menuisier||C.Manœuvre||C.Autre))A.push(p);ftPut(F);renderGrid()}
@@ -1605,7 +1628,7 @@ function fdtFlow(queue){const p=queue[0];if(!p){renderGrid();return}const F=ftGe
   /* les noms déjà choisis restent ; les « autres » sont rangés avec les manœuvres dans la feuille */
   const others=(L['Manœuvre']||[]).filter(n=>{const e=ftEmps(F).find(q=>q.name===n);return e&&e.trade==='Autre'});
   const M={p,men:(L.Menuisier||[]).slice(0,nM),man:(L['Manœuvre']||[]).filter(n=>!others.includes(n)).slice(0,nW),aut:others.slice(0,nA),step:'names',h:{}};
-  TRADES.forEach(t=>(L[t]||[]).forEach((n,i)=>{const e=(H[t+'|'+i]||[])[0];if(e)M.h[n]=e.h}));
+  M.a={};M.z={};TRADES.forEach(t=>(L[t]||[]).forEach((n,i)=>{const e=(H[t+'|'+i]||[])[0];if(e){M.h[n]=e.h;if(e.trav&&e.trav[0])M.a[n]=e.trav[0];if(e.zones&&e.zones[0])M.z[n]=e.zones[0]}}));
   const ov=document.createElement('div');ov.className='fdm-ov fd2';ov.innerHTML='<div class="fdm" id="fdm"></div>';$('#ipad').appendChild(ov);
   const E=ftEmps(F),pick=(arr,max,n)=>{const i=arr.indexOf(n);if(i>=0)arr.splice(i,1);else if(arr.length<max)arr.push(n);else{arr.shift();arr.push(n)}};
   const draw=()=>{const all=[...M.men,...M.man,...M.aut],full=M.men.length===nM&&M.man.length===nW&&M.aut.length===nA;if(full&&M.step==='names'&&M.auto!==false){M.step='hours'}
@@ -1614,13 +1637,14 @@ function fdtFlow(queue){const p=queue[0];if(!p){renderGrid();return}const F=ftGe
     let main='';
     if(M.step==='names'){const col=(t,list,arr,max)=>max?`<div class="fd2-col"><h4>${t}s · choisir ${max}</h4><div class="chips">${list.map(e=>`<button class="chip ${arr.includes(e.name)?'on':''}" data-pn="${esc(e.name)}" data-pt="${t}">${esc(e.name)}</button>`).join('')||'<span class="none">Aucun dans la liste</span>'}</div></div>`:'';
       main=col('Menuisier',E.filter(e=>e.trade==='Menuisier'),M.men,nM)+col('Manœuvre',E.filter(e=>e.trade==='Manœuvre'),M.man,nW)+(nA?`<div class="fd2-col"><h4>Autres · écrire ${nA} nom${nA>1?'s':''}</h4>${[...Array(nA)].map((_,i)=>`<input class="inp" data-ai="${i}" placeholder="Nom ${i+1}" value="${esc(M.aut[i]||'')}" autocomplete="off">`).join('')}</div>`:'')}
-    else{main=`<div class="fd2-hrs"><h4>Heures · ${esc(dayLbl(U.date))}</h4>${all.map(n=>{const h=M.h[n]!=null?M.h[n]:8,o=dayTotal(ftGet(),n,key);return `<div class="fd2-row"><b>${esc(n)}</b><div class="fdh"><button data-hn="${esc(n)}" data-hd="-0.5">−</button><b>${fmtH(h)} h</b><button data-hn="${esc(n)}" data-hd="0.5">+</button></div><div class="fdq">${[4,6,8].map(v=>`<button class="${h===v?'on':''}" data-hn="${esc(n)}" data-hv="${v}">${v}</button>`).join('')}</div><span class="fd2-tot ${o+h>12?'hi':''}">${fmtH(h)} h <em>(${fmtH(o+h)} h aujourd’hui)</em></span></div>`}).join('')}</div>`}
+    else{const LL=lists(),AC=LL.trav.filter(x=>!x.off).map(x=>x.label),ZO=LL.zones.filter(x=>!x.off).map(x=>x.label),sel=(kind,n,cur,list,ph)=>`<select class="fd2-sel ${cur?'on':''}" data-sk="${kind}" data-sn="${esc(n)}"><option value="">${ph}</option>${list.map(v=>`<option ${v===cur?'selected':''}>${esc(v)}</option>`).join('')}</select>`;
+      main=`<div class="fd2-hrs"><h4>Heures · ${esc(dayLbl(U.date))}</h4><div class="fd2-all"><b>Pour tous :</b>${sel('act','*','',AC,'Activité…')}${sel('zone','*','',ZO,'Zone…')}</div>${all.map(n=>{const h=M.h[n]!=null?M.h[n]:8,o=dayTotal(ftGet(),n,key);return `<div class="fd2-row"><b>${esc(n)}</b>${sel('act',n,(M.a||{})[n],AC,'Activité')}${sel('zone',n,(M.z||{})[n],ZO,'Zone')}<div class="fdh"><button data-hn="${esc(n)}" data-hd="-0.5">−</button><b>${fmtH(h)} h</b><button data-hn="${esc(n)}" data-hd="0.5">+</button></div><div class="fdq">${[4,6,8].map(v=>`<button class="${h===v?'on':''}" data-hn="${esc(n)}" data-hv="${v}">${v}</button>`).join('')}</div><span class="fd2-tot ${o+h>12?'hi':''}">${fmtH(h)} h <em>(${fmtH(o+h)} h aujourd’hui)</em></span></div>`}).join('')}</div>`}
     $('#fdm').innerHTML=`<div class="fdm-hd"><span class="dico">⏱</span><b>${esc(p)}</b><span>Feuille de temps · ${esc(dayLbl(U.date))}${pos}</span>
         ${M.step==='hours'?'<button class="fdm-x alt" data-f2="names">‹ Noms</button>':''}<button class="fdm-x" data-f2="${M.step==='names'?(full?'hours':'close'):'done'}">${M.step==='names'?(full?'Heures ›':'Fermer'):queue.length>1?'Terminé · projet suivant ›':'Terminé'}</button></div>
-      <div class="fd2-body">${(U.fdtAll||[]).slice(0,(U.fdtAll||[]).length-queue.length).map(q=>`<div class="fd2-done" style="--pa:${projAcc(q)}" title="${esc(q)} ✓"><span>${esc(q)} ✓</span></div>`).join('')}${side}<div class="fd2-main">${main}</div></div>`};
+      <div class="fd2-body ${M.anim===M.step?'still':''}">${(U.fdtAll||[]).slice(0,(U.fdtAll||[]).length-queue.length).map(q=>`<div class="fd2-done" style="--pa:${projAcc(q)}" title="${esc(q)} ✓"><span>${esc(q)} ✓</span></div>`).join('')}${side}<div class="fd2-main">${main}</div></div>`;M.anim=M.step};
   draw();
   const save2=()=>{const F2=ftGet();['laborCounts','links','hours','added'].forEach(k=>F2[k] ||= {});const L2={Menuisier:[...M.men],'Manœuvre':[...M.man,...M.aut]},H2={};
-    TRADES.forEach(t=>L2[t].forEach((n,i)=>{H2[t+'|'+i]=[{trav:[],zones:[],h:M.h[n]!=null?M.h[n]:8}]}));
+    TRADES.forEach(t=>L2[t].forEach((n,i)=>{H2[t+'|'+i]=[{trav:M.a[n]?[M.a[n]]:[],zones:M.z[n]?[M.z[n]]:[],h:M.h[n]!=null?M.h[n]:8}]}));
     F2.empDb=F2.empDb&&F2.empDb.length?F2.empDb:ftEmps(F2);M.aut.forEach(n=>{if(n&&!F2.empDb.some(e=>e.name===n))F2.empDb.push({name:n,trade:'Autre',level:'',company:'Autres'})});
     F2.links[key]=L2;F2.hours[key]=H2;const C2=(F2.laborCounts[key] ||= {});C2.Menuisier=L2.Menuisier.length;C2['Manœuvre']=L2['Manœuvre'].length;C2.Autre=M.aut.length;
     const A=(F2.added[U.date] ||= []);if(!A.includes(p))A.push(p);ftPut(F2);const cur=S.project;S.project=p;day().fdt=true;S.project=cur;save()};
@@ -1631,7 +1655,7 @@ function fdtFlow(queue){const p=queue[0];if(!p){renderGrid();return}const F=ftGe
     if(a==='names'){M.step='names';M.auto=false;draw();return}if(a==='hours'){M.step='hours';draw();return}
     if(a==='close'){ov.remove();renderGrid();return}
     if(a==='done'){save2();toast('Feuille de temps : '+p+' ✓');ov.classList.add('out');setTimeout(()=>{ov.remove();fdtFlow(queue.slice(1))},250)}});
-  ov.addEventListener('change',e=>{const i=e.target.dataset.ai;if(i==null)return;M.aut[Number(i)]=e.target.value.trim();M.aut=M.aut.slice(0,nA);M.auto=true;draw()})}
+  ov.addEventListener('change',e=>{const sk=e.target.dataset.sk;if(sk){const n=e.target.dataset.sn,v=e.target.value,T=sk==='act'?M.a:M.z;if(n==='*'){[...M.men,...M.man,...M.aut].forEach(x=>{T[x]=v})}else T[n]=v;draw();return}const i=e.target.dataset.ai;if(i==null)return;M.aut[Number(i)]=e.target.value.trim();M.aut=M.aut.slice(0,nA);M.auto=true;draw()})}
 const ftQueueIdx=q=>{const all=U.fdtAll||q;return (all.length-q.length+1)+' / '+all.length};
 function renderGrid(){
   /* un groupe par projet : une étiquette par section du rapport, avec son statut */
@@ -1648,7 +1672,8 @@ function renderGrid(){
       const done=D.fdt||((FT.added||{})[U.date]||[]).includes(p)&&Object.keys(((FT.hours||{})[U.date+'||'+p])||{}).length>0||(((FT.supHours||{})[U.date]||{})[p]>0&&!(((FT.laborCounts||{})[U.date+'||'+p])||{}).Menuisier&&!(((FT.laborCounts||{})[U.date+'||'+p])||{})['Manœuvre']&&!(((FT.laborCounts||{})[U.date+'||'+p])||{}).Autre);
       const sh=((FT.supHours||{})[U.date]||{})[p]||0,key=U.date+'||'+p,C=(FT.laborCounts||{})[key]||{},n=t=>C[t]||0,tot=n('Menuisier')+n('Manœuvre')+n('Autre'),lines=ftLines(FT,p,U.date);
       const cnt=(t,l)=>`<div class="fcnt ${n(t)?'on':''}"><button class="fadd" data-fc="${esc(p)}" data-t="${t}" data-d="1"><span>＋</span>${l}</button><b>${n(t)}</b><button class="fmin" data-fc="${esc(p)}" data-t="${t}" data-d="-1" ${n(t)?'':'disabled'} aria-label="Retirer">−</button></div>`;
-      return `<div class="sgroup dm-fdt ${done?'done':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':tot?tot+' à nommer':'À remplir'}</em></div>
+      const lock=!!(FT.approved||{})[U.date];
+      return `<div class="sgroup dm-fdt ${done?'done':''} ${lock?'locked':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':tot?tot+' à nommer':'À remplir'}</em></div>
         <div class="fsup ${sh?'on':''}"><span><b>${esc(SUP)}</b><small>Surintendant</small></span><div class="fsr"><button class="fmin" data-fs="${esc(p)}" data-d="-1" ${sh?'':'disabled'} aria-label="Retirer une heure">−</button><b class="fh2">${fmtH(sh)} h</b><button class="fmin" data-fs="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button></div></div>
         ${cnt('Menuisier','Menuisier')}${cnt('Manœuvre','Manœuvre')}${cnt('Autre','Autre')}
         ${lines.length?`<div class="flist">${lines.map(x=>`<span>${esc(x.n)} · ${fmtH(x.h)} h</span>`).join('')}</div>`:''}
@@ -1659,7 +1684,8 @@ function renderGrid(){
         <div class="dact"><button data-ga="edit">Modifier</button><button data-ga="appr" class="go" ${ok?'disabled':''}>${ok?'Approuvé':'Approuver'}</button><button data-ga="off" class="alt">Journée non travaillée</button></div></div>`;
     return `<div class="sgroup" data-cp="${esc(p)}"><div class="gstat ${st}">${ok?'Journal approuvé':n?'Journal en cours':'Journal vide'}</div>${tags}</div>`}).join('');
   S.project=cur;
-  $('#rows').innerHTML=(S.viewAll&&U.dayMode==='fdt'?`<div class="fallbar"><button data-fall="1">⏱ Remplir toutes les journées</button></div>`:'')+`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
+  const FTa=ftGet(),apd=!!(FTa.approved||{})[U.date],fri=new Date(U.date+'T12:00:00').getDay()===5;
+  $('#rows').innerHTML=(S.viewAll&&U.dayMode==='fdt'?`<div class="fallbar">${apd?`<span class="fapd">✓ Journée approuvée${(FTa.signed||{})[U.date]?' et signée':''} · ${esc(stamp((FTa.approvedAt||{})[U.date]||Date.now()))}</span>`:`<button data-fall="1">⏱ Remplir toutes les journées</button><button class="fsign" data-fsign="1">✍ Signer et approuver ${fri?'la semaine':'la journée'}</button>`}</div>`:'')+`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
   $$('#rows .sgroup').forEach(g=>{const a=projAcc(g.dataset.cp);g.style.setProperty('--pacc',a);g.style.setProperty('--pacc-d',`color-mix(in srgb,${a} 70%,#000)`)});
   $('#finish').hidden=S.viewAll;$('#rows').classList.add('gmode');
   const X=U.expandFrom;U.expandFrom=null;

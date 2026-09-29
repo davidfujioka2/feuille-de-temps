@@ -1753,6 +1753,7 @@ function renderTimesheet(){
 $('#tsApprove').onclick=()=>{const ws=state.sheetWeek;state.weekApproved[ws]=Date.now();save();flash();setTimeout(()=>{renderTimesheet();renderCalendar()},180);setTimeout(()=>tsExport(ws),400)};
 /* ---------- export de la feuille de temps : un PDF et un JSON (format Monday) par projet ---------- */
 const OUTBOX='chantierOutbox_v1',DBXK='chantierDropbox_v1',DBX_APP='ikahlgofasunxgg';
+setTimeout(async()=>{const ex=new URLSearchParams(location.search).get('export');if(!ex)return;try{await tsExport(ex)}catch(e){}try{parent.postMessage({fdtExported:ex},'*')}catch(e){}},600);
 const J0=()=>{try{return JSON.parse(localStorage.getItem('journalChantier_v1'))||{}}catch(e){return {}}};
 const supName=()=>J0().supName||'Steeve Pitre';
 const fsafe=t=>String(t||'').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim();

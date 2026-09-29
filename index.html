@@ -1115,7 +1115,7 @@ button{cursor:pointer}
 
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 15</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-12</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 28</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-13</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1263,7 +1263,7 @@ button{cursor:pointer}
   <section id="pgPrm" class="page" hidden>
     <header class="top"><nav class="tnav"></nav>
       <div class="ttl"><b>Paramètres</b><small>Listes et pastilles · ★ favori : affiché en premier · ⊘ désactivé : masqué dans le journal</small></div>
-      <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="dbxBtn">Compte et Dropbox</button><button class="btn out" id="bkBtn">💾 Sauvegarde</button><button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
+      <a class="btn out" href="./aide.html" style="display:flex;align-items:center;text-decoration:none">Aide</a><span id="bkInfo" style="font-size:12px;color:var(--muted)"></span><button class="btn out" id="dbxBtn">Compte et Dropbox <span id="dbxState"></span></button><button class="btn out" id="bkBtn">💾 Sauvegarde</button><button class="btn pri" id="exAll">⬆ Tout enregistrer</button>
     </header>
     <div class="srow"><b class="sdate"></b><span class="sname"></span></div><div class="pbar"></div>
     <div class="prm">
@@ -2442,6 +2442,7 @@ function openSig(){
 
 /* ---------- paramètres ---------- */
 function renderPrm(){
+  {const b=$('#dbxState');if(b){b.textContent=dbxOn()?'● connecté':'● non connecté';b.style.color=dbxOn()?'#1f7a4a':'#c3282b'}}
   const L=lists(),k=U.prmKey;$('#bkInfo').textContent=S.lastBackup?'Dernière sauvegarde : '+stamp(S.lastBackup):'Aucune sauvegarde';
   if(k==='phasemap'){
     $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${x==='phasemap'?'':L[x].filter(i=>!i.off).length}</small></button>`).join('');
@@ -2693,8 +2694,9 @@ async function savePhotos(list){
 }
 function saveBackup(){
   const data={app:'Chantier',version:1,exported:new Date().toISOString(),journal:S,feuilleDeTemps:(()=>{try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'null')}catch(e){return null}})()};
-  const name=`Sauvegardes__Chantier__${fmt(new Date())}.json`;
-  saveFile(new Blob([JSON.stringify(data)],{type:'application/json'}),name);S.lastBackup=Date.now();save();toast('Sauvegarde enregistrée');renderPrm();
+  const name=`${stampName()} sauvegarde ${fsafe(SUP)}.json`,blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  if(dbxOn()){dbxUpload(blob,name,DIRS.perso()+'/Sauvegardes').then(()=>{S.lastBackup=Date.now();save();toast('Sauvegarde envoyée dans Dropbox ✓');renderPrm()}).catch(x=>{toast('Dropbox : '+x.message+' · fichier proposé');saveFile(blob,name)});return}
+  saveFile(blob,name);S.lastBackup=Date.now();save();toast('Sauvegarde enregistrée (Dropbox non connecté)');renderPrm();
 }
 
 /* ===================== MENU D'ICÔNES (rangée d'en-tête) ===================== */

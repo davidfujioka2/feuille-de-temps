@@ -30,6 +30,10 @@
   .uiPop .swb{height:8px;border-radius:99px;background:#2a2f3a;margin-top:8px;overflow:hidden}.uiPop .swb i{display:block;height:100%;background:#ffe81f}
   html{--pacc:#173d2d;--pacc-d:#0f2a1f;--pacc-t:#173d2d1f}
   .tnav a.on{background:var(--pacc)!important;color:#fff!important}
+  .tnav a{flex:0 1 auto;min-width:0!important}.tnav a span{overflow:hidden;text-overflow:ellipsis;max-width:92px}
+  #pgPrm .top .btn{padding:0 10px!important;font-size:13px!important;min-height:40px}#pgPrm .top #bkInfo{display:none}
+  /* couleurs d'état : jamais remplacées par le thème */
+  html.themed :is(.ok,[class*="s-ok"],.done,.approved,#approve,.approve,.ts-appr,.dact .go,.lbj,.cfdt.ok,.cjr.ok,.dhead.ok){--green:#2f8a57;--green-dark:#1f6b43;--green-line:#a9d5b9;--green-soft:#eaf6ef;--deep:#173d2d}
   .srow .sname,.srow span{color:var(--pacc-d)!important}
   .ipad::before{content:'';position:absolute;inset:0;background:var(--pbg,none) center 70%/cover no-repeat;opacity:.22;pointer-events:none;z-index:0}
   .ipad.nobg::before{opacity:0}
@@ -72,6 +76,9 @@
   function theme(){let J={},T={acc:{},bg:{}};try{J=JSON.parse(localStorage.getItem('journalChantier_v1')||'{}');T=JSON.parse(localStorage.getItem(TK)||'{"acc":{},"bg":{}}')}catch(e){}
     const p=J.viewAll?null:J.project,acc=(p&&T.acc[p])||'#173d2d',h=document.documentElement;
     h.style.setProperty('--pacc',acc);h.style.setProperty('--pacc-d',dark(acc,.35));h.style.setProperty('--pacc-t',acc+'1f');
+    /* toutes les pages : la couleur de marque (vert) devient la couleur du projet ; l'état « approuvé » reste vert (voir .ok plus bas) */
+    const B={'--green':acc,'--green-dark':dark(acc,.25),'--deep':dark(acc,.5),'--today':dark(acc,.5),'--green-soft':acc+'14','--green-line':acc+'66'};
+    Object.entries(B).forEach(([k,v])=>p?h.style.setProperty(k,v):h.style.removeProperty(k));h.classList.toggle('themed',!!p);
     const ip=document.getElementById('ipad');if(ip&&!document.querySelector('#pgCam:not([hidden]),#pgRev:not([hidden])')&&!ip.style.getPropertyValue('--pbg')&&p&&T.bg[p]){ip.style.setProperty('--pbg',`url("${T.bg[p]}")`);ip.classList.remove('nobg')}
     document.querySelectorAll('.pbar button[data-p]').forEach(b=>{const a=T.acc[b.dataset.p];if(!a)return;b.style.setProperty('--pa',a);if(!b.querySelector('.pdot'))b.insertAdjacentHTML('afterbegin','<i class="pdot"></i>')})}
   function apply(){const o=get(),h=document.documentElement;h.classList.toggle('fz1',o.fz===1);h.classList.toggle('fz2',o.fz===2);h.classList.toggle('hc',!!o.hc)}

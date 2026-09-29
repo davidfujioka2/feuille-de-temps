@@ -980,6 +980,19 @@ button{cursor:pointer}
 .frm-lb .fm-grid{grid-template-columns:1fr 1fr;border:0;border-top:1px solid #141b22;border-bottom:1px solid #141b22}
 .frm-lb .fm-row,.frm-lb .fm-th{border-color:#141b22;background:#fff}.frm-lb .fm-th{border-width:1px 0}
 .frm-lb .ledl b{text-transform:uppercase;font-weight:700!important}
+.fm-lbr{display:flex;align-items:baseline;justify-content:space-between;border-top:2px solid #141b22;border-bottom:2px solid #141b22;padding:5px 2px;font-size:13px}.fm-lbr span{font-weight:900;letter-spacing:.2em;font-size:11px}
+/* document complet */
+.fmdoc-ov{position:absolute;inset:0;z-index:9000;background:rgba(20,27,34,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;animation:fmin .45s cubic-bezier(.2,.8,.2,1)}
+.fmdoc-ov.out{animation:fmout .25s ease-in forwards}@keyframes fmin{from{opacity:0}to{opacity:1}}@keyframes fmout{to{opacity:0}}
+.fmdoc{width:640px;max-height:660px;overflow:auto;background:#fff;border-radius:4px;padding:26px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px;animation:fmup .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes fmup{from{transform:translateY(160px) scale(.9)}to{transform:none}}
+.fmdoc .fm-head{font-size:12px}.fmdoc .fm-logo{font-size:28px}
+.fmt{width:100%;border-collapse:collapse;font-size:12.5px}.fmt th{background:#eef1f3;text-align:left;padding:5px 6px;border:1px solid #9aa4ad;font-size:10.5px;text-transform:uppercase}
+.fmt td{padding:5px 6px;border-bottom:1px dotted #9aa4ad}.fmt td.n{text-align:right;font-weight:800}
+.frm-lb .fmt th{background:#fff;border-color:#141b22;border-width:1px 0}.fm-mono.fmt,.frm-lb .fmt td{font-family:'Courier New',Courier,monospace}
+.fm-note{border:1px solid #9aa4ad;padding:6px;font-size:12px}.fm-note small{display:block;font-size:9px;font-weight:800;color:#5b6470;text-transform:uppercase}
+.fm-sig{margin-top:8px;text-align:right;font-size:11px;color:#5b6470}
+.fmdoc-bar{display:flex;gap:10px}
 .lbj{position:absolute;inset:0;z-index:20;background:#fff;border:4px solid #c3282b;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;animation:lbin .35s ease-out}
 @keyframes lbin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 .lbj-s{width:150px;height:130px;background:#c3282b;color:#fff;font-size:84px;line-height:140px;clip-path:polygon(50% 0,100% 100%,0 100%);animation:lbp .9s infinite}
@@ -1013,7 +1026,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 0 h 09</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-2</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 0 h 34</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-3</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1773,25 +1786,35 @@ function lbPaint(){const V=U.V;if(!V||!V.lbShow)return;const col=document.queryS
 
 /* ---- bordereau au format du fournisseur (gabarits : Patrick Morin, Lefebvre & Benoit, générique) ---- */
 function supForm(sup){const t=(sup||'').toLowerCase();if(t.includes('morin'))return 'pm';if(t.includes('lefebvre'))return 'lb';return 'gen'}
-function formDress(){const V=U.V;if(!V)return;const col=document.querySelector('#flow .lvcol.led');if(!col||col.dataset.dressed)return;col.dataset.dressed=1;
-  const k=supForm(V.sup),nt=V.mode==='note'||V.mode==='recu',d=new Date(U.date+'T12:00:00'),ds=U.date,no=(V.orderId||('C'+String(Date.now()).slice(-6)));
-  const title=nt?'BON DE LIVRAISON':'BON DE COMMANDE',vendu=[CO,'388, rue Blainville E #200','Sainte-Thérèse, QC J7E 1N4'],livre=[S.project,'Montréal, QC'];
-  col.classList.add('frm','frm-'+k);const gl=col.querySelector(':scope > .gl');
-  let head='';
-  if(k==='pm')head=`<div class="fm-top"><span class="fm-logo"><i>PM</i>Patrick Morin</span><span class="fm-doc">${title}</span></div>
+function fmInfo(){const V=U.V,k=supForm(V.sup),nt=V.mode==='note'||V.mode==='recu',d=new Date(U.date+'T12:00:00');
+  return {V,k,nt,ds:U.date,d,no:V.fmNo||(V.fmNo='C'+String(Date.now()).slice(-6)),title:nt?'BON DE LIVRAISON':'BON DE COMMANDE',vendu:[CO,'388, rue Blainville E #200','Sainte-Thérèse, QC J7E 1N4'],livre:[S.project,'Montréal, QC']}}
+/* bandeau seulement (pendant la saisie) ou document complet (à Terminé) */
+function fmHead(full){const {V,k,ds,d,no,title,vendu,livre}=fmInfo();
+  if(k==='pm')return `<div class="fm-top"><span class="fm-logo"><i>PM</i>Patrick Morin</span><span class="fm-doc">${title}</span></div>`+(full?`
     <div class="fm-grid"><div><small>Vendu à</small>${vendu.map(esc).join('<br>')}</div><div><small>Livré à</small>${livre.map(esc).join('<br>')}</div>
       <div class="fm-kv"><span>No :</span><b>${esc(no)}</b><span>Date :</span><b>${ds}</b></div></div>
-    <div class="fm-row"><span><small>No comm. client</small>${esc(SUP.split(' ')[0].toUpperCase())}</span><span><small>Date de comm.</small>${ds}</span><span><small>Date livraison</small>${ds}</span><span><small>No de commande</small>${esc(no)}</span></div>
-    <div class="fm-th"><span>Description</span><span>Qté à liv.</span><span>U/M</span></div>`;
-  else if(k==='lb')head=`<div class="fm-mono fm-c"><b>LEFEBVRE &amp; BENOIT S.E.C</b><br>2225 BOUL. DES ENTREPRISES<br>TERREBONNE, QC J6Y 1W9</div><div class="fm-mono fm-doc2">${title}</div>
+    <div class="fm-row"><span><small>No comm. client</small>${esc(SUP.split(' ')[0].toUpperCase())}</span><span><small>Date de comm.</small>${ds}</span><span><small>Date livraison</small>${ds}</span><span><small>No de commande</small>${esc(no)}</span></div>`:'');
+  if(k==='lb')return `<div class="fm-mono fm-lbr"><b>LEFEBVRE &amp; BENOIT S.E.C</b><span>${title}</span></div>`+(full?`<div class="fm-mono fm-c">2225 BOUL. DES ENTREPRISES · TERREBONNE, QC J6Y 1W9 · 514-381-7456</div>
     <div class="fm-grid fm-mono"><div><small>VENDU A</small>${vendu.map(x=>esc(x.toUpperCase())).join('<br>')}</div><div><small>EXPEDIE A</small>${livre.map(x=>esc(x.toUpperCase())).join('<br>')}</div></div>
-    <div class="fm-row fm-mono"><span><small>No BON</small>${esc(no)}</span><span><small>No COMMANDE CLIENT</small>*${esc(S.project.toUpperCase())}</span><span><small>DATE</small>${d.getDate().toString().padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}</span></div>
-    <div class="fm-th fm-mono"><span>DESCRIPTION</span><span>QUANTITE</span><span>UNITE</span></div>`;
-  else head=`<div class="fm-top gen"><span class="fm-logo">${esc(V.sup||'Fournisseur')}</span><span class="fm-doc">${title}</span></div>
-    <div class="fm-row"><span><small>Projet</small>${esc(S.project)}</span><span><small>Date</small>${ds}</span><span><small>No</small>${esc(no)}</span></div>
-    <div class="fm-th"><span>Description</span><span>Qté</span><span>Unité</span></div>`;
-  const h=document.createElement('div');h.className='fm-head';h.innerHTML=head;if(gl){gl.after(h);gl.classList.add('fm-gl')}else col.prepend(h);
-  col.querySelectorAll('.ledl').forEach(r=>{if(!r.querySelector('.fm-um')){const q=r.querySelector('.ledq');const u=document.createElement('span');u.className='fm-um';u.textContent=/gypse|panneau|contrepla/i.test(r.textContent)?'FE':'CH';if(q)q.before(u)}})}
+    <div class="fm-row fm-mono"><span><small>No BON</small>${esc(no)}</span><span><small>No COMMANDE CLIENT</small>*${esc(S.project.toUpperCase())}</span><span><small>DATE</small>${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}</span></div>`:'');
+  return `<div class="fm-top gen"><span class="fm-logo">${esc(V.sup||'Fournisseur')}</span><span class="fm-doc">${title}</span></div>`+(full?`<div class="fm-row"><span><small>Projet</small>${esc(S.project)}</span><span><small>Date</small>${ds}</span><span><small>No</small>${esc(no)}</span></div>`:'')}
+const fmUM=t=>/gypse|panneau|contrepla/i.test(t)?'FE':'CH';
+function formDress(){const V=U.V;if(!V)return;const col=document.querySelector('#flow .lvcol.led');if(!col||col.dataset.dressed)return;col.dataset.dressed=1;
+  const {k}=fmInfo();col.classList.add('frm','frm-'+k);const gl=col.querySelector(':scope > .gl');
+  const h=document.createElement('div');h.className='fm-head';h.innerHTML=fmHead(false)+`<div class="fm-th ${k==='lb'?'fm-mono':''}"><span>Description</span><span>Qté</span><span>U/M</span></div>`;
+  if(gl){gl.after(h);gl.classList.add('fm-gl')}else col.prepend(h);
+  col.querySelectorAll('.ledl').forEach(r=>{if(!r.querySelector('.fm-um')){const q=r.querySelector('.ledq');const u=document.createElement('span');u.className='fm-um';u.textContent=fmUM(r.textContent);if(q)q.before(u)}})}
+/* à Terminé : le document complet sort, avec tous les en-têtes ; Confirmer enregistre */
+function fmPreview(a){const V=U.V,{k}=fmInfo(),it=V.items.filter(x=>x.qty>0);if(!it.length)return;
+  const note=($('#lvNote')?$('#lvNote').value:'').trim();
+  const rows=it.map((x,i)=>`<tr><td>${k==='lb'?'32':i+1}</td><td>${esc(k==='lb'?x.mat.toUpperCase():x.mat)}</td><td class="n">${x.qty}</td><td>${fmUM(x.mat)}</td></tr>`).join('');
+  const ov=document.createElement('div');ov.className='fmdoc-ov';ov.innerHTML=`<div class="fmdoc frm-${k}"><div class="fm-head">${fmHead(true)}</div>
+    <table class="fmt ${k==='lb'?'fm-mono':''}"><thead><tr><th>${k==='lb'?'ENT':'#'}</th><th>Description</th><th>Qté</th><th>U/M</th></tr></thead><tbody>${rows}</tbody></table>
+    ${note?`<div class="fm-note"><small>Note</small>${esc(note)}</div>`:''}<div class="fm-sig">${esc(SUP)} · ${esc(U.date)}</div></div>
+    <div class="fmdoc-bar"><button class="btn" data-fm="back" style="min-width:160px;height:56px">‹ Modifier</button><button class="btn go" data-fm="ok" style="min-width:260px;height:56px;font-size:17px">Confirmer et enregistrer</button></div>`;
+  $('#ipad').appendChild(ov);
+  ov.onclick=e=>{const b=e.target.closest('[data-fm]');if(!b)return;if(b.dataset.fm==='back'){ov.classList.add('out');setTimeout(()=>ov.remove(),250);return}
+    ov.remove();U.fmOk=true;const btn=document.querySelector(`#flow [data-fa="${a}"]`);if(btn)btn.click();U.fmOk=false}}
 function lvSend(){
   const V=U.V;if(!V.items.length)return;
   let o=V.orderId&&S.orders.find(x=>x.id===V.orderId);
@@ -1922,6 +1945,7 @@ $('#flow').addEventListener('click',e=>{
   if(a==='lvrph'){V.phase=null;renderLiv();return}
   if(a==='lvrsup'){V.sup=null;V.recvId=null;renderLiv();return}
   if(a==='lvmode'){V.mode=b.dataset.v;V.qpop=false;renderLiv();return}
+  if((a==='lvnote'||a==='lvsend')&&!U.fmOk){fmPreview(a);return}
   if(a==='lvnote'){V.items=V.items.filter(x=>x.qty>0);if(!V.items.length)return;const t=($('#lvNote')?$('#lvNote').value:'').trim();ordersOf(V.sup).forEach(o=>o.lines.forEach(l=>{if(!l.done&&V.items.some(x=>x.mat===l.mat)){l.done=true;l.missing=0}}));
     saveEntry({sec:'liv',kind:'note',a:V.sup,phase:V.phase,items:V.items.map(x=>({...x})),b:V.items.map(x=>x.mat+' × '+x.qty).join(', '),c:'',text:t});return}
   if(a==='lvpick'){const m=b.dataset.v,act=V.items.find(x=>x.mat===V.act);

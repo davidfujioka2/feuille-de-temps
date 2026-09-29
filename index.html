@@ -993,7 +993,7 @@ button{cursor:pointer}
 #flow .picked{display:none!important}
 /* fenêtre Ajouter les employés */
 .fallbar{display:flex;justify-content:center;padding:0 0 8px}.fallbar button{height:52px;padding:0 26px;border:0;border-radius:14px;background:var(--pacc,#141b22);color:#fff;font:900 17px -apple-system,Segoe UI,sans-serif;cursor:pointer}
-.fsup{display:flex;align-items:center;gap:4px;border:2px solid #cfd6db;border-radius:14px;padding:6px 6px 6px 10px;background:#fff}.fsup.on{border-color:#141b22}.fsup span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}.fsup span b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsup span small{font-size:10.5px;color:#5b6470;font-weight:800}.fsup .fh2{min-width:40px;text-align:center;font-size:17px}.fsup .fmin{width:40px!important;height:40px!important;border-radius:50%!important;border:2px solid #141b22!important;background:#fff!important;font-size:20px!important;font-weight:900;padding:0!important;min-height:0!important;display:flex;align-items:center;justify-content:center}.fsup .fmin:disabled{opacity:.3}
+.fsup{display:flex;flex-direction:column;align-items:stretch;gap:8px;border:2px solid #cfd6db;border-radius:14px;padding:10px 12px;background:#fff;margin:10px 0 14px}.fsr{display:flex;align-items:center;justify-content:space-between}.fsup.on{border-color:#141b22}.fsup span{min-width:0;display:flex;flex-direction:column;line-height:1.2;text-align:center}.fsup span b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsup span small{font-size:10.5px;color:#5b6470;font-weight:800}.fsup .fh2{min-width:56px;text-align:center;font-size:22px}.fsup .fmin{width:48px!important;height:48px!important;border-radius:50%!important;border:2px solid #141b22!important;background:#fff!important;font-size:20px!important;font-weight:900;padding:0!important;min-height:0!important;display:flex;align-items:center;justify-content:center}.fsup .fmin:disabled{opacity:.3}
 .fcnt{display:flex;align-items:center;gap:4px}.fcnt .fadd{flex:1;min-width:0;min-height:56px;border:2px dashed #8f99a3;border-radius:14px;background:#fff;color:#3b4550;font:850 14px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;gap:6px;padding:0 8px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .fcnt .fadd span{font-size:26px;color:#1f5fae;line-height:1}.fcnt.on .fadd{border-style:solid;border-color:#1f5fae;background:#e6eefa;color:#123b6e}
 .fcnt b{min-width:22px;text-align:center;font-size:20px}.fcnt .fmin{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid #cfd6db;background:#fff;font-size:20px;font-weight:900;cursor:pointer}.fcnt .fmin:disabled{opacity:.3}
@@ -1087,7 +1087,7 @@ button{cursor:pointer}
 .dm-fdt .dbig{flex:1;margin-top:10px;border:3px dashed #8f99a3;border-radius:18px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:17px;font-weight:850;color:#3b4550;cursor:pointer;min-height:200px}
 .dm-fdt .dbig .dplus{font-size:64px;line-height:1;font-weight:400;color:#1f5fae}.dm-fdt .dbig.ok{border-style:solid;border-color:#1f7a4a;color:#14532d;background:#eef8f1}.dm-fdt .dbig .dck{font-size:56px;line-height:1}
 .dm-fdt.done .dhead{border-color:#1f7a4a}.dm-fdt.done .dhead em{color:#1f7a4a}.dm-fdt:not(.done) .dhead em{color:#8a4b00}
-.dm-fdt,.dm-jou{display:flex;flex-direction:column;gap:6px}
+.dm-fdt,.dm-jou{display:flex;flex-direction:column;gap:6px}.dm-fdt{gap:10px}
 .dact{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px}
 .dact button{min-height:44px;border-radius:12px;border:2px solid #141b22;background:#fff;color:#141b22;font-weight:850;font-size:14px;cursor:pointer}
 .dact button.go{background:#1f7a4a;border-color:#1f7a4a;color:#fff}.dact button.go[disabled]{background:#eef8f1;color:#1f7a4a;opacity:1}
@@ -1106,7 +1106,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 02</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-9</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 05</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-10</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1649,7 +1649,7 @@ function renderGrid(){
       const sh=((FT.supHours||{})[U.date]||{})[p]||0,key=U.date+'||'+p,C=(FT.laborCounts||{})[key]||{},n=t=>C[t]||0,tot=n('Menuisier')+n('Manœuvre')+n('Autre'),lines=ftLines(FT,p,U.date);
       const cnt=(t,l)=>`<div class="fcnt ${n(t)?'on':''}"><button class="fadd" data-fc="${esc(p)}" data-t="${t}" data-d="1"><span>＋</span>${l}</button><b>${n(t)}</b><button class="fmin" data-fc="${esc(p)}" data-t="${t}" data-d="-1" ${n(t)?'':'disabled'} aria-label="Retirer">−</button></div>`;
       return `<div class="sgroup dm-fdt ${done?'done':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':tot?tot+' à nommer':'À remplir'}</em></div>
-        <div class="fsup ${sh?'on':''}"><span><b>${esc(SUP)}</b><small>Surintendant</small></span><button class="fmin" data-fs="${esc(p)}" data-d="-1" ${sh?'':'disabled'} aria-label="Retirer une heure">−</button><b class="fh2">${fmtH(sh)} h</b><button class="fmin" data-fs="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button></div>
+        <div class="fsup ${sh?'on':''}"><span><b>${esc(SUP)}</b><small>Surintendant</small></span><div class="fsr"><button class="fmin" data-fs="${esc(p)}" data-d="-1" ${sh?'':'disabled'} aria-label="Retirer une heure">−</button><b class="fh2">${fmtH(sh)} h</b><button class="fmin" data-fs="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button></div></div>
         ${cnt('Menuisier','Menuisier')}${cnt('Manœuvre','Manœuvre')}${cnt('Autre','Autre')}
         ${lines.length?`<div class="flist">${lines.map(x=>`<span>${esc(x.n)} · ${fmtH(x.h)} h</span>`).join('')}</div>`:''}
         <div class="dact"><button class="go" data-fgo="${esc(p)}" ${tot?'':'disabled'}>Continuer ›</button><button class="alt" data-ga="off">Journée non travaillée</button></div></div>`}

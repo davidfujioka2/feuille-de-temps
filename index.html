@@ -1117,7 +1117,7 @@ button{cursor:pointer}
 
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 2 h 02</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-17</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 2 h 07</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-18</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -2530,7 +2530,7 @@ function pickPhotos(){const D=day(),d0=new Date(U.date+'T12:00:00'),k=(d0.getDay
     if(on(m.id))D.photos=D.photos.filter(p=>p.id!==m.id);else D.photos.push({id:m.id,at:m.at,media:true,who:m.sub,act:m.act,zones:m.zone?[m.zone]:[],note:m.note||'',imp:'Normale'});draw()}}
 /* lien Dropbox d'une photo (fonctionne pour les membres du dossier partagé) */
 function photoLink(p){const m=S.media.find(x=>x.id===p.id);if(!m)return '';const dir=m.status==='arch'?DIRS.photo(m.project,m.date):DIRS.perso()+'/Photos';
-  return 'https://www.dropbox.com/home'+encodeURI(dbxDir()+'/'+dir)+'?preview='+encodeURIComponent(photoName(m))}
+  return 'https://www.dropbox.com/home'+encodeURI(dbxDir()+'/'+dir)+'?preview='+encodeURIComponent(photoPdfName(m))}
 async function smallJpeg(src,max){const img=await loadImg(src),r=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*r);c.height=Math.round(img.naturalHeight*r);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return {url:c.toDataURL('image/jpeg',.6),w:c.width,h:c.height}}
 async function reportPdfBlob(){
   await pdfLibs();
@@ -2590,6 +2590,34 @@ const jsonName=(proj,date,final)=>stampName()+' journal '+fsafe(proj)+'.json';
 const journalJsonFile=(proj,date,D)=>withDir(new File([JSON.stringify(journalJson(proj,date,D),null,2)],jsonName(proj,date,D.status==='approved'),{type:'application/json'}),DIRS.monday());
 const journalPdfFile=(b,proj,date,final)=>withDir(new File([b],pdfName(proj,date,final),{type:'application/pdf'}),DIRS.journal(proj));
 /* photo de document → PDF (bande en haut déjà incluse), mots-clés dans les propriétés */
+/* photo → PDF : la photo (sans texte) au centre, les étiquettes en vrai texte au-dessus et en dessous, taille normale et consultable */
+async function photoPdf(m){await pdfLibs();const t=m.tags||{proj:m.project,sub:m.sub,four:m.four,act:m.act,zone:m.zone,note:m.note,avis:m.avis,kind:m.kind,doc:m.type==='doc',docType:m.docType};
+  const src=(m.annot?await getBlob(m.id):null)||await getBlob('r'+m.id)||await getBlob(m.id);if(!src)throw new Error('photo absente');
+  const url=URL.createObjectURL(src);let img;try{img=await loadImg(url)}finally{URL.revokeObjectURL(url)}
+  /* format fixe : toujours 1600 × 1200 (4:3), la photo centrée sans rognage → mêmes proportions de texte sur chaque page */
+  const cv=document.createElement('canvas');cv.width=1600;cv.height=1200;const cx=cv.getContext('2d');cx.fillStyle='#eef1f3';cx.fillRect(0,0,1600,1200);
+  const r=Math.min(1600/img.naturalWidth,1200/img.naturalHeight),dw=img.naturalWidth*r,dh=img.naturalHeight*r;cx.drawImage(img,(1600-dw)/2,(1200-dh)/2,dw,dh);
+  const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'landscape'}),W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),M=28,d=new Date(m.at);
+  const MC=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],when=`${d.getDate()} ${MC[d.getMonth()]} ${d.getFullYear()} · ${d.getHours()} h ${pad(d.getMinutes())}`;
+  const proj=t.proj===''?'Aucun projet':(t.proj||m.project||'Sans projet');
+  /* en-tête */
+  pdf.setFont('helvetica','bold');pdf.setFontSize(15);pdf.setTextColor(23,32,42);pdf.text(proj,M,M+12);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(91,100,112);pdf.text(CO,W/2,M+11,{align:'center'});
+  pdf.setFont('helvetica','bold');pdf.setFontSize(10.5);pdf.setTextColor(23,32,42);pdf.text(when+(t.doc?' · '+(t.docType||'Document'):''),W-M,M+11,{align:'right'});
+  pdf.setDrawColor(207,214,219);pdf.line(M,M+20,W-M,M+20);
+  /* pied : étiquettes, commentaire, prise par */
+  const tags=[t.sub&&'Sous-traitant : '+t.sub,t.four&&t.four!==t.sub&&'Fournisseur : '+t.four,t.zone&&'Zone du projet : '+t.zone,t.act&&'Activité : '+t.act,t.avis&&('À aviser : '+t.avis+(t.kind?' ('+t.kind+')':''))].filter(Boolean).join('   ·   ');
+  pdf.setFont('helvetica','bold');pdf.setFontSize(10.5);const L1=tags?pdf.splitTextToSize(tags,W-M*2).slice(0,2):[];
+  pdf.setFont('helvetica','normal');pdf.setFontSize(10.5);const L2=t.note?pdf.splitTextToSize('Commentaire de '+SUP+' : '+t.note,W-M*2).slice(0,3):[];
+  const foot=2*13+3*13+14+10,top=M+28,bot=H-M-foot,ah=bot-top-6,aw=W-M*2,sc=Math.min(aw/cv.width,ah/cv.height),iw=cv.width*sc,ih=cv.height*sc;
+  pdf.addImage(cv.toDataURL('image/jpeg',.82),'JPEG',(W-iw)/2,top,iw,ih);
+  let y=top+ih+16;pdf.setDrawColor(207,214,219);pdf.line(M,y-8,W-M,y-8);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(10.5);pdf.setTextColor(23,32,42);L1.forEach(l=>{pdf.text(l,M,y);y+=13});
+  pdf.setFont('helvetica','normal');L2.forEach(l=>{pdf.text(l,M,y);y+=13});
+  pdf.setFontSize(8.5);pdf.setTextColor(107,116,124);pdf.text('Photo prise par '+SUP+' le '+longWhen(d)+(m.locked?' · approuvée':''),M,y+2);
+  pdf.setProperties({title:[proj,t.doc?t.docType:'Photo',m.date].filter(Boolean).join(' · '),subject:t.note||tags,author:SUP,keywords:[proj,t.doc?t.docType:'Photo',t.sub,t.four,t.act,t.zone,t.avis,t.kind,m.fav?'Favori':''].filter(Boolean).join(', '),creator:'Chantier · '+CO});
+  return pdf.output('blob')}
+const photoPdfName=m=>photoName(m).replace(/\.jpg$/,'.pdf');
 async function imgPdf(blob,m){await pdfLibs();const url=URL.createObjectURL(blob);try{const img=await loadImg(url),{jsPDF}=window.jspdf,land=img.naturalWidth>img.naturalHeight,
     pdf=new jsPDF({unit:'pt',format:'letter',orientation:land?'landscape':'portrait'}),pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),r=Math.min(pw/img.naturalWidth,ph/img.naturalHeight);
     const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;cv.getContext('2d').drawImage(img,0,0);
@@ -2610,10 +2638,8 @@ async function storeFinalPdf(){try{const k=dk(),b=await reportPdfBlob();await pu
 async function prepareAll(){
   toast('Préparation…');const files=[],marks=[];
   for(const [k,D] of Object.entries(S.days)){if(D.pdfStored&&!D.pdfExported){const b=await getBlob('pdf|'+k);if(b){const [p,d]=k.split('|');files.push(journalPdfFile(b,p,d,true));marks.push(()=>{});files.push(journalJsonFile(p,d,D));marks.push(()=>{D.pdfExported=true})}}}
-  for(const m of S.media.filter(x=>x.status==='arch'&&!x.exported)){const b=await getBlob(m.id);if(!b)continue;
-    if(m.type==='doc'){try{const pb=await imgPdf(b,m);files.push(withDir(new File([pb],photoName(m).replace(/\.jpg$/,'.pdf'),{type:'application/pdf'}),DIRS.doc(m.project,m.docType)));marks.push(()=>{m.exported=true})}catch(e){}continue}
-    files.push(withDir(new File([await exifTag(b,m)],photoName(m),{type:'image/jpeg'}),m.type==='photo'?DIRS.photo(m.project,m.date):DIRS.doc(m.project,MTL[m.type])));marks.push(()=>{m.exported=true})}
-  for(const m of S.media.filter(x=>x.status!=='arch'&&!x.exportedP)){const b=await getBlob(m.id);if(!b)continue;files.push(withDir(new File([await exifTag(b,m)],photoName(m),{type:'image/jpeg'}),DIRS.perso()+'/Photos'));marks.push(()=>{m.exportedP=true})}
+  for(const m of S.media.filter(x=>x.status==='arch'&&!x.exported)){try{const pb=await photoPdf(m);files.push(withDir(new File([pb],photoPdfName(m),{type:'application/pdf'}),m.type==='doc'?DIRS.doc(m.project,m.docType):m.type==='photo'?DIRS.photo(m.project,m.date):DIRS.doc(m.project,MTL[m.type])));marks.push(()=>{m.exported=true})}catch(e){}}
+  for(const m of S.media.filter(x=>x.status!=='arch'&&x.status!=='trash'&&!x.exportedP)){try{const pb=await photoPdf(m);files.push(withDir(new File([pb],photoPdfName(m),{type:'application/pdf'}),DIRS.perso()+'/Photos'));marks.push(()=>{m.exportedP=true})}catch(e){}}
   try{const OB='chantierOutbox_v1',box=JSON.parse(localStorage.getItem(OB)||'[]');box.forEach(x=>{const body=x.b64?Uint8Array.from(atob(x.b64),c=>c.charCodeAt(0)):x.text;const fl=withDir(new File([body],x.name,{type:x.mime}),x.dir);fl.mode=x.mode;files.push(fl);
     marks.push(()=>{try{localStorage.setItem(OB,JSON.stringify(JSON.parse(localStorage.getItem(OB)||'[]').filter(y=>y.id!==x.id)))}catch(e){}})})}catch(e){}
   const data={app:'Chantier',version:1,exported:new Date().toISOString(),journal:S,feuilleDeTemps:(()=>{try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'null')}catch(e){return null}})()};
@@ -2852,7 +2878,7 @@ async function camStart(){const v=$('#camVideo');$('#camMsg').hidden=true;$('#ca
   try{U.camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:4032},height:{ideal:3024}},audio:false});v.srcObject=U.camStream;v.play().catch(()=>{})}
   catch(e){$('#camMsg').hidden=false;$('#camMsg').textContent='L’appareil photo en continu n’est pas disponible ici. Utiliser le bouton ci-dessous (une photo à la fois).';$('#camFallback').hidden=false;$('#shutter').hidden=true}}
 function camStop(){clearInterval(U.c2Clock);if(U.camStream){U.camStream.getTracks().forEach(t=>t.stop());U.camStream=null}const v=$('#camVideo');if(v)v.srcObject=null}
-async function c2Grab(){const v=$('#camVideo');if(!v.videoWidth)return null;const r=Math.min(1,3200/Math.max(v.videoWidth,v.videoHeight)),cv=document.createElement('canvas');cv.width=Math.round(v.videoWidth*r);cv.height=Math.round(v.videoHeight*r);cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);return await new Promise(r=>cv.toBlob(r,'image/jpeg',.88))}
+async function c2Grab(){const v=$('#camVideo');if(!v.videoWidth)return null;const r=Math.min(1,2000/Math.max(v.videoWidth,v.videoHeight)),cv=document.createElement('canvas');cv.width=Math.round(v.videoWidth*r);cv.height=Math.round(v.videoHeight*r);cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);return await new Promise(r=>cv.toBlob(r,'image/jpeg',.88))}
 async function c2Shot(raw){const c=U.c2;if(c.proj===null){toast('Choisir le projet (ou « Aucun projet »)');return}
   const fl=$('#camFlash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
   const d=new Date(),out=await c2Compose(raw,c,d);
@@ -2881,7 +2907,7 @@ async function c2Edit(id){const m=S.media.find(x=>x.id===id);if(!m)return;const 
   $('#c2ECancel').onclick=()=>{ed.hidden=true};
   const done=async signed=>{if(signed&&!sg.dataset.ink){toast('Signer d’abord');return}m.note=$('#c2ENote').value.trim();const t={...(m.tags||{}),note:m.note};
     const out=await c2Compose(raw,t,new Date(m.at),layer,signed?sg:null);await putBlob(m.id,out);const th=await makeThumb(out);thumbCache.set(m.id,th);await putBlob('t'+m.id,th);
-    if(signed){m.locked=true;m.approvedAt=Date.now()}m.tags=t;save();ed.hidden=true;toast(signed?'Photo approuvée et verrouillée':'Photo enregistrée')};
+    if(signed){m.locked=true;m.approvedAt=Date.now()}m.annot=true;m.tags=t;save();ed.hidden=true;toast(signed?'Photo approuvée et verrouillée':'Photo enregistrée')};
   $('#c2EAppr').onclick=()=>done(true);$('#c2ESave').onclick=()=>done(false)}
 /* tous les menus d'un coup */
 function c2All(){const c=U.c2,L=c2Lists(),a=$('#c2All');a.hidden=false;

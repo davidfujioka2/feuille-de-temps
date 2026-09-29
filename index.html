@@ -992,6 +992,26 @@ button{cursor:pointer}
 .pz.rise{animation:pzrise .5s ease-out}@keyframes pzrise{from{transform:translateY(70px);opacity:.25}to{transform:none;opacity:1}}
 #flow .picked{display:none!important}
 /* fenêtre Ajouter les employés */
+.fallbar{display:flex;justify-content:center;padding:0 0 8px}.fallbar button{height:52px;padding:0 26px;border:0;border-radius:14px;background:var(--pacc,#141b22);color:#fff;font:900 17px -apple-system,Segoe UI,sans-serif;cursor:pointer}
+.fcnt{display:flex;align-items:center;gap:4px}.fcnt .fadd{flex:1;min-width:0;min-height:56px;border:2px dashed #8f99a3;border-radius:14px;background:#fff;color:#3b4550;font:850 14px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;gap:6px;padding:0 8px;cursor:pointer;white-space:nowrap;overflow:hidden}
+.fcnt .fadd span{font-size:26px;color:#1f5fae;line-height:1}.fcnt.on .fadd{border-style:solid;border-color:#1f5fae;background:#e6eefa;color:#123b6e}
+.fcnt b{min-width:22px;text-align:center;font-size:20px}.fcnt .fmin{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid #cfd6db;background:#fff;font-size:20px;font-weight:900;cursor:pointer}.fcnt .fmin:disabled{opacity:.3}
+.flist{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700;color:#3b4550;max-height:120px;overflow:auto}.flist span{background:#eef1f3;border-radius:8px;padding:3px 8px}
+.fd2 .fdm{width:1100px}.fd2-body{flex:1;min-height:0;display:flex;gap:12px;padding:12px 16px}
+.fd2-side{width:230px;flex:none;background:#fff;border:2px solid var(--pacc,#173d2d);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;animation:fdl .4s cubic-bezier(.2,.8,.2,1)}@keyframes fdl{from{transform:translateX(200px)}to{transform:none}}
+.fd2-done{width:22px;flex:none;margin-right:-8px;border-radius:12px;background:var(--pa,#173d2d);color:#fff;display:flex;align-items:center;justify-content:center;animation:fdc .4s ease-out}.fd2-done span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:900;white-space:nowrap}@keyframes fdc{from{width:230px}to{width:22px}}
+.fd2-side>b{font-size:16px;color:var(--pacc-d,#141b22)}.fd2-sl{display:flex;flex-direction:column;gap:3px}.fd2-sl small{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#5b6470}
+.fd2-sl span{border:1.5px dashed #9aa4ad;border-radius:8px;padding:4px 8px;font-size:13px;font-weight:700;color:#8f99a3}.fd2-sl span.on{border-style:solid;border-color:#1f5fae;color:#123b6e;background:#e6eefa}
+.fd2-main{flex:1;min-width:0;display:flex;gap:12px;overflow:auto;animation:fdr .4s cubic-bezier(.2,.8,.2,1)}@keyframes fdr{from{transform:translateX(120px);opacity:0}to{transform:none;opacity:1}}
+.fd2-col{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.fd2-col h4,.fd2-hrs h4{margin:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4d5661}
+.fd2-col .chips{display:flex;flex-wrap:wrap;gap:6px}.fd2-col .chip{min-height:48px!important;border-radius:999px!important;padding:4px 16px!important;font-weight:800;font-size:15px;border:2px solid #1f5fae!important;background:#e6eefa!important;color:#123b6e!important;cursor:pointer}.fd2-col .chip.on{background:#1f5fae!important;color:#fff!important}
+.fd2-col .inp{height:50px;font-size:16px}.fd2-col .none{color:#8f99a3;font-size:13px}
+.fd2-hrs{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.fd2-row{display:grid;grid-template-columns:1fr auto auto 200px;gap:12px;align-items:center;border-bottom:1px solid var(--line-soft);padding:6px 0}.fd2-row>b{font-size:16px}
+.fd2-row .fdh button{width:46px;height:46px}.fd2-row .fdh b{font-size:22px;min-width:70px}.fd2-row .fdq{display:flex;gap:4px}.fd2-row .fdq button{min-width:44px}
+.fd2-tot{text-align:right;font-size:18px;font-weight:900}.fd2-tot em{font-style:normal;font-size:13px;color:#5b6470;font-weight:800}.fd2-tot.hi em{color:#b86200}
+.fdm-x.alt{margin-left:auto;background:#fff;color:#141b22;border:2px solid #141b22}.fdm-x.alt+.fdm-x{margin-left:8px}
 .fdm-ov{position:absolute;inset:0;z-index:8000;background:rgba(20,27,34,.45);display:flex;align-items:center;justify-content:center;animation:fmin .3s ease-out}.fdm-ov.out{animation:fmout .25s ease-in forwards}
 .fdm{width:1080px;height:640px;background:var(--bg);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;animation:fmup .4s cubic-bezier(.2,.8,.2,1);border-top:6px solid var(--pacc,#173d2d)}
 .fdm-hd{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line)}.fdm-hd .dico{font-size:24px}.fdm-hd b{font-size:19px;color:var(--pacc-d,#141b22)}.fdm-hd span{font-size:14px;color:var(--muted)}
@@ -1085,7 +1105,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 0 h 53</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-7</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 00</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-8</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1526,7 +1546,10 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
-document.addEventListener('click',e=>{const m=e.target.closest('#rows [data-fdm]');if(m){e.stopPropagation();e.preventDefault();fdtModal(m.dataset.fdm);return}const b=e.target.closest('#rows [data-ga]');if(!b)return;e.stopPropagation();e.preventDefault();const p=b.closest('.sgroup').dataset.cp,a=b.dataset.ga;
+document.addEventListener('click',e=>{const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
+  const fg=e.target.closest('#rows [data-fgo]');if(fg){e.stopPropagation();e.preventDefault();U.fdtAll=null;fdtFlow([fg.dataset.fgo]);return}
+  const fa=e.target.closest('#rows [data-fall]');if(fa){e.stopPropagation();e.preventDefault();const F=ftGet(),q=ACTIVE().filter(p=>{const C=(F.laborCounts||{})[U.date+'||'+p]||{};return (C.Menuisier||0)+(C['Manœuvre']||0)+(C.Autre||0)>0});if(!q.length){toast('Ajouter d’abord le nombre d’employés par projet');return}U.fdtAll=q;fdtFlow(q);return}
+  const m=e.target.closest('#rows [data-fdm]');if(m){e.stopPropagation();e.preventDefault();fdtModal(m.dataset.fdm);return}const b=e.target.closest('#rows [data-ga]');if(!b)return;e.stopPropagation();e.preventDefault();const p=b.closest('.sgroup').dataset.cp,a=b.dataset.ga;
   S.project=p;const D=day();
   if(a==='off'){D.off=!D.off;save();renderGrid();toast(D.off?'Journée non travaillée : '+p:'Journée rétablie : '+p);return}
   S.viewAll=false;save();if(a==='edit'){go('entry');return}if(a==='appr'){go('read');return}},true);
@@ -1570,6 +1593,44 @@ function fdtModal(p){const ds=U.date;U.fm2={p,emps:[],act:'',zone:'',h:8};const 
       U.fm2={p,emps:[],act:'',zone:M.zone,h:M.h};draw();return}
     if(x==='close'){ov.classList.add('out');setTimeout(()=>{ov.remove();renderGrid()},260)}});
   ov.addEventListener('keydown',e=>{if(e.target.id==='fdNewE'&&e.key==='Enter'){e.preventDefault();ov.querySelector('[data-fx="newe"]').click()}})}
+
+/* ---- feuille de temps par projet : compter, nommer, puis les heures (total du jour à droite) ---- */
+function ftCount(p,t,d){const F=ftGet(),key=U.date+'||'+p;['laborCounts','links','added'].forEach(k=>F[k] ||= {});const C=(F.laborCounts[key] ||= {});C[t]=Math.max(0,(C[t]||0)+d);
+  const A=(F.added[U.date] ||= []);if(!A.includes(p)&&(C.Menuisier||C.Manœuvre||C.Autre))A.push(p);ftPut(F);renderGrid()}
+function dayTotal(F,name,skipKey){let t=0;Object.entries(F.links||{}).forEach(([key,L])=>{if(!key.startsWith(U.date+'||')||key===skipKey)return;const H=(F.hours||{})[key]||{};TRADES.forEach(tr=>(L[tr]||[]).forEach((n,i)=>{if(n===name)t+=((H[tr+'|'+i])||[]).reduce((a,e)=>a+(e.h||0),0)}))});return t}
+function fdtFlow(queue){const p=queue[0];if(!p){renderGrid();return}const F=ftGet(),key=U.date+'||'+p,C=(F.laborCounts||{})[key]||{},L=(F.links||{})[key]||{},H=(F.hours||{})[key]||{};
+  const nM=C.Menuisier||0,nW=C['Manœuvre']||0,nA=C.Autre||0;if(!(nM+nW+nA)){fdtFlow(queue.slice(1));return}
+  /* les noms déjà choisis restent ; les « autres » sont rangés avec les manœuvres dans la feuille */
+  const others=(L['Manœuvre']||[]).filter(n=>{const e=ftEmps(F).find(q=>q.name===n);return e&&e.trade==='Autre'});
+  const M={p,men:(L.Menuisier||[]).slice(0,nM),man:(L['Manœuvre']||[]).filter(n=>!others.includes(n)).slice(0,nW),aut:others.slice(0,nA),step:'names',h:{}};
+  TRADES.forEach(t=>(L[t]||[]).forEach((n,i)=>{const e=(H[t+'|'+i]||[])[0];if(e)M.h[n]=e.h}));
+  const ov=document.createElement('div');ov.className='fdm-ov fd2';ov.innerHTML='<div class="fdm" id="fdm"></div>';$('#ipad').appendChild(ov);
+  const E=ftEmps(F),pick=(arr,max,n)=>{const i=arr.indexOf(n);if(i>=0)arr.splice(i,1);else if(arr.length<max)arr.push(n);else{arr.shift();arr.push(n)}};
+  const draw=()=>{const all=[...M.men,...M.man,...M.aut],full=M.men.length===nM&&M.man.length===nW&&M.aut.length===nA;if(full&&M.step==='names'&&M.auto!==false){M.step='hours'}
+    const pos=queue.length>1?` · projet ${ftQueueIdx(queue)}`:'';
+    const side=`<div class="fd2-side"><b>${esc(p)}</b>${[['Menuisier',M.men,nM],['Manœuvre',M.man,nW],['Autre',M.aut,nA]].filter(x=>x[2]).map(([t,a,n])=>`<div class="fd2-sl"><small>${t}s ${a.length}/${n}</small>${[...Array(n)].map((_,i)=>`<span class="${a[i]?'on':''}">${esc(a[i]||'—')}</span>`).join('')}</div>`).join('')}</div>`;
+    let main='';
+    if(M.step==='names'){const col=(t,list,arr,max)=>max?`<div class="fd2-col"><h4>${t}s · choisir ${max}</h4><div class="chips">${list.map(e=>`<button class="chip ${arr.includes(e.name)?'on':''}" data-pn="${esc(e.name)}" data-pt="${t}">${esc(e.name)}</button>`).join('')||'<span class="none">Aucun dans la liste</span>'}</div></div>`:'';
+      main=col('Menuisier',E.filter(e=>e.trade==='Menuisier'),M.men,nM)+col('Manœuvre',E.filter(e=>e.trade==='Manœuvre'),M.man,nW)+(nA?`<div class="fd2-col"><h4>Autres · écrire ${nA} nom${nA>1?'s':''}</h4>${[...Array(nA)].map((_,i)=>`<input class="inp" data-ai="${i}" placeholder="Nom ${i+1}" value="${esc(M.aut[i]||'')}" autocomplete="off">`).join('')}</div>`:'')}
+    else{main=`<div class="fd2-hrs"><h4>Heures · ${esc(dayLbl(U.date))}</h4>${all.map(n=>{const h=M.h[n]!=null?M.h[n]:8,o=dayTotal(ftGet(),n,key);return `<div class="fd2-row"><b>${esc(n)}</b><div class="fdh"><button data-hn="${esc(n)}" data-hd="-0.5">−</button><b>${fmtH(h)} h</b><button data-hn="${esc(n)}" data-hd="0.5">+</button></div><div class="fdq">${[4,6,8].map(v=>`<button class="${h===v?'on':''}" data-hn="${esc(n)}" data-hv="${v}">${v}</button>`).join('')}</div><span class="fd2-tot ${o+h>12?'hi':''}">${fmtH(h)} h <em>(${fmtH(o+h)} h aujourd’hui)</em></span></div>`}).join('')}</div>`}
+    $('#fdm').innerHTML=`<div class="fdm-hd"><span class="dico">⏱</span><b>${esc(p)}</b><span>Feuille de temps · ${esc(dayLbl(U.date))}${pos}</span>
+        ${M.step==='hours'?'<button class="fdm-x alt" data-f2="names">‹ Noms</button>':''}<button class="fdm-x" data-f2="${M.step==='names'?(full?'hours':'close'):'done'}">${M.step==='names'?(full?'Heures ›':'Fermer'):queue.length>1?'Terminé · projet suivant ›':'Terminé'}</button></div>
+      <div class="fd2-body">${(U.fdtAll||[]).slice(0,(U.fdtAll||[]).length-queue.length).map(q=>`<div class="fd2-done" style="--pa:${projAcc(q)}" title="${esc(q)} ✓"><span>${esc(q)} ✓</span></div>`).join('')}${side}<div class="fd2-main">${main}</div></div>`};
+  draw();
+  const save2=()=>{const F2=ftGet();['laborCounts','links','hours','added'].forEach(k=>F2[k] ||= {});const L2={Menuisier:[...M.men],'Manœuvre':[...M.man,...M.aut]},H2={};
+    TRADES.forEach(t=>L2[t].forEach((n,i)=>{H2[t+'|'+i]=[{trav:[],zones:[],h:M.h[n]!=null?M.h[n]:8}]}));
+    F2.empDb=F2.empDb&&F2.empDb.length?F2.empDb:ftEmps(F2);M.aut.forEach(n=>{if(n&&!F2.empDb.some(e=>e.name===n))F2.empDb.push({name:n,trade:'Autre',level:'',company:'Autres'})});
+    F2.links[key]=L2;F2.hours[key]=H2;const C2=(F2.laborCounts[key] ||= {});C2.Menuisier=L2.Menuisier.length;C2['Manœuvre']=L2['Manœuvre'].length;C2.Autre=M.aut.length;
+    const A=(F2.added[U.date] ||= []);if(!A.includes(p))A.push(p);ftPut(F2);const cur=S.project;S.project=p;day().fdt=true;S.project=cur;save()};
+  ov.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.pn){pick(b.dataset.pt==='Menuisier'?M.men:M.man,b.dataset.pt==='Menuisier'?nM:nW,b.dataset.pn);draw();return}
+    if(b.dataset.hn){const n=b.dataset.hn,h=M.h[n]!=null?M.h[n]:8;M.h[n]=b.dataset.hv?Number(b.dataset.hv):Math.max(0,Math.min(16,h+Number(b.dataset.hd)));draw();return}
+    const a=b.dataset.f2;if(!a)return;
+    if(a==='names'){M.step='names';M.auto=false;draw();return}if(a==='hours'){M.step='hours';draw();return}
+    if(a==='close'){ov.remove();renderGrid();return}
+    if(a==='done'){save2();toast('Feuille de temps : '+p+' ✓');ov.classList.add('out');setTimeout(()=>{ov.remove();fdtFlow(queue.slice(1))},250)}});
+  ov.addEventListener('change',e=>{const i=e.target.dataset.ai;if(i==null)return;M.aut[Number(i)]=e.target.value.trim();M.aut=M.aut.slice(0,nA);M.auto=true;draw()})}
+const ftQueueIdx=q=>{const all=U.fdtAll||q;return (all.length-q.length+1)+' / '+all.length};
 function renderGrid(){
   /* un groupe par projet : une étiquette par section du rapport, avec son statut */
   const P=S.viewAll?ACTIVE():[S.project],cur=S.project,sec=$('#pgEntry').dataset.sec||'';
@@ -1583,15 +1644,19 @@ function renderGrid(){
     const n=D.entries.length+(D.fdt?1:0),st=ok?'ok':n?'wip':'';
     if(S.viewAll&&U.dayMode==='fdt'){let FT={};try{FT=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
       const done=D.fdt||((FT.added||{})[U.date]||[]).includes(p)&&Object.keys(((FT.hours||{})[U.date+'||'+p])||{}).length>0;
-      return `<div class="sgroup dm-fdt ${done?'done':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':'À remplir'}</em></div>
-        <button class="dbig ${done?'ok':''}" data-fdm="${esc(p)}">${done?'<span class="dck">✓</span><span>Voir ou modifier</span>':'<span class="dplus">＋</span><span>Ajouter les employés</span>'}</button></div>`}
+      const key=U.date+'||'+p,C=(FT.laborCounts||{})[key]||{},n=t=>C[t]||0,tot=n('Menuisier')+n('Manœuvre')+n('Autre'),lines=ftLines(FT,p,U.date);
+      const cnt=(t,l)=>`<div class="fcnt ${n(t)?'on':''}"><button class="fadd" data-fc="${esc(p)}" data-t="${t}" data-d="1"><span>＋</span>${l}</button><b>${n(t)}</b><button class="fmin" data-fc="${esc(p)}" data-t="${t}" data-d="-1" ${n(t)?'':'disabled'} aria-label="Retirer">−</button></div>`;
+      return `<div class="sgroup dm-fdt ${done?'done':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':tot?tot+' à nommer':'À remplir'}</em></div>
+        ${cnt('Menuisier','Menuisier')}${cnt('Manœuvre','Manœuvre')}${cnt('Autre','Autre')}
+        ${lines.length?`<div class="flist">${lines.map(x=>`<span>${esc(x.n)} · ${fmtH(x.h)} h</span>`).join('')}</div>`:''}
+        <div class="dact"><button class="go" data-fgo="${esc(p)}" ${tot?'':'disabled'}>Continuer ›</button><button class="alt" data-ga="off">Journée non travaillée</button></div></div>`}
     if(S.viewAll&&D.off)return `<div class="sgroup dm-jou off" data-cp="${esc(p)}"><div class="dhead"><span class="dico">📋</span><b>Journal</b><em>Journée non travaillée</em></div>
         <div class="doff">Journée non travaillée</div><div class="dact"><button data-ga="off" class="alt">Annuler « non travaillée »</button></div></div>`;
     if(S.viewAll)return `<div class="sgroup dm-jou" data-cp="${esc(p)}"><div class="dhead ${st}"><span class="dico">📋</span><b>Journal</b><em>${ok?'✓ Approuvé':n?'En cours':'Vide'}</em></div>${tags}
         <div class="dact"><button data-ga="edit">Modifier</button><button data-ga="appr" class="go" ${ok?'disabled':''}>${ok?'Approuvé':'Approuver'}</button><button data-ga="off" class="alt">Journée non travaillée</button></div></div>`;
     return `<div class="sgroup" data-cp="${esc(p)}"><div class="gstat ${st}">${ok?'Journal approuvé':n?'Journal en cours':'Journal vide'}</div>${tags}</div>`}).join('');
   S.project=cur;
-  $('#rows').innerHTML=`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
+  $('#rows').innerHTML=(S.viewAll&&U.dayMode==='fdt'?`<div class="fallbar"><button data-fall="1">⏱ Remplir toutes les journées</button></div>`:'')+`<div class="grid" style="--n:${P.length}"><div class="grow">${groups}</div></div>`;
   $$('#rows .sgroup').forEach(g=>{const a=projAcc(g.dataset.cp);g.style.setProperty('--pacc',a);g.style.setProperty('--pacc-d',`color-mix(in srgb,${a} 70%,#000)`)});
   $('#finish').hidden=S.viewAll;$('#rows').classList.add('gmode');
   const X=U.expandFrom;U.expandFrom=null;

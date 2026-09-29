@@ -1085,7 +1085,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 0 h 48</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-6</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 0 h 53</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-7</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1912,17 +1912,32 @@ function formDress(){const V=U.V;if(!V)return;const col=document.querySelector('
   col.querySelectorAll('.ledl').forEach(r=>{const b=r.querySelector('b');if(!b||r.querySelector('.fm-ref'))return;const d=b.textContent.trim(),c=codeOf(V.sup,d),ck=supCatKey(V.sup),e=ck&&Object.values(SUPCAT[ck]).find(x=>x.d===d);
     b.insertAdjacentHTML('afterbegin',`<span class="fm-ref ${c?'':'none'}">${c?esc(c):'—'}</span>`);const q=r.querySelector('.ledq'),u=document.createElement('span');u.className='fm-um';u.textContent=(e&&e.u)||fmUM(d);if(q)q.before(u)})}
 /* à Terminé : le document complet sort, avec tous les en-têtes ; Confirmer enregistre */
+async function livPdf(doc,info){try{await pdfLibs();const cv=await html2canvas(doc,{scale:2,backgroundColor:'#ffffff'}),{jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter'});
+    const pw=pdf.internal.pageSize.getWidth(),m=36,w=pw-m*2,h=cv.height*w/cv.width;pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',m,m,w,h);
+    const kw=[S.project,info.sup,'Livraison',info.mode,U.date,...info.items.map(x=>x.code).filter(Boolean)];
+    pdf.setProperties({title:`${S.project} · ${info.sup} · bon ${info.no}`,subject:'Livraison '+info.mode,author:SUP,keywords:kw.join(', '),creator:'Chantier · '+CO});
+    const b64=pdf.output('datauristring').split(',')[1],base=`${U.date} ${fsafe(S.project)} ${fsafe(info.sup)} ${info.no}`;
+    const json={type:'livraison',id:S.project+'|'+info.sup+'|'+info.no,statut:info.mode,cree:new Date().toISOString(),element:{nom:base,Projet:S.project,Date:U.date,Fournisseur:info.sup,"No bon":info.no,Type:'Commande '+info.mode,Surintendant:SUP,PDF:base+'.pdf',Note:info.note||''},
+      sous_elements:info.items.map(x=>({"No produit":x.code||'',Description:x.mat,"Quantité":x.qty,"Unité":x.um}))};
+    const OB='chantierOutbox_v1',box=JSON.parse(localStorage.getItem(OB)||'[]');
+    box.push({id:'liv|'+info.no,name:base+'.pdf',dir:fsafe(S.project)+'/Livraisons',mime:'application/pdf',b64,mode:'add'});
+    box.push({id:'livj|'+info.no,name:stampName()+' livraison '+fsafe(S.project)+'.json',dir:'Monday',mime:'application/json',text:JSON.stringify(json,null,2),mode:'add'});
+    localStorage.setItem(OB,JSON.stringify(box));
+    if(dbxOn()){let ok=0;const left=[];for(const x of box){if(!String(x.id).startsWith('liv')){left.push(x);continue}try{const body=x.b64?new Blob([Uint8Array.from(atob(x.b64),c=>c.charCodeAt(0))],{type:x.mime}):new Blob([x.text],{type:x.mime});await dbxUpload(body,x.name,x.dir);ok++}catch(e){left.push(x)}}
+      localStorage.setItem(OB,JSON.stringify(left));toast(ok?'Bon enregistré dans Dropbox ✓':'Bon gardé · envoi au prochain « Tout enregistrer »')}
+    else toast('Bon prêt · envoi au prochain « Tout enregistrer »')}catch(e){toast('PDF du bon impossible : '+(e&&e.message||'erreur'))}}
 function fmPreview(a){const V=U.V,{k}=fmInfo(),it=V.items.filter(x=>x.qty>0);if(!it.length)return;
   const note=($('#lvNote')?$('#lvNote').value:'').trim();
   const cu=m=>{const ck=supCatKey(V.sup),e=ck&&Object.values(SUPCAT[ck]).find(y=>y.d===m);return (e&&e.u)||fmUM(m)};
-  const rows=it.map((x,i)=>`<tr><td>${k==='lb'?'32':i+1}</td><td class="ref">${esc(codeOf(V.sup,x.mat)||'—')}</td><td>${esc(k==='lb'?x.mat.toUpperCase():x.mat)}</td><td class="n">${x.qty}</td><td>${cu(x.mat)}</td></tr>`).join('');
+  window.__cu=cu;const rows=it.map((x,i)=>`<tr><td>${k==='lb'?'32':i+1}</td><td class="ref">${esc(codeOf(V.sup,x.mat)||'—')}</td><td>${esc(k==='lb'?x.mat.toUpperCase():x.mat)}</td><td class="n">${x.qty}</td><td>${cu(x.mat)}</td></tr>`).join('');
   const ov=document.createElement('div');ov.className='fmdoc-ov';ov.innerHTML=`<div class="fmdoc frm-${k}"><div class="fm-head">${fmHead(true)}</div>
     <table class="fmt ${k==='lb'?'fm-mono':''}"><thead><tr><th>${k==='lb'?'ENT':'#'}</th><th>${k==='lb'?'No produit':'Produit'}</th><th>Description</th><th>Qté</th><th>U/M</th></tr></thead><tbody>${rows}</tbody></table>
     ${note?`<div class="fm-note"><small>Note</small>${esc(note)}</div>`:''}<div class="fm-sig">${esc(SUP)} · ${esc(U.date)}</div></div>
     <div class="fmdoc-bar"><button class="btn" data-fm="back" style="min-width:160px;height:56px">‹ Modifier</button><button class="btn go" data-fm="ok" style="min-width:260px;height:56px;font-size:17px">Confirmer et enregistrer</button></div>`;
   $('#ipad').appendChild(ov);
   ov.onclick=e=>{const b=e.target.closest('[data-fm]');if(!b)return;if(b.dataset.fm==='back'){ov.classList.add('out');setTimeout(()=>ov.remove(),250);return}
-    ov.remove();U.fmOk=true;const btn=document.querySelector(`#flow [data-fa="${a}"]`);if(btn)btn.click();U.fmOk=false}}
+    const doc=ov.querySelector('.fmdoc'),info={sup:V.sup,no:fmInfo().no,mode:fmInfo().nt?'reçue':'placée',items:it.map(x=>({code:codeOf(V.sup,x.mat),mat:x.mat,qty:x.qty,um:cu(x.mat)})),note};
+    livPdf(doc,info).finally(()=>ov.remove());U.fmOk=true;const btn=document.querySelector(`#flow [data-fa="${a}"]`);if(btn)btn.click();U.fmOk=false}}
 function lvSend(){
   const V=U.V;if(!V.items.length)return;
   let o=V.orderId&&S.orders.find(x=>x.id===V.orderId);

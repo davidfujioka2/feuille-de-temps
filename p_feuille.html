@@ -1782,9 +1782,7 @@ window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.se
 <script>addEventListener('load',()=>{const d=new URLSearchParams(location.search).get('d');
   if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d)){try{state.selectedDate=d;state.viewAnchor=new Date(d+'T12:00');go('projects')}catch(e){}}
   const w=new URLSearchParams(location.search).get('w');if(w&&/^\d{4}-\d{2}-\d{2}$/.test(w)){try{state.sheetWeek=w;state.viewAnchor=new Date(w+'T12:00');go('timesheet')}catch(e){}}})</script>
-<style>@media (orientation:portrait) and (max-width:600px){html.phone .stage{visibility:hidden}
-html.phone body::after{content:'↻\ATourner le téléphone\Aà l’horizontale';position:fixed;left:0;top:0;width:100vw;height:100vh;box-sizing:border-box;white-space:pre-line;zoom:1;line-height:1.5;display:flex;align-items:center;justify-content:center;padding:32px;text-align:center;font:800 20px -apple-system,'Segoe UI',sans-serif;color:#173d2d;background:#f3f5f4;z-index:9999}}
-html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
+<style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}
 html.phone .ipad{border-radius:0!important;box-shadow:none!important;margin:0 auto!important}
 html.phone body{display:flex;justify-content:center;align-items:center}

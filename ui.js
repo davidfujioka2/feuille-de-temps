@@ -61,7 +61,7 @@
 
   /* micro : dictée à côté de chaque champ de commentaire (reconnaissance vocale de Safari, sinon le micro du clavier) */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  function addMics(){document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(inp=>{if(inp.dataset.mic||!/ommentaire|escription|Détails|Note/i.test(inp.placeholder))return;inp.dataset.mic=1;
+  function addMics(){document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(inp=>{if(inp.dataset.mic||inp.closest('#pgCam')||!/ommentaire|escription|Détails|Note/i.test(inp.placeholder))return;inp.dataset.mic=1;
     const b=document.createElement('button');b.type='button';b.className='uiMic';b.textContent='🎤';b.title='Dicter';
     b.onclick=e=>{e.preventDefault();e.stopPropagation();if(!SR){inp.focus();hint(inp,'Toucher le micro du clavier pour dicter');return}
       const r=new SR();r.lang='fr-CA';r.interimResults=false;r.maxAlternatives=1;b.classList.add('on');

@@ -993,6 +993,7 @@ button{cursor:pointer}
 #flow .picked{display:none!important}
 /* fenêtre Ajouter les employés */
 .fallbar{display:flex;justify-content:center;padding:0 0 8px}.fallbar button{height:52px;padding:0 26px;border:0;border-radius:14px;background:var(--pacc,#141b22);color:#fff;font:900 17px -apple-system,Segoe UI,sans-serif;cursor:pointer}
+.fsup{display:flex;align-items:center;gap:4px;border:2px solid #cfd6db;border-radius:14px;padding:6px 6px 6px 10px;background:#fff}.fsup.on{border-color:#141b22}.fsup span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}.fsup span b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fsup span small{font-size:10.5px;color:#5b6470;font-weight:800}.fsup .fh2{min-width:40px;text-align:center;font-size:17px}.fsup .fmin{width:40px!important;height:40px!important;border-radius:50%!important;border:2px solid #141b22!important;background:#fff!important;font-size:20px!important;font-weight:900;padding:0!important;min-height:0!important;display:flex;align-items:center;justify-content:center}.fsup .fmin:disabled{opacity:.3}
 .fcnt{display:flex;align-items:center;gap:4px}.fcnt .fadd{flex:1;min-width:0;min-height:56px;border:2px dashed #8f99a3;border-radius:14px;background:#fff;color:#3b4550;font:850 14px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;gap:6px;padding:0 8px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .fcnt .fadd span{font-size:26px;color:#1f5fae;line-height:1}.fcnt.on .fadd{border-style:solid;border-color:#1f5fae;background:#e6eefa;color:#123b6e}
 .fcnt b{min-width:22px;text-align:center;font-size:20px}.fcnt .fmin{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid #cfd6db;background:#fff;font-size:20px;font-weight:900;cursor:pointer}.fcnt .fmin:disabled{opacity:.3}
@@ -1105,7 +1106,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 00</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-8</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Mardi 1 h 02</b> <span style="opacity:.75">29 septembre 2026 · v2026-09-29-9</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1546,7 +1547,7 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 
-document.addEventListener('click',e=>{const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
+document.addEventListener('click',e=>{const fsb=e.target.closest('#rows [data-fs]');if(fsb){e.stopPropagation();e.preventDefault();ftSup(fsb.dataset.fs,Number(fsb.dataset.d));return}const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
   const fg=e.target.closest('#rows [data-fgo]');if(fg){e.stopPropagation();e.preventDefault();U.fdtAll=null;fdtFlow([fg.dataset.fgo]);return}
   const fa=e.target.closest('#rows [data-fall]');if(fa){e.stopPropagation();e.preventDefault();const F=ftGet(),q=ACTIVE().filter(p=>{const C=(F.laborCounts||{})[U.date+'||'+p]||{};return (C.Menuisier||0)+(C['Manœuvre']||0)+(C.Autre||0)>0});if(!q.length){toast('Ajouter d’abord le nombre d’employés par projet');return}U.fdtAll=q;fdtFlow(q);return}
   const m=e.target.closest('#rows [data-fdm]');if(m){e.stopPropagation();e.preventDefault();fdtModal(m.dataset.fdm);return}const b=e.target.closest('#rows [data-ga]');if(!b)return;e.stopPropagation();e.preventDefault();const p=b.closest('.sgroup').dataset.cp,a=b.dataset.ga;
@@ -1595,6 +1596,7 @@ function fdtModal(p){const ds=U.date;U.fm2={p,emps:[],act:'',zone:'',h:8};const 
   ov.addEventListener('keydown',e=>{if(e.target.id==='fdNewE'&&e.key==='Enter'){e.preventDefault();ov.querySelector('[data-fx="newe"]').click()}})}
 
 /* ---- feuille de temps par projet : compter, nommer, puis les heures (total du jour à droite) ---- */
+function ftSup(p,d){const F=ftGet();F.supHours ||= {};const D=(F.supHours[U.date] ||= {});D[p]=Math.max(0,Math.min(16,(D[p]||0)+d));if(!D[p])delete D[p];F.added ||= {};const A=(F.added[U.date] ||= []);if(D[p]&&!A.includes(p))A.push(p);ftPut(F);renderGrid()}
 function ftCount(p,t,d){const F=ftGet(),key=U.date+'||'+p;['laborCounts','links','added'].forEach(k=>F[k] ||= {});const C=(F.laborCounts[key] ||= {});C[t]=Math.max(0,(C[t]||0)+d);
   const A=(F.added[U.date] ||= []);if(!A.includes(p)&&(C.Menuisier||C.Manœuvre||C.Autre))A.push(p);ftPut(F);renderGrid()}
 function dayTotal(F,name,skipKey){let t=0;Object.entries(F.links||{}).forEach(([key,L])=>{if(!key.startsWith(U.date+'||')||key===skipKey)return;const H=(F.hours||{})[key]||{};TRADES.forEach(tr=>(L[tr]||[]).forEach((n,i)=>{if(n===name)t+=((H[tr+'|'+i])||[]).reduce((a,e)=>a+(e.h||0),0)}))});return t}
@@ -1643,10 +1645,11 @@ function renderGrid(){
       return `<div class="stag ${all?'has':''} ${sec===k||U.pendSel===k?'sel':''}" data-row="${k}"><b>${NAMES[k]}</b>${all?`<div class="cin">${all}</div>`:''}</div>`}).join('');
     const n=D.entries.length+(D.fdt?1:0),st=ok?'ok':n?'wip':'';
     if(S.viewAll&&U.dayMode==='fdt'){let FT={};try{FT=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
-      const done=D.fdt||((FT.added||{})[U.date]||[]).includes(p)&&Object.keys(((FT.hours||{})[U.date+'||'+p])||{}).length>0;
-      const key=U.date+'||'+p,C=(FT.laborCounts||{})[key]||{},n=t=>C[t]||0,tot=n('Menuisier')+n('Manœuvre')+n('Autre'),lines=ftLines(FT,p,U.date);
+      const done=D.fdt||((FT.added||{})[U.date]||[]).includes(p)&&Object.keys(((FT.hours||{})[U.date+'||'+p])||{}).length>0||(((FT.supHours||{})[U.date]||{})[p]>0&&!(((FT.laborCounts||{})[U.date+'||'+p])||{}).Menuisier&&!(((FT.laborCounts||{})[U.date+'||'+p])||{})['Manœuvre']&&!(((FT.laborCounts||{})[U.date+'||'+p])||{}).Autre);
+      const sh=((FT.supHours||{})[U.date]||{})[p]||0,key=U.date+'||'+p,C=(FT.laborCounts||{})[key]||{},n=t=>C[t]||0,tot=n('Menuisier')+n('Manœuvre')+n('Autre'),lines=ftLines(FT,p,U.date);
       const cnt=(t,l)=>`<div class="fcnt ${n(t)?'on':''}"><button class="fadd" data-fc="${esc(p)}" data-t="${t}" data-d="1"><span>＋</span>${l}</button><b>${n(t)}</b><button class="fmin" data-fc="${esc(p)}" data-t="${t}" data-d="-1" ${n(t)?'':'disabled'} aria-label="Retirer">−</button></div>`;
       return `<div class="sgroup dm-fdt ${done?'done':''}" data-cp="${esc(p)}"><div class="dhead"><span class="dico">⏱</span><b>Feuille de temps</b><em>${done?'✓ Remplie':tot?tot+' à nommer':'À remplir'}</em></div>
+        <div class="fsup ${sh?'on':''}"><span><b>${esc(SUP)}</b><small>Surintendant</small></span><button class="fmin" data-fs="${esc(p)}" data-d="-1" ${sh?'':'disabled'} aria-label="Retirer une heure">−</button><b class="fh2">${fmtH(sh)} h</b><button class="fmin" data-fs="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button></div>
         ${cnt('Menuisier','Menuisier')}${cnt('Manœuvre','Manœuvre')}${cnt('Autre','Autre')}
         ${lines.length?`<div class="flist">${lines.map(x=>`<span>${esc(x.n)} · ${fmtH(x.h)} h</span>`).join('')}</div>`:''}
         <div class="dact"><button class="go" data-fgo="${esc(p)}" ${tot?'':'disabled'}>Continuer ›</button><button class="alt" data-ga="off">Journée non travaillée</button></div></div>`}

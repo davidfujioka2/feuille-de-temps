@@ -910,7 +910,13 @@ button{cursor:pointer}
 .lvchoice b{font-size:22px;font-weight:850}.lvchoice span{font-size:13.5px;font-weight:700;color:var(--muted)}
 .lvchoice button.on{background:var(--green);color:#fff}.lvchoice button.on span{color:#e6f4ec}
 #pgEntry.ov .pill2{display:none}
-.cal-day .cjr{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:850;margin-top:4px;color:#141b22}.cal-day .cjr i{font-style:normal;font-size:17px}.cal-day .cjr.wip{color:#8a4b00}.cal-day .cjr.off{color:#6b747d;font-size:12.5px}
+.cal-day .cjr{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:850;margin-top:4px;color:#141b22}.cal-day .cjr i{font-style:normal;font-size:17px}.cal-day .cjr.wip{color:#8a4b00}
+.cal-day .cjr svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cal-day .cjr.r0{color:#b9c0c6;font-weight:700}.cal-day .cjr.r0 svg{stroke-width:1.4}
+.cal-day .cjr.r1{color:#6b747d}.cal-day .cjr.r1 svg{stroke-width:1.9}
+.cal-day .cjr.r2{color:#2c343c}.cal-day .cjr.r2 svg{stroke-width:2.4;fill:rgba(20,27,34,.08)}
+.cal-day .cjr.r3{color:#0b0f13;font-weight:900}.cal-day .cjr.r3 svg{stroke-width:3;fill:rgba(20,27,34,.18)}
+.cal-day.other .cjr{opacity:.5}.cal-day .cjr.off{color:#6b747d;font-size:12.5px}
 .cal-day .cfdt{margin-top:auto;display:flex;align-items:center;gap:6px;border-radius:10px;padding:5px 8px;border:2px solid;background:#fff;text-align:left;line-height:1.1;cursor:pointer}
 .cal-day .cfdt i{font-style:normal;font-size:18px}.cal-day .cfdt b{font-size:12px;display:block}.cal-day .cfdt em{font-style:normal;font-size:12.5px;font-weight:900;display:block;margin-top:1px}
 .cal-day .cfdt.ok{border-color:#1f7a4a;color:#14532d}.cal-day .cfdt.wip{border-color:#b86200;color:#7a4100;background:#fff3e2}.cal-day .cfdt.todo{border-color:#8f99a3;color:#3b4550;border-style:dashed}
@@ -977,7 +983,7 @@ button{cursor:pointer}
 #flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 23 h 43</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-21</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 23 h 44</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-22</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1296,7 +1302,7 @@ function renderCal(){
       body=doc([[nOk,'approuvé','approuvés','ok'],[nW,'en cours','en cours','wip']],'journal de chantier','journaux de chantier');st=nW?'draft':nOk?'ok':''}
     else{const nOff=Ds.filter(x=>x.off).length,Dw=Ds.filter(x=>!x.off),nOk=Dw.filter(x=>x.status==='approved').length,nW=Dw.filter(x=>x.status!=='approved'&&(x.entries.length||x.photos.length||x.fdt)).length,n=nOk+nW;
       if(nOff&&!n)body=`<span class="cjr off">🚫 Non travaillée</span>`;
-      if(n)body=`<span class="cjr ${nW?'wip':'ok'}"><i>📋</i>${n} rapport${n>1?'s':''}</span>`+(nOff?`<span class="cjr off">🚫 ${nOff} non travaillée${nOff>1?'s':''}</span>`:'');st=nW?'draft':nOk?'ok':''}
+      if(n||!nOff){const lv=Math.min(n,3);body=`<span class="cjr r${lv} ${nW?'wip':''}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/></svg>${n} rapport${n>1?'s':''}</span>`+(nOff?`<span class="cjr off">🚫 ${nOff} non travaillée${nOff>1?'s':''}</span>`:'')}st=nW?'draft':nOk?'ok':''}
     if(d.getDay()===5){const [c,t]=wkSt(wsKey),lbl=c==='ok'?'complétée':c==='draft'?'en cours':'à faire';body+=`<span class="cfdt ${c==='ok'?'ok':c==='draft'?'wip':'todo'}" data-ffri="${ds}"><i>⏱</i><span><b>Feuille de temps</b><em>${lbl}</em></span></span>`}
     h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${body}</button>`;
   }

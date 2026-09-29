@@ -943,9 +943,15 @@ button{cursor:pointer}
 .pzadd{display:flex;gap:6px;margin-top:auto;padding:8px 0 2px;position:sticky;bottom:0;background:#fff;z-index:2}.pzadd .inp{flex:1;min-width:0;height:44px;font-size:14px}.pzadd button{width:44px;height:44px;border-radius:10px;border:2px solid var(--deep);background:#fff;color:var(--deep);font-size:22px;font-weight:900}
 .pz.rise{animation:pzrise .5s ease-out}@keyframes pzrise{from{transform:translateY(70px);opacity:.25}to{transform:none;opacity:1}}
 #flow .picked{display:none!important}
+/* colonne choisie : on retire le titre et la liste, il ne reste que la pièce ; la ligne se construit en haut */
+#flow .fcol.fx.pzdone{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#flow .fcol.fx.pzdone>.fh{visibility:hidden}
+#flow .fcol.fx.pzdone>*:not(.fh):not(.pslot){display:none!important}
+#flow .fcol.fx.pzdone .pslot{background:transparent;border-bottom:0}
+#flow .fcol.fx:not(.pzdone){animation:pzin .35s ease-out}@keyframes pzin{from{opacity:.6}to{opacity:1}}
 </style>
 
-<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 22 h 53</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-16</span></div><div id="pgCode" class="pgcode"></div>
+<div class="stage"><div id="ipad" class="ipad"><div id="verBadge" style="position:absolute;right:10px;bottom:8px;z-index:9998;pointer-events:none;background:rgba(255,255,255,.85);border:1px solid #dfe4e1;border-radius:999px;padding:3px 10px;font:11px -apple-system,Segoe UI,sans-serif;color:#173d2d"><b style="font-size:12px">Lundi 22 h 57</b> <span style="opacity:.75">28 septembre 2026 · v2026-09-28-17</span></div><div id="pgCode" class="pgcode"></div>
 
   <!-- ============ CALENDRIER ============ -->
   <section id="pgCal" class="page">
@@ -1492,7 +1498,7 @@ function puzzleize(root){if(!root)return;const cols=[...root.querySelectorAll(':
     const shape=(i===0?'first':'tab')+(i===cols.length-1?' end':'');now[i]=txt;
     const el=document.createElement('button');el.type='button';el.className='pz '+shape+(txt?'':' ghost')+(txt&&prev[i]!==txt?' rise':'');if(txt)el.dataset.tp=tp;
     el.innerHTML=`<span class="tx">${esc(txt||title.toLowerCase()+' ?')}</span>${txt&&src?'<span class="ck">✓</span>':''}`;
-    if(src){el.title='Toucher pour changer';el.onclick=ev=>{ev.stopPropagation();src.classList.remove('picked');src.scrollIntoView({block:'nearest'});src.animate([{transform:'scale(1.06)'},{transform:'none'}],{duration:350})}}
+    if(src){c.classList.add('pzdone');el.title='Toucher pour changer';el.onclick=ev=>{ev.stopPropagation();c.classList.remove('pzdone');src.classList.remove('picked');src.scrollIntoView({block:'nearest'});src.animate([{transform:'scale(1.06)'},{transform:'none'}],{duration:350})}}
     const slot=document.createElement('div');slot.className='pslot';slot.appendChild(el);fh.after(slot);
     /* champ en bas de colonne : ce qui est écrit devient une nouvelle option, choisie tout de suite */
     const any=c.querySelector('button[data-tp][data-fa]:not(.pz)')||c.querySelector('button[data-fa]:not(.pz)'),fa=any&&any.dataset.fa,lk=PZLIST[fa];

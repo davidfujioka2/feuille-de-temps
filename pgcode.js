@@ -52,3 +52,17 @@
   function start(){tick();setInterval(tick,400)}
   if(document.readyState==='loading')addEventListener('DOMContentLoaded',start);else start();
 })();
+
+/* Mise à jour automatique : si une nouvelle version est publiée (sw.js change), vider l'ancienne copie et recharger une fois. */
+(function(){
+  if(window.parent!==window||!navigator.onLine)return;
+  fetch('./sw.js?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{
+    const m=t.match(/CACHE='([^']+)'/);if(!m)return;const v=m[1];let old='';try{old=localStorage.getItem('appVersion')||''}catch(e){}
+    try{localStorage.setItem('appVersion',v)}catch(e){}
+    if(!old||old===v)return;
+    const done=()=>location.reload();
+    Promise.all([
+      navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.update().catch(()=>{})))):0,
+      window.caches?caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==v).map(k=>caches.delete(k)))):0
+    ]).then(done,done)}).catch(()=>{})
+})();

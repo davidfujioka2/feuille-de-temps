@@ -1464,7 +1464,7 @@ function tagsFromEntry(e){const who=e.sec==='evt'?e.b:e.a;return {who:who||'',ac
 
 /* ---------- navigation ---------- */
 const PAGES={cal:'#pgCal',entry:'#pgEntry',photos:'#pgPhotos',read:'#pgRead',prm:'#pgPrm',ph:'#pgPh',cam:'#pgCam',rev:'#pgRev',gal:'#pgGal'};
-function go(p){if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
+function go(p){if(p!=='entry'){U.winGen=(U.winGen||0)+1;if(U.ftag||U.lvch||U.lvsp){[U.ftag,U.lvch,U.lvsp].forEach(x=>x&&x.remove());U.ftag=U.lvch=U.lvsp=null;U.closing=false}const pe=$('#pgEntry');if(pe){pe.classList.remove('ov','ovm');delete pe.dataset.sec}clearInterval(U.fdtT)}if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
   if(p==='entry'&&locked())p='read';
   if(p==='prm'&&U.page!=='prm')U.prmFrom=U.page;
   U.page=p;Object.entries(PAGES).forEach(([k,s])=>$(s).hidden=k!==p);
@@ -1609,7 +1609,8 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
   if(!t){win.hidden=false;drawTnav();return}
   t.classList.add('sel');U.pendSel=null;const wait=Math.max(350,(U.expandUntil||0)-Date.now());
   const sleep=ms=>new Promise(r=>setTimeout(r,ms)),NM={fdt:'Employés · temps',st:'Sous-traitants',liv:'Livraisons',reu:'Réunions et rencontres',evt:'Événements et incidents'};
-  setTimeout(async()=>{
+  const gen=U.winGen||0;
+  setTimeout(async()=>{if((U.winGen||0)!==gen||U.page!=='entry')return;
     /* l'étiquette monte tout en haut, par-dessus le menu : on doit finir la saisie pour revenir */
     let el=t,x=0,y=0;while(el&&el.id!=='ipad'){x+=el.offsetLeft;y+=el.offsetTop;el=el.offsetParent}
     const f=document.createElement('div');f.className='ftag';f.innerHTML=`<div class="fhead"><span class="fp">${esc(S.project)}</span><b>${NM[k]||''}</b><span class="fd">${esc(dayLbl(U.date))}</span></div><div class="fchips"></div>`;

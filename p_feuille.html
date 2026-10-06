@@ -16,6 +16,12 @@
 .addph{width:auto;min-width:220px;flex:1}
 .tbl[data-step="2"],.tbl[data-step="3"]{--cols:150px 56px 1fr 0px 0px 0px!important}
 .tbl[data-step="2"] .c-tags,.tbl[data-step="3"] .c-tags{padding:10px 12px!important}
+
+.eb-left{grid-template-columns:30px 200px 132px 56px 84px!important}
+.eb-xs{width:28px;height:28px}
+.eb-xs.rm{border:1px solid var(--line);border-radius:50%;background:#fff;color:#8a949c;font-size:17px;font-weight:900;line-height:1;padding:0;cursor:pointer}
+.eb-xs.rm:hover{border-color:#c8372d;color:#c8372d}
+#resetDay{position:fixed;left:12px;bottom:12px;z-index:50;height:42px;padding:0 18px;border:1.5px solid #c8372d;border-radius:999px;background:#fff;color:#c8372d;font-weight:850;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1281,11 +1287,12 @@ function addProjHTML(){const rest=projects.filter(p=>!added().includes(p));if(!r
 const subDesc=e=>esc([e.zones.join(', '),e.trav.join(', ')].filter(Boolean).join(' · '));
 /* un bloc par personne : nom | sous-éléments empilés | heures | ± | × */
 function supBlock(p,ro){const h=sup(p);
-  return `<div class="eb supv"><div class="eb-left"><span class="pill supp de-pill">${SUP_NAME}</span><span class="de-trade">${HELMET_SVG}Surintendant</span><span class="eb-tot ${h?'':'zero'}">${fmtH(h)} h</span><span class="eb-ctl">${ro?'':`<button data-act="suph" data-p="${esc(p)}" data-d="-1" aria-label="Retirer une heure" ${h?'':'disabled'}>−</button><button class="plus" data-act="suph" data-p="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button>`}</span></div><div class="eb-subs"></div></div>`;
+  return `<div class="eb supv"><div class="eb-left"><span class="eb-xs"></span><span class="pill supp de-pill">${SUP_NAME}</span><span class="de-trade">${HELMET_SVG}Surintendant</span><span class="eb-tot ${h?'':'zero'}">${fmtH(h)} h</span><span class="eb-ctl">${ro?'':`<button data-act="suph" data-p="${esc(p)}" data-d="-1" aria-label="Retirer une heure" ${h?'':'disabled'}>−</button><button class="plus" data-act="suph" data-p="${esc(p)}" data-d="1" aria-label="Ajouter une heure">+</button>`}</span></div><div class="eb-subs"></div></div>`;
 }
 function empBlock(p,t,i,ro){
   const name=links(p,t)[i],list=hoursFor(p,`${t}|${i}`),tot=sumH(list),k=`${p}|${t}|${i}`,isF=!ro&&fk(focus)===k;
-  const left=`<div class="eb-left"><span class="pill ${name?'filled':'empty'} de-pill">${name?esc(name):`${t} ${i+1}`}</span><span class="de-trade">${tIco(t)}${t}</span><span class="eb-tot ${tot?'':'zero'}">${fmtH(tot)} h</span><span class="eb-ctl"></span></div>`;
+  const sg=!!(state.signed&&state.signed[state.selectedDate]);
+  const left=`<div class="eb-left">${sg?'<span class="eb-xs"></span>':`<button class="eb-xs rm" data-act="rmemp" data-p="${esc(p)}" data-t="${t}" data-i="${i}" aria-label="Retirer ${esc(name||t+' '+(i+1))}" title="Retirer">×</button>`}<span class="pill ${name?'filled':'empty'} de-pill">${name?esc(name):`${t} ${i+1}`}</span><span class="de-trade">${tIco(t)}${t}</span><span class="eb-tot ${tot?'':'zero'}">${fmtH(tot)} h</span><span class="eb-ctl"></span></div>`;
   let subs=list.map((e,j)=>`<div class="eb-sub"><div class="sub-pill ${isF&&ed.editJ===j?'editing':''} ${just===`${p}|${t}|${i}|${j}`?'just':''} ${ro?'ro':''}">${ro?`<span class="sp-desc">${subDesc(e)}</span>`:`<button class="sp-desc" data-act="editline" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}">${subDesc(e)}</button>`}<span class="sp-h ${e.auto?'auto':''}">${fmtH(e.h)} h</span>${ro?'':`<button class="sp-b" data-act="th" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" data-d="-0.5" aria-label="Retirer 30 minutes">−</button><button class="sp-b plus" data-act="th" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" data-d="0.5" aria-label="Ajouter 30 minutes">+</button>`}</div><span class="eb-x">${ro?'':`<button class="lt-x" data-act="rmline" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" aria-label="Retirer l’activité">×</button>`}</span></div>`).join('');
   if(!ro&&(isF||!list.length))subs+=`<div class="eb-sub"><button class="sub-pill blank ${isF&&ed.editJ==null?'on':''}" data-act="addline" data-p="${esc(p)}" data-t="${t}" data-i="${i}"><span class="sp-desc">${isF&&ed.zones.length?esc(ed.zones.join(', '))+' · …':'Zone · Activité'}</span><span class="sp-h auto">— h</span></button><span class="eb-x"></span></div>`;
   const edit=isF?edRowHTML({p,t,i}).replace(/^<tr class="ed-row"><td><\/td><td colspan="3">/,'<div class="eb-ed">').replace(/<\/td><\/tr>$/,'</div>'):'';
@@ -1399,6 +1406,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='add')addProject(p);
   else if(act==='remove')removeProject(p);
   else if(act==='cnt')changeCount(p,t,Number(b.dataset.d));
+  else if(act==='rmemp'){e.stopPropagation();removeEmp(p,t,Number(b.dataset.i))}
   else if(act==='cnt5'){const d=Number(b.dataset.d);changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
   else if(act==='name')pickName(p,t,v);
   else if(act==='clear'){e.stopPropagation();links(p,t)[Number(b.dataset.i)]=null;save();renderProjects()}
@@ -1849,6 +1857,23 @@ renderAll();
 <style>#projectsPage .ip-head{display:none!important}#pool{display:none!important}#projectsPage .ip-foot{display:none!important}.ip-body,.ip-body.no-pool{grid-template-columns:1fr!important}</style>
 <script>
 /* pont avec le cadre : la rangée des projets ajoute ou retire un projet ; Continuer est dans le menu */
+
+/* retirer un employé (et ses heures) ; une journée approuvée revient en saisie */
+function removeEmp(p,t,i){const ds=state.selectedDate,c=counts(p),L=links(p,t),nm=L[i]||`${t} ${i+1}`,n=c[t]||0;if(i>=n)return;
+  const H=(state.hours[k(p)] ||= {}),has=sumH(H[`${t}|${i}`]||[])>0,apd=!!(state.approved&&state.approved[ds]);
+  if((has||apd)&&!confirm(`Retirer ${nm} de ${p} ?`+(has?' Ses heures seront effacées.':'')+(apd?' La journée devra être approuvée de nouveau.':'')))return;
+  for(let j=i;j<n-1;j++)H[`${t}|${j}`]=H[`${t}|${j+1}`]||[];delete H[`${t}|${n-1}`];
+  L.splice(i,1);c[t]=n-1;links(p,t);
+  if(apd){state.approved[ds]=false;if(state.approvedAt)delete state.approvedAt[ds]}if(state.review)state.review[ds]=false;
+  focus=null;save();renderProjects();renderCalendar();toast(nm+' retiré')}
+/* réinitialiser la journée : efface projets, travailleurs, heures, approbation et signature */
+function resetDay(){const ds=state.selectedDate;
+  if(!confirm('Réinitialiser la feuille de temps du '+dateLabel()+' ? Tous les projets, travailleurs, heures, approbation et signature de cette journée seront effacés.'))return;
+  added().slice().forEach(p=>{const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>{if(state[x])delete state[x][key]})});
+  state.added[ds]=[];['approved','approvedAt','review','signed','step'].forEach(x=>{if(state[x])delete state[x][ds]});if(state.supHours)delete state.supHours[ds];
+  focus=null;save();renderProjects();renderCalendar();toast('Journée réinitialisée')}
+(function(){const b=document.createElement('button');b.id='resetDay';b.textContent='↺ Réinitialiser';b.onclick=resetDay;document.body.appendChild(b);
+  setInterval(()=>{b.style.display=state.currentPage==='projects'&&added().length?'':'none'},400)})();
 window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.selectedDate])||1,mg:()=>state.mgMode||'proj',week:()=>{try{state.sheetWeek=fmt(startOfWeek(new Date(state.selectedDate+'T12:00')))}catch(e){}go('timesheet')},added:()=>added().slice(),
   toggle:p=>{if(added().includes(p))removeProject(p);else addProject(p);renderProjects()},
   next:()=>{const b=document.getElementById('nextStep');if(b)b.click()},

@@ -45,6 +45,9 @@ html.embed .pop{position:fixed!important;left:0!important;top:0!important;right:
 html.embed .pop::before{display:none!important}
 html.embed .pop *{max-height:none!important}
 html.embed .pop .pop-foot{margin-top:auto;padding-top:12px}
+
+html.embed .sheet{z-index:90!important;max-width:620px}
+html.embed #sheetBackdrop{z-index:89!important}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1484,7 +1487,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='th'){const list=hoursFor(p,`${t}|${b.dataset.i}`),ln=list[Number(b.dataset.j)];ln.h=Math.max(0,Math.min(16,ln.h+Number(b.dataset.d)));ln.auto=false;rebalance(list);save();renderProjects()}
   else if(act==='work'){const a=work(p)[b.dataset.kind],i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);save();renderProjects()}
   else if(act==='addact'){const inp=$(`#act-${projects.indexOf(p)}-${trades.indexOf(t)}`);const val=inp.value.trim();if(!val)return;if(!activities(t).includes(val))state.actList[t].push(val);const a=work(p)[t];if(a.length&&!a.includes(val))a.push(val);selFor(p,t).type=val;tryCreate(p,t);save();renderProjects()}
-  else if(act==='addemp'){if(trades.includes(t))newTrade=t;else if(trades.includes(focus?.t))newTrade=focus.t;openAddEmployee()}
+  else if(act==='addemp'){if(trades.includes(t))newTrade=t;else if(POPT)newTrade=POPT;else if(trades.includes(focus?.t))newTrade=focus.t;openAddEmployee()}
 });
 
 $('#projectsPage').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('tr.dt-emp.sel, .eb.sel')){e.preventDefault();e.target.click();return}if(e.key==='Enter'){const m={'edz-new':'edaddz','eda-new':'edadda','ppnewz':'ppaddz'}[e.target.id]||(e.target.id&&e.target.id.startsWith('ppnewa-')?'ppadda':null);if(m){const bt=e.target.parentElement.querySelector(`[data-act="${m}"]`);if(bt)bt.click();return}}if(e.key==='Enter'&&e.target.id==='lnew'){const bt=document.querySelector('[data-act="lnewact"]');if(bt)bt.click();return}if(e.key==='Enter'&&e.target.matches('input[id^="act-"]')){const btn=e.target.parentElement.querySelector('[data-act="addact"]');if(btn)btn.click()}});

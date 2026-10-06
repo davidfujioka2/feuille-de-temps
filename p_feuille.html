@@ -24,6 +24,8 @@
 .eb-xs.rm{border:1px solid var(--line);border-radius:50%;background:#fff;color:#8a949c;font-size:17px;font-weight:900;line-height:1;padding:0;cursor:pointer}
 .eb-xs.rm:hover{border-color:#c8372d;color:#c8372d}
 #resetDay{position:fixed;left:12px;bottom:12px;z-index:50;height:42px;padding:0 18px;border:1.5px solid #c8372d;border-radius:999px;background:#fff;color:#c8372d;font-weight:850;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+.pill.pickname{border:1.5px dashed var(--green,#2f8a57)!important;color:var(--green-dark,#236b43)!important;background:#f5fbf7!important;cursor:pointer;font-weight:800}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1294,7 +1296,7 @@ function supBlock(p,ro){const h=sup(p);
 function empBlock(p,t,i,ro){
   const name=links(p,t)[i],list=hoursFor(p,`${t}|${i}`),tot=sumH(list),k=`${p}|${t}|${i}`,isF=!ro&&fk(focus)===k;
   const sg=!!(state.signed&&state.signed[state.selectedDate]);
-  const left=`<div class="eb-left">${sg?'<span class="eb-xs"></span>':`<button class="eb-xs rm" data-act="rmemp" data-p="${esc(p)}" data-t="${t}" data-i="${i}" aria-label="Retirer ${esc(name||t+' '+(i+1))}" title="Retirer">×</button>`}<span class="pill ${name?'filled':'empty'} de-pill">${name?esc(name):`${t} ${i+1}`}</span><span class="de-trade">${tIco(t)}${t}</span><span class="eb-tot ${tot?'':'zero'}">${fmtH(tot)} h</span><span class="eb-ctl"></span></div>`;
+  const left=`<div class="eb-left">${sg?'<span class="eb-xs"></span>':`<button class="eb-xs rm" data-act="rmemp" data-p="${esc(p)}" data-t="${t}" data-i="${i}" aria-label="Retirer ${esc(name||t+' '+(i+1))}" title="Retirer">×</button>`}${name||ro?`<span class="pill ${name?'filled':'empty'} de-pill">${name?esc(name):`${t} ${i+1}`}</span>`:`<button class="pill empty de-pill pickname" data-act="pickname" data-p="${esc(p)}" data-t="${t}" title="Choisir le travailleur">${t} ${i+1} · choisir ›</button>`}<span class="de-trade">${tIco(t)}${t}</span><span class="eb-tot ${tot?'':'zero'}">${fmtH(tot)} h</span><span class="eb-ctl"></span></div>`;
   let subs=list.map((e,j)=>`<div class="eb-sub"><div class="sub-pill ${isF&&ed.editJ===j?'editing':''} ${just===`${p}|${t}|${i}|${j}`?'just':''} ${ro?'ro':''}">${ro?`<span class="sp-desc">${subDesc(e)}</span>`:`<button class="sp-desc" data-act="editline" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}">${subDesc(e)}</button>`}<span class="sp-h ${e.auto?'auto':''}">${fmtH(e.h)} h</span>${ro?'':`<button class="sp-b" data-act="th" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" data-d="-0.5" aria-label="Retirer 30 minutes">−</button><button class="sp-b plus" data-act="th" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" data-d="0.5" aria-label="Ajouter 30 minutes">+</button>`}</div><span class="eb-x">${ro?'':`<button class="lt-x" data-act="rmline" data-p="${esc(p)}" data-t="${t}" data-i="${i}" data-j="${j}" aria-label="Retirer l’activité">×</button>`}</span></div>`).join('');
   if(!ro&&(isF||!list.length))subs+=`<div class="eb-sub"><button class="sub-pill blank ${isF&&ed.editJ==null?'on':''}" data-act="addline" data-p="${esc(p)}" data-t="${t}" data-i="${i}"><span class="sp-desc">${isF&&ed.zones.length?esc(ed.zones.join(', '))+' · …':'Zone · Activité'}</span><span class="sp-h auto">— h</span></button><span class="eb-x"></span></div>`;
   const edit=isF?edRowHTML({p,t,i}).replace(/^<tr class="ed-row"><td><\/td><td colspan="3">/,'<div class="eb-ed">').replace(/<\/td><\/tr>$/,'</div>'):'';
@@ -1408,6 +1410,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='add')addProject(p);
   else if(act==='remove')removeProject(p);
   else if(act==='cnt')changeCount(p,t,Number(b.dataset.d));
+  else if(act==='pickname'){e.stopPropagation();setStep(3);const f=queue().find(x=>x.p===p);if(f){focus=f;renderProjects()}}
   else if(act==='rmemp'){e.stopPropagation();removeEmp(p,t,Number(b.dataset.i))}
   else if(act==='cnt5'){const d=Number(b.dataset.d);changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
   else if(act==='name')pickName(p,t,v);

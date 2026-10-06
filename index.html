@@ -296,7 +296,7 @@ button{cursor:pointer}
 .it.fav button.f{color:var(--green)}
 .it.off button.o{color:var(--amber)}
 .prm-grp{width:100%;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
-.prm-add{display:flex;gap:6px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line-soft);background:#fafbfa}
+.prm-add{display:flex;gap:6px;justify-content:flex-start;padding:12px 14px;border-bottom:1px solid var(--line-soft);background:#fafbfa}
 .prm-add .inp{width:320px;height:44px}
 /* flux de saisie par sections */
 .flow{flex-shrink:0;height:360px;display:flex;gap:6px}
@@ -1373,8 +1373,8 @@ button{cursor:pointer}
       <nav class="prm-nav" id="prmNav"></nav>
       <div class="panel">
         <div class="panel-h"><b id="prmTitle"></b><span id="prmStats"></span></div>
-        <div class="scroll" style="flex:1;min-height:0"><div class="prm-items" id="prmItems"></div></div>
         <div class="prm-add"><input class="inp dash" id="prmNew" placeholder="Nouvel élément" autocomplete="off"><button class="btn go" id="prmAdd">Ajouter</button></div>
+        <div class="scroll" style="flex:1;min-height:0"><div class="prm-items" id="prmItems"></div></div>
       </div>
     </div>
   </section>

@@ -24,7 +24,7 @@
 #pgEntry.split .fdtbar .gl,#pgEntry.split .fdtp{display:none}
 #pgEntry.split .fdtbar{justify-content:flex-end}
 #pgEntry.split[data-sec="fdt"] .fdtwrap{position:relative}
-#pgEntry.split[data-sec="fdt"] .fdtbar{position:absolute;right:18px;bottom:18px;z-index:5;background:none;border:0;padding:0}
+#pgEntry.full[data-sec="fdt"] .fdtbar,#pgEntry.split[data-sec="fdt"] .fdtbar{position:absolute;right:18px;bottom:18px;z-index:5;background:none;border:0;padding:0}
 #pgEntry.split[data-sec="fdt"] .fdtnext{height:52px;padding:0 28px;font-size:17px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
 #pgEntry.split[data-sec="fdt"] .fdtnext:disabled{box-shadow:none}
 .fdtadd{margin-top:12px;border:2px solid var(--line,#dfe4e1);border-radius:18px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:7px}
@@ -53,6 +53,7 @@
 #pgEntry.split.full.ov #rows{visibility:hidden!important}
 #pgEntry.split.full .win .flow{padding-bottom:58px}
 .wincancel{display:none}
+#pgEntry.full[data-sec="fdt"] .wincancel{display:none!important}
 #pgEntry.full .wincancel{display:block;position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 24px;border:1.5px solid #141b22;border-radius:999px;background:#fff;color:#141b22;font-weight:850;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
@@ -1606,7 +1607,9 @@ function renderFdt(){
     seen=true;
     const A=x.added(),lbl=x.nextLbl();
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');
-    const nb=$('#fdtNext');nb.textContent=lbl;nb.disabled=!x.nextOk();
+    /* pas d'étapes dans le journal : tableau du projet directement (les noms se choisissent par la bulle) */
+    if(x.go5&&x.step()<5&&!x.popOpen())x.go5();
+    const nb=$('#fdtNext');nb.textContent=lbl.replace(/^Terminer/,'Terminé');nb.disabled=!x.nextOk();nb.style.display=/^Continuer/.test(lbl)||(x.edOpen&&x.edOpen())?'none':'';
     /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
     let box=$('#fdtAdd');if(isSplit()){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
         box.onclick=e=>{e.stopPropagation();const b=e.target.closest('[data-fdp]'),y=F();if(!b||!y)return;const p=b.dataset.fdp,Sh=y.shown?y.shown():y.added();
@@ -1649,7 +1652,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=animTween;
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const FULL=isSplit()&&['st','liv','evt','reu'].includes(k);pg.classList.toggle('full',FULL);$('#ipad').classList.toggle('efull',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
+    const FULL=isSplit()&&['st','liv','evt','reu','fdt'].includes(k);pg.classList.toggle('full',FULL);$('#ipad').classList.toggle('efull',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
     await tween(560,p=>{Object.assign(f.style,{left:L(x0,FULL?12:SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,FULL?1156:SPW(),p)+'px',height:L(h0,FH,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+FH+28)+'px';

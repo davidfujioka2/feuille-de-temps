@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr">
-<head><script>window.CH_HIDE=['pla']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"]{display:none!important}
+<head><script>window.CH_HIDE=['pla','fdt','liv','evt','reu']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"],.tnav a[data-k="fdt"],.tnav a[data-tn="fdt"],.tnav a[data-k="liv"],.tnav a[data-tn="liv"],.tnav a[data-k="evt"],.tnav a[data-tn="evt"],.tnav a[data-k="reu"],.tnav a[data-tn="reu"]{display:none!important}
 
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
@@ -1376,7 +1376,7 @@ try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
 S=S||{};
 S.project=S.project||'2565 Aird'; S.month=S.month||fmt(new Date(today.getFullYear(),today.getMonth(),1));
 S.days=S.days||{}; S.fav=S.fav||{}; S.off=S.off||{}; S.added=S.added||{};
-const HIDE=window.CH_HIDE||[];if(HIDE.includes(S.calView||'cal'))S.calView='jou';S.projList=S.projList&&S.projList.length?S.projList:PROJECTS.slice();PROJECTS.splice(0,PROJECTS.length,...S.projList);BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));
+const HIDE=window.CH_HIDE||[];if(HIDE.includes(S.calView||'cal'))S.calView='cal';S.projList=S.projList&&S.projList.length?S.projList:PROJECTS.slice();PROJECTS.splice(0,PROJECTS.length,...S.projList);BASE.proj=PROJECTS.map(n=>o(n,0,'Projets'));
 S.tags=S.tags||{who:'',act:'',zones:[],imp:'Normale',note:''};if(S.supName)SUP=S.supName;if(S.coName)CO=S.coName;
 Object.values(S.days).forEach(D=>{D.entries=(D.entries||[]).map(e=>{if(e.sec)return e;const f=k=>(e[k]||[])[0]||'',T=f('type'),su=f('suite')==='Aucune suite'?'':f('suite');
   if((e.act||[]).includes('Livraison')||T==='Livraison')return {id:e.id,sec:'liv',a:f('who'),b:f('mats'),c:f('etat'),text:e.note||''};

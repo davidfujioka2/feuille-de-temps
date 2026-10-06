@@ -1598,7 +1598,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-fdone]'))closeW
 /* Feuille de temps dans la fenêtre : projets du jour en étiquettes, Continuer, puis retour au journal une fois approuvée */
 function renderFdt(){
   $('#flow').innerHTML=`<div class="fdtwrap"><div class="fdtbar"><span class="gl">Projets de la journée</span><div class="fdtp" id="fdtP"></div><button class="fdtnext" id="fdtNext" disabled>Continuer ›</button></div>
-    <iframe id="fdtFrame" class="fdtframe" src="./p_feuille.html?d=${U.date}" title="Feuille de temps"></iframe></div>`;
+    <iframe id="fdtFrame" class="fdtframe" src="./p_feuille.html?d=${U.date}&v=${Date.now()}" title="Feuille de temps"></iframe></div>`;
   const fr=$('#fdtFrame'),F=()=>{try{const x=fr.contentWindow.fdt;return x&&x.page()==='projects'?x:null}catch(e){return null}};
   $('#fdtP').onclick=e=>{const b=e.target.closest('[data-fdp]');const x=F();if(b&&x){x.toggle(b.dataset.fdp);sync()}};
   $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
@@ -1606,13 +1606,13 @@ function renderFdt(){
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
     if(x&&!pre){pre=true;if(S.pick){const FT=ftLoad();if(x.step()===1)x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}if(S.pick&&x.view)x.view([S.pick])}
     /* le projet en cours doit toujours être présent (même si la journée avait déjà d'autres projets) */
-    if(x&&S.pick&&!x.added().includes(S.pick)&&!x.popOpen())x.toggle(S.pick);
+    if(x&&S.pick&&!x.added().includes(S.pick)&&!(x.popOpen&&x.popOpen()))x.toggle(S.pick);
     if(!x){if(!done&&seen&&fr.contentWindow&&fr.contentWindow.fdt&&fr.contentWindow.fdt.page()==='calendar')finish();return}
     seen=true;
     const A=x.added(),lbl=x.nextLbl();
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');
     /* pas d'étapes dans le journal : tableau du projet directement (les noms se choisissent par la bulle) */
-    if(x.go5&&x.step()<5&&!x.popOpen())x.go5();
+    if(x.go5&&x.step()<5&&!(x.popOpen&&x.popOpen()))x.go5();
     const nb=$('#fdtNext');nb.textContent=lbl.replace(/^Terminer/,'Terminé');nb.disabled=!x.nextOk();nb.style.display=/^Continuer/.test(lbl)||(x.edOpen&&x.edOpen())?'none':'';
     /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
     let box=$('#fdtAdd');if(isSplit()){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);

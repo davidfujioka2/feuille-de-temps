@@ -2907,21 +2907,21 @@ function SPW(){return isSplit()?1180-SPL-24:1156}
 function splitSync(){const on=isSplit();const pe=$('#pgEntry');if(pe)pe.classList.toggle('split',on);const ip=$('#ipad');if(ip)ip.classList.toggle('esplit',on)}
 /* ===== Choisir projet : bouton large en haut à gauche, choix animé (étirer, revenir un peu, glisser en haut à gauche) ===== */
 const PROJ_ICO='<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/>';
-function tprojHTML(){const p=S.pick;return `<a class="tproj ${p?'set':''} ${U.pcFly?'fly':''}" data-tproj="1" style="--pacc:${p?projAcc(p):'#173d2d'}"><svg viewBox="0 0 24 24" aria-hidden="true">${PROJ_ICO}</svg><span>${esc(p||'Choisir projet')}</span></a>`}
+function tprojHTML(){const p=U.choosing?null:S.pick;return `<a class="tproj ${p?'set':''} ${U.pcFly?'fly':''}" data-tproj="1" style="--pacc:${p?projAcc(p):'#173d2d'}"><svg viewBox="0 0 24 24" aria-hidden="true">${PROJ_ICO}</svg><span>${esc(p||'Choisir projet')}</span></a>`}
 function relBox(el){const ip=$('#ipad');let x=0,y=0,n=el;while(n&&n!==ip){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return {x,y,w:el.offsetWidth,h:el.offsetHeight}}
 function activeTop(){const pg=[...document.querySelectorAll('#ipad .page')].find(x=>x.offsetParent!==null&&x.offsetHeight>0);return pg?pg.querySelector('.top'):null}
-function closeChooser(){$('#ipad').classList.remove('choosing');const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
+function closeChooser(){$('#ipad').classList.remove('choosing');if(U.choosing){U.choosing=false;drawTnav()}const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
 function openChooser(start){if($('#pChoose'))return;const ip=$('#ipad'),tp=activeTop(),top=tp?relBox(tp).y+tp.offsetHeight:64,P=ACTIVE();
   const o=document.createElement('div');o.id='pChoose';o.className='pchoose';o.style.top=top+'px';
-  o.innerHTML=`<div class="pc-h"><span>Choisir projet</span>${S.pick&&!start?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
-  ip.appendChild(o);ip.classList.add('choosing');
+  o.innerHTML=`<div class="pc-h"><span></span>${S.pick&&!start?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
+  ip.appendChild(o);ip.classList.add('choosing');U.choosing=true;drawTnav();
   o.addEventListener('click',e=>{if(U.pcFly)return;if(e.target.closest('[data-pcx]')){closeChooser();return}const b=e.target.closest('[data-pcp]');if(b)pickProject(b.dataset.pcp,b)})}
 function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=relBox(bar),W=ip.offsetWidth;
   U.pcFly=true;o.querySelectorAll('.pc-bar').forEach(x=>{if(x!==bar)x.classList.add('gone')});bar.style.visibility='hidden';
   const f=document.createElement('div');f.className='pfly';f.style.setProperty('--a',a);f.innerHTML=`<i></i>${esc(p)}`;
   Object.assign(f.style,{left:r0.x+'px',top:r0.y+'px',width:r0.w+'px',height:r0.h+'px'});ip.appendChild(f);
   /* projet choisi : thème et calendrier du projet, sous la bande */
-  S.pick=p;S.project=p;S.viewAll=false;S.calView='cal';save();applyBg();go('cal');render();
+  U.choosing=false;S.pick=p;S.project=p;S.viewAll=false;S.calView='cal';save();applyBg();go('cal');render();
   const tb=activeTop()&&activeTop().querySelector('.tproj'),t=tb?relBox(tb):{x:12,y:8,w:200,h:48};
   const full={left:'12px',width:(W-24)+'px'},back={left:Math.round(12+W*.05)+'px',width:Math.round(W-24-W*.1)+'px'};
   const anim=f.animate([
@@ -2933,7 +2933,7 @@ function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=
   anim.onfinish=()=>{U.pcFly=false;o.remove();ip.classList.remove('choosing');drawTnav();requestAnimationFrame(()=>f.remove())}}
 /* choix ouvert : Calendrier / Journal ferment le choix et y vont (si un projet est déjà choisi) */
 document.addEventListener('click',e=>{const t=e.target.closest('.tnav [data-tn]');if(!t||!$('#pChoose')||U.pcFly)return;
-  if(!S.pick){e.preventDefault();e.stopPropagation();return}const o=$('#pChoose');o.remove();$('#ipad').classList.remove('choosing')},true);
+  if(!S.pick){e.preventDefault();e.stopPropagation();return}const o=$('#pChoose');o.remove();$('#ipad').classList.remove('choosing');U.choosing=false},true);
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tproj]');if(!a)return;e.preventDefault();e.stopPropagation();if(U.pcFly)return;$('#pChoose')?closeChooser():openChooser()},true);
 /* au démarrage : aucun projet choisi → ouvrir le choix */
 setTimeout(()=>{if(U.page==='cal')openChooser(true)},400);

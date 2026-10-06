@@ -1488,7 +1488,7 @@ function renderCal(){
     const Ds=PP.map(p=>S.days[p+'|'+ds]).filter(Boolean);
     let st='',body='';
     if(PV){const dj=S.days[PJ+'|'+ds],off=dj&&dj.off;
-      const emp=((FT.added||{})[ds]||[]).includes(PJ)&&!!((FT.approved||{})[ds]||(FT.signed||{})[ds]);
+      const emp=ftHas(FT,ds,PJ)&&!!((FT.approved||{})[ds]||(FT.signed||{})[ds]);
       const jou=!!dj&&dj.status==='approved';
       body=off?`<span class="pind"><span class="pi off">Non travaillée</span></span>`:`<span class="pind"><span class="pi ${emp?'ok':''}">${emp?'✓ ':''}Temps employé</span><span class="pi ${jou?'ok':''}">${jou?'✓ ':''}Journal de chantier</span></span>`;
       if(d.getDay()===5){const [c]=wkSt(wsKey);body+=`<span class="cfri ${c==='ok'?'ok':c==='draft'?'wip':''}" data-ffri="${ds}" aria-label="Feuille de temps de la semaine"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>Feuille de temps</b></span>`}}
@@ -1569,6 +1569,7 @@ function renderFdt(){
     /* fermer seulement quand la journée vient d'être complétée ici (pas à l'ouverture d'une journée déjà remplie) */
     if(/^Calendrier/.test(lbl)&&prevL!==null&&!/^Calendrier/.test(prevL))finish();prevL=lbl}
   function finish(){if(done)return;done=true;clearInterval(U.fdtT);let A=[];try{A=fr.contentWindow.fdt.added()}catch(e){}
+    let FT={};try{FT=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}A=A.filter(p=>ftHas(FT,U.date,p));
     const cur=S.project;(A.length?A:[cur]).forEach(p=>{const D=S.days[p+'|'+U.date] ||= {entries:[],photos:[],status:'draft',rev:0,history:[]};D.fdt=true});save();
     ftagChips();winDown();setTimeout(()=>{S.viewAll=U.dayMode==='fdt';save();closeWin();drawPbar();drawTnav()},950)}
   clearInterval(U.fdtT);U.fdtT=setInterval(sync,400);
@@ -1750,9 +1751,10 @@ function renderGrid(){
   /* un groupe par projet : une étiquette par section du rapport, avec son statut */
   const P=S.viewAll?ACTIVE():[S.project],cur=S.project,sec=$('#pgEntry').dataset.sec||'';
   const NAMES={fdt:'Employés',st:'Sous-traitants',liv:'Livraisons',reu:'Réunions',evt:'Événements'};
+  let FTg={};try{FTg=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
   const groups=P.map(p=>{S.project=p;const D=day(),ok=D.status==='approved';
     const tags=JROWS.map(([k])=>{
-      const inner=k==='fdt'?(D.fdt?'<span class="ctag">✓ Remplie</span>':''):D.entries.map((e,i)=>e.sec===k?`<span class="ctag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`:'').join('');
+      const inner=k==='fdt'?(ftHas(FTg,U.date,p)?'<span class="ctag">✓ Remplie</span>':''):D.entries.map((e,i)=>e.sec===k?`<span class="ctag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`:'').join('');
       const pl=k==='st'&&!S.viewAll&&!ok?plannedToday().map(x=>`<span class="ctag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</span>`).join(''):'';
       const all=inner+pl;
       return `<div class="stag ${all?'has':''} ${sec===k||U.pendSel===k?'sel':''}" data-row="${k}"><b>${NAMES[k]}</b>${all?`<div class="cin">${all}</div>`:''}</div>`}).join('');
@@ -2833,6 +2835,11 @@ function drawTnav(){drawPbar();const fdtDay=U.page==='entry'&&S.viewAll&&U.dayMo
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm);splitSync()}
 /* ===== Journal : étiquettes à gauche, fenêtre à droite (projet choisi) ===== */
+/* un projet a une feuille de temps ce jour-là seulement s'il y a des travailleurs ou des heures pour CE projet */
+function ftHas(FT,ds,p){if(!((FT.added||{})[ds]||[]).includes(p))return false;const key=ds+'||'+p;
+  const c=(FT.laborCounts||{})[key]||{};if(Object.values(c).some(n=>n>0))return true;
+  if((((FT.supHours||{})[ds]||{})[p]||0)>0)return true;
+  const H=(FT.hours||{})[key]||{};return Object.values(H).some(l=>(l||[]).some(e=>e&&e.h>0))}
 const SPL=240;
 function isSplit(){return !!S.pick&&!S.viewAll}
 function SPX(){return isSplit()?SPL+12:12}

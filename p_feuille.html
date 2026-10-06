@@ -1580,8 +1580,9 @@ const THEBERGE_V3=()=>[...padRows([...floorRows('Tout le RDC',range(101,114,113)
   {group:'Aires communes',label:'',items:['Salle électrique','Salle mécanique','Escalier','Entrée principale']},
   {group:'Extérieur',label:'',items:['Toiture','Façade commerce','Façade arrière','Stationnement']}];
 /* 625 Place Théberge : Tout le RDC, 101 à 112, 114 */
-const THEBERGE_GRID=()=>{const u=[...range(101,112),'114'];return [{group:'Logements',label:'',items:['Tout le RDC',...u.slice(0,6)]},{group:'Logements',label:'',offset:1,items:u.slice(6,12)},{group:'Logements',label:'',offset:1,items:u.slice(12)}]};
-{const known=g=>[AIRD_OLD(),AIRD_V2(),THEBERGE_OLD(),THEBERGE_SPLIT(),THEBERGE_V2(),THEBERGE_V3()].some(x=>JSON.stringify(x)===JSON.stringify(g));
+const THEBERGE_V4=()=>{const u=[...range(101,112),'114'];return [{group:'Logements',label:'',items:['Tout le RDC',...u.slice(0,6)]},{group:'Logements',label:'',offset:1,items:u.slice(6,12)},{group:'Logements',label:'',offset:1,items:u.slice(12)}]};
+const THEBERGE_GRID=()=>{const fl=(tag,u)=>chunk(u,6).map((c,i)=>({group:'Logements',label:'',...(i?{offset:1}:{}),items:i?c:[tag,...c]}));return [...fl('Tout le RDC',[...range(101,112),'114']),...fl('Tout le 2e',range(201,219))]};
+{const known=g=>[AIRD_OLD(),AIRD_V2(),THEBERGE_OLD(),THEBERGE_SPLIT(),THEBERGE_V2(),THEBERGE_V3(),THEBERGE_V4()].some(x=>JSON.stringify(x)===JSON.stringify(g));
  ['2565 Aird','2575 Aird'].forEach(p=>{const g=state.zoneGrid[p];if(!g||g.every(r=>!r.items.length)||known(g))state.zoneGrid[p]=AIRD_GRID()});
  {const p='625 Place Théberge',g=state.zoneGrid[p];if(!g||g.every(r=>!r.items.length)||known(g))state.zoneGrid[p]=THEBERGE_GRID()}
  if(!state.zoneTemplate||known(state.zoneTemplate))state.zoneTemplate=AIRD_GRID();}

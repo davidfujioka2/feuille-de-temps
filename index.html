@@ -1445,9 +1445,9 @@ function lists(){
     const items=base.concat(pf.filter(n=>!base.some(x=>x.label===n)).map(n=>o(n,1,'Planification')));
     L[k]=items.map(x=>{const id=k+'|'+x.label;return {...x,fav:id in S.fav?S.fav[id]:(x.fav||pf.includes(x.label)),off:!!S.off[id]}});
   });
-  /* zones propres au projet : 625 Place Théberge = RDC (Tout le RDC, 101 à 112, 114) et 2e (Tout le 2e, 201 à 219) */
+  /* zones propres au projet : 625 Place Théberge (tableau de David) */
   if((S.pick||S.project)==='625 Place Théberge'){const rg=(a,b)=>Array.from({length:b-a+1},(_,i)=>String(a+i));
-    const Z=[['Rez-de-chaussée',['Tout le RDC',...rg(101,112),'114']],['2e étage',['Tout le 2e',...rg(201,219)]]];
+    const Z=[['RDC résidentiel',['Tout le RDC résidentiel',...rg(101,112),'114']],['2e résidentiel',['Tout le 2e résidentiel',...rg(201,212),...rg(214,219)]],['Aires communes résidentiel',['Corridor RDC','Salle admin','Salle électrique','Vestibule','Autres sorties','Corridor 2e','Escalier 1','Escalier 2']],['Commercial RDC',['Commercial RDC','Commercial 2e','Toiture']]];
     L.zones=Z.flatMap(([g,zs])=>zs.map(n=>{const id='zones|'+n;return {...o(n,0,g),fav:!!S.fav[id],off:!!S.off[id]}}))}
   return L;
 }

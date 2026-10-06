@@ -1,10 +1,30 @@
 <!doctype html>
 <html lang="fr">
 <head><script>window.CH_HIDE=['pla']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"]{display:none!important}
+
+/* ===== Calendrier du projet (étape 2) ===== */
+.cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
+.cal-day{min-height:0;overflow:hidden}
+.pview .cal-hint{display:none}
+.pview .cal-day{position:relative;justify-content:flex-start;gap:6px;padding:7px 8px}
+.pview .cal-day.s-draft,.pview .cal-day.s-ok{background:var(--surface);box-shadow:none}
+.pview .cal-day.we{background:#f6f7f8}
+.pind{display:flex;flex-direction:column;gap:5px;width:100%}
+.cal-day:has(.cfri) .pind{margin-top:5px}
+.pi{display:block;width:100%;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1.5px solid color-mix(in srgb,var(--pacc) 22%,#fff);background:color-mix(in srgb,var(--pacc) 7%,#fff);color:color-mix(in srgb,var(--pacc) 45%,#fff)}
+.pi.ok{background:var(--pacc);border-color:var(--pacc);color:#fff}
+.pi.off{background:#eef0f2;border-color:#e1e5e8;color:#6b747d}
+.cfri{position:absolute;right:5px;top:5px;height:28px;padding:0 8px 0 6px;border-radius:999px;display:flex;align-items:center;gap:4px;border:1.5px solid color-mix(in srgb,var(--pacc) 30%,#fff);background:color-mix(in srgb,var(--pacc) 8%,#fff);color:color-mix(in srgb,var(--pacc) 60%,#fff);cursor:pointer;max-width:calc(100% - 30px)}
+.cfri svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cfri b{font-size:10.5px;letter-spacing:-.2px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cfri.wip{border-color:var(--pacc);border-style:dashed;color:var(--pacc)}
+.cfri.ok{background:var(--pacc);border-color:var(--pacc);color:#fff}
+.legend .lg-l{background:color-mix(in srgb,var(--pacc) 10%,#fff);border:1.5px solid color-mix(in srgb,var(--pacc) 25%,#fff)}
+.legend .lg-s{background:var(--pacc)}
 /* ===== Choisir projet (bouton large en haut à gauche + choix animé) ===== */
 .pbar{display:none!important}
-.tnav a.tproj{flex:0 0 auto;flex-direction:row!important;gap:8px!important;min-width:236px!important;max-width:300px;height:48px!important;padding:0 16px!important;margin-right:6px;border:2px solid var(--pacc,#173d2d);border-radius:999px;background:#fff;color:var(--pacc,#173d2d)!important}
-.tnav a.tproj span{font-size:14px!important;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.tnav a.tproj{flex:0 0 auto!important;flex-direction:row!important;gap:8px!important;min-width:250px!important;max-width:320px;width:auto!important;height:48px!important;padding:0 16px!important;margin-right:6px;border:2px solid var(--pacc,#173d2d);border-radius:999px;background:#fff;color:var(--pacc,#173d2d)!important}
+.tnav a.tproj span{max-width:none!important;font-size:14px!important;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
 .tnav a.tproj svg{width:20px;height:20px;flex:none}
 .tnav a.tproj.set{background:var(--pacc);color:#fff!important}
 .tnav a.tproj.fly{visibility:hidden}
@@ -1154,8 +1174,8 @@ button{cursor:pointer}
           <button class="btn ico" id="mPrev" aria-label="Mois précédent">‹</button>
           <h1 id="monthTitle"></h1>
           <button class="btn ico" id="mNext" aria-label="Mois suivant">›</button>
-          <span style="font-size:14px;color:var(--muted);margin-left:8px">Choisir une journée pour ouvrir son journal</span>
-          <div class="legend"><span><i style="background:#2f8a57"></i>Approuvé</span><span><i style="background:var(--amber)"></i>En cours</span><span><i style="border:1px solid #cfd6d2"></i>Aucun journal</span></div>
+          <span class="cal-hint" style="font-size:14px;color:var(--muted);margin-left:8px">Choisir une journée pour ouvrir son journal</span>
+          <div class="legend" id="calLegend"><span><i style="background:#2f8a57"></i>Approuvé</span><span><i style="background:var(--amber)"></i>En cours</span><span><i style="border:1px solid #cfd6d2"></i>Aucun journal</span></div>
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
@@ -1443,11 +1463,20 @@ function renderCal(){
   const CV=S.calView||'cal',PP=S.viewAll?ACTIVE():[S.project],pl=(n,a,b)=>n+' '+(n>1?b:a);
   const line=(n,a,b,c)=>n?`<span class="cst ${c}">${pl(n,a,b)}</span>`:'';
   const doc=(items,d1,dN)=>{let first=true;return items.filter(x=>x[0]).map(([n,a,b,c])=>{const t=(first?n+' '+(n>1?dN:d1)+' ':n+' ')+(n>1?b:a);first=false;return `<span class="cst ${c}">${t}</span>`}).join('')};
-  for(let i=0;i<42;i++){
+  const last=new Date(a.getFullYear(),a.getMonth()+1,0),NW=Math.ceil((a.getDay()+last.getDate())/7);
+  $('#calGrid').style.setProperty('--nw',NW);
+  const PV=CV==='cal'&&!!S.pick,PJ=S.pick;$('#pgCal').classList.toggle('pview',PV);
+  $('#calLegend').innerHTML=PV?'<span><i class="lg-l"></i>Pâle : à compléter</span><span><i class="lg-s"></i>Plein : complété</span>':'<span><i style="background:#2f8a57"></i>Approuvé</span><span><i style="background:var(--amber)"></i>En cours</span><span><i style="border:1px solid #cfd6d2"></i>Aucun journal</span>';
+  for(let i=0;i<NW*7;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);const ds=fmt(d);if(i%7===0)var wsKey=ds;
     const Ds=PP.map(p=>S.days[p+'|'+ds]).filter(Boolean);
     let st='',body='';
-    if(CV==='fdt'){const A=((FT.added||{})[ds]||[]).filter(p=>PP.includes(p)),ok=!!(FT.approved||{})[ds];
+    if(PV){const dj=S.days[PJ+'|'+ds],off=dj&&dj.off;
+      const emp=((FT.added||{})[ds]||[]).includes(PJ)&&!!((FT.approved||{})[ds]||(FT.signed||{})[ds]);
+      const jou=!!dj&&dj.status==='approved';
+      body=off?`<span class="pind"><span class="pi off">Non travaillée</span></span>`:`<span class="pind"><span class="pi ${emp?'ok':''}">${emp?'✓ ':''}Temps employé</span><span class="pi ${jou?'ok':''}">${jou?'✓ ':''}Journal de chantier</span></span>`;
+      if(d.getDay()===5){const [c]=wkSt(wsKey);body+=`<span class="cfri ${c==='ok'?'ok':c==='draft'?'wip':''}" data-ffri="${ds}" aria-label="Feuille de temps de la semaine"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><b>Feuille de temps</b></span>`}}
+    else if(CV==='fdt'){const A=((FT.added||{})[ds]||[]).filter(p=>PP.includes(p)),ok=!!(FT.approved||{})[ds];
       body=doc([ok?[A.length,'approuvée','approuvées','ok']:[A.length,'en cours','en cours','wip']],'feuille de temps','feuilles de temps');st=A.length?(ok?'ok':'draft'):''}
     else if(CV==='liv'){const O=S.orders.filter(o=>o.date===ds&&PP.includes(o.project));
       const toR=O.filter(o=>!o.lines.some(l=>l.done)).length,part=O.filter(o=>o.lines.some(l=>l.done)&&!orderDone(o)).length,rec=O.filter(orderDone).length;
@@ -1461,7 +1490,7 @@ function renderCal(){
     else{const nOff=Ds.filter(x=>x.off).length,Dw=Ds.filter(x=>!x.off),nOk=Dw.filter(x=>x.status==='approved').length,nW=Dw.filter(x=>x.status!=='approved'&&(x.entries.length||x.photos.length||x.fdt)).length,n=nOk+nW;
       if(nOff&&!n)body=`<span class="cjr off">🚫 Non travaillée</span>`;
       if(n||!nOff){const lv=Math.min(n,3);body=`<span class="cjr r${lv} ${nW?'wip':''}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8.5 11h7M8.5 15h5"/></svg>${n} rapport${n>1?'s':''}</span>`+(nOff?`<span class="cjr off">🚫 ${nOff} non travaillée${nOff>1?'s':''}</span>`:'')}st=nW?'draft':nOk?'ok':''}
-    if(d.getDay()===5){const [c,t]=wkSt(wsKey),lbl=c==='ok'?'complétée':c==='draft'?'en cours':'à faire';body+=`<span class="cfdt ${c==='ok'?'ok':c==='draft'?'wip':'todo'}" data-ffri="${ds}"><i>⏱</i><span><b>Feuille de temps</b><em>${lbl}</em></span></span>`}
+    if(!PV&&d.getDay()===5){const [c,t]=wkSt(wsKey),lbl=c==='ok'?'complétée':c==='draft'?'en cours':'à faire';body+=`<span class="cfdt ${c==='ok'?'ok':c==='draft'?'wip':'todo'}" data-ffri="${ds}"><i>⏱</i><span><b>Feuille de temps</b><em>${lbl}</em></span></span>`}
     h+=`<button class="cal-day ${[0,6].includes(d.getDay())?'we':''} ${d.getMonth()!==a.getMonth()?'other':''} ${ds===fmt(today)?'today':''} ${st?'s-'+st:''}" data-day="${ds}" aria-label="${esc(dayLbl(ds))}"><span class="n">${d.getDate()}</span>${body}</button>`;
   }
   $('#calGrid').innerHTML=h;

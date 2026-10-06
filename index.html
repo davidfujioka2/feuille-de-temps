@@ -1579,6 +1579,8 @@ $('#mNext').onclick=()=>{const a=parse(S.month);S.month=fmt(new Date(a.getFullYe
 
 /* ---------- saisie ---------- */
 const PHASES=[['demo','Démo','Démolition et retrait'],['rough','Rough','Plomberie, électricité, ventilation, isolation'],['sys','Systèmes int.','Systèmes intérieurs'],['fin','Finition','Peinture, portes, planchers, finition des systèmes']];
+/* phases ajoutées dans Paramètres */
+(S.customPhases||[]).forEach(n=>{if(!PHASES.some(p=>p[1]===n))PHASES.push(['c_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_'),n,''])});
 const BC='Beaudoin Capital';
 const PH={demo:'Démolition et cloisons',rough:'Rough',fin:'Finition',gen:'Général',spec:'Spécialité'};
 const PH_SHORT={demo:'Démo',sys:'Systèmes int.',rough:'Rough',fin:'Finition',gen:'Général',spec:'Spécialité'};
@@ -2592,7 +2594,8 @@ function renderPrm(){
   if(k==='phasemap'){
     $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${x==='phasemap'?'':L[x].filter(i=>!i.off).length}</small></button>`).join('');
     $('#prmTitle').textContent='Phases des sous-traitants';$('#prmStats').textContent='toucher une phase pour placer ou retirer le sous-traitant';
-    $('#prmItems').innerHTML=L.st.filter(x=>!x.off).map(x=>`<div style="width:100%;display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft)"><b style="flex:1;font-size:14px">${esc(x.label)}</b>${PHASES.filter(p=>p[0]!=='gen').map(([pk,pl])=>`<button class="chip ${phasesOf(x.label).includes(pk)?'on':''}" data-pm="${esc(x.label)}" data-ph="${pk}">${pl}</button>`).join('')}</div>`).join('');
+    const cp=S.customPhases||[];
+    $('#prmItems').innerHTML=`<div style="width:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0 10px;border-bottom:2px solid var(--line)"><b style="font-size:13px;color:var(--muted)">PHASES</b>${PHASES.filter(p=>p[0]!=='gen').map(([pk,pl])=>`<span class="chip" style="cursor:default">${esc(pl)}${pk.startsWith('c_')?` <button data-phdel="${esc(pl)}" title="Retirer la phase" style="border:0;background:none;font-weight:900;cursor:pointer">×</button>`:''}</span>`).join('')}<input class="inp dash" id="phNew" placeholder="Nouvelle phase" style="width:180px;height:38px"><button class="btn go" id="phAdd" style="height:38px">Ajouter une phase</button></div>`+L.st.filter(x=>!x.off).map(x=>`<div style="width:100%;display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft)"><b style="flex:1;font-size:14px">${esc(x.label)}</b>${PHASES.filter(p=>p[0]!=='gen').map(([pk,pl])=>`<button class="chip ${phasesOf(x.label).includes(pk)?'on':''}" data-pm="${esc(x.label)}" data-ph="${pk}">${pl}</button>`).join('')}</div>`).join('');
     $('#prmNew').placeholder='Nouveau sous-traitant';return}
   $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
   if(k==='proj'){$('#prmTitle').textContent='Projets';$('#prmStats').textContent=PROJECTS.length+' projets · '+ACTIVE().length+' actifs · modifier le nom, l’ordre ou l’état';
@@ -2644,7 +2647,11 @@ $('#prmItems').addEventListener('click',e=>{if(U.prmKey!=='proj')return;const b=
   else if(b.dataset.pjx){const i=+b.dataset.pjx;if(PROJECTS.length<2)return;if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Retirer ?';b.classList.add('sure');return}PROJECTS.splice(i,1)}
   projSave();renderPrm()},true);
 $('#prmNav').onclick=e=>{const b=e.target.closest('[data-pk]');if(b){U.prmKey=b.dataset.pk;renderPrm()}};
-$('#prmItems').onclick=e=>{const pm=e.target.closest('[data-pm]');if(pm){const c=pm.dataset.pm,p=pm.dataset.ph,a=phasesOf(c);S.phaseMap[c]=a.includes(p)?a.filter(x=>x!==p):[...a,p].sort((x,y)=>['demo','rough','fin','gen','spec'].indexOf(x)-['demo','rough','fin','gen','spec'].indexOf(y));save();renderPrm();return}if(U.prmKey==='phasemap')return;const L=lists()[U.prmKey];const f=e.target.closest('[data-pf]'),x=e.target.closest('[data-po]');
+$('#prmItems').onclick=e=>{
+  if(e.target.id==='phAdd'){const n=($('#phNew').value||'').trim();if(!n)return;if(PHASES.some(p=>p[1].toLowerCase()===n.toLowerCase())){toast('Cette phase existe déjà');return}
+    (S.customPhases ||= []).push(n);PHASES.push(['c_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_'),n,'']);save();renderPrm();toast('Phase ajoutée');return}
+  const pd=e.target.closest('[data-phdel]');if(pd){const n=pd.dataset.phdel,id='c_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_');S.customPhases=(S.customPhases||[]).filter(x=>x!==n);const i=PHASES.findIndex(p=>p[0]===id);if(i>=0)PHASES.splice(i,1);Object.keys(S.phaseMap||{}).forEach(c=>{S.phaseMap[c]=S.phaseMap[c].filter(x=>x!==id)});save();renderPrm();toast('Phase retirée');return}
+  const pm=e.target.closest('[data-pm]');if(pm){const c=pm.dataset.pm,p=pm.dataset.ph,a=phasesOf(c);S.phaseMap[c]=a.includes(p)?a.filter(x=>x!==p):[...a,p].sort((x,y)=>PHASES.findIndex(q=>q[0]===x)-PHASES.findIndex(q=>q[0]===y));save();renderPrm();return}if(U.prmKey==='phasemap')return;const L=lists()[U.prmKey];const f=e.target.closest('[data-pf]'),x=e.target.closest('[data-po]');
   if(f){const it=L.find(i=>i.label===f.dataset.pf);S.fav[U.prmKey+'|'+it.label]=!it.fav;save();renderPrm()}
   if(x){const it=L.find(i=>i.label===x.dataset.po);S.off[U.prmKey+'|'+it.label]=!it.off;save();renderPrm()}};
 $('#prmAdd').onclick=()=>{const t=$('#prmNew').value.trim();if(!t)return;if(U.prmKey==='proj'){if(!PROJECTS.includes(t)){PROJECTS.push(t);projSave()}$('#prmNew').value='';renderPrm();toast('Projet ajouté');return}(S.added[U.prmKey==='phasemap'?'st':U.prmKey] ||= []).push(t);$('#prmNew').value='';save();renderPrm();toast('Ajouté à '+LIST_LBL[U.prmKey])};

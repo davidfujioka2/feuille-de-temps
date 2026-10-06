@@ -2931,6 +2931,9 @@ function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=
     {left:t.x+'px',top:t.y+'px',width:t.w+'px',height:t.h+'px',fontSize:'14px',offset:1}],{duration:1050,fill:'forwards'});
   setTimeout(()=>o.classList.add('out'),560);
   anim.onfinish=()=>{U.pcFly=false;o.remove();ip.classList.remove('choosing');drawTnav();requestAnimationFrame(()=>f.remove())}}
+/* choix ouvert : Calendrier / Journal ferment le choix et y vont (si un projet est déjà choisi) */
+document.addEventListener('click',e=>{const t=e.target.closest('.tnav [data-tn]');if(!t||!$('#pChoose')||U.pcFly)return;
+  if(!S.pick){e.preventDefault();e.stopPropagation();return}const o=$('#pChoose');o.remove();$('#ipad').classList.remove('choosing')},true);
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tproj]');if(!a)return;e.preventDefault();e.stopPropagation();if(U.pcFly)return;$('#pChoose')?closeChooser():openChooser()},true);
 /* au démarrage : aucun projet choisi → ouvrir le choix */
 setTimeout(()=>{if(U.page==='cal')openChooser(true)},400);

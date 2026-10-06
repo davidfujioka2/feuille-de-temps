@@ -48,6 +48,9 @@ html.embed .pop .pop-foot{margin-top:auto;padding-top:12px}
 
 html.embed .sheet{z-index:90!important;max-width:620px;top:40px;bottom:auto;max-height:calc(100vh - 80px);border-radius:20px}
 html.embed #sheetBackdrop{z-index:89!important}
+
+html.mgonly .mg-nav,html.mgonly .ts-top{display:none!important}
+html.mgonly #resetDay{display:none!important}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1925,6 +1928,7 @@ window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.se
 </script>
 <script>addEventListener('load',()=>{const d=new URLSearchParams(location.search).get('d');
   if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d)){try{state.selectedDate=d;state.viewAnchor=new Date(d+'T12:00');go('projects')}catch(e){}}
+  const mg=new URLSearchParams(location.search).get('mg');if(mg){try{state.mgMode=mg;go('manage');document.documentElement.classList.add('mgonly')}catch(e){}}
   const w=new URLSearchParams(location.search).get('w');if(w&&/^\d{4}-\d{2}-\d{2}$/.test(w)){try{state.sheetWeek=w;state.viewAnchor=new Date(w+'T12:00');go('timesheet')}catch(e){}}})</script>
 <style>html.phone,html.phone body{background:#f3f5f4;overflow:hidden;height:100%}
 html.phone .stage{padding:0!important;min-height:100%;align-items:center}

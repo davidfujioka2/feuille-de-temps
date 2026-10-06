@@ -1422,7 +1422,7 @@ const BASE={
   evtwho:[...['Surintendant','Menuisiers','Manœuvres'].map(n=>o(n,0,'Équipe interne')),...ST_FAV.map(n=>o(n,0,'Sous-traitants')),...['Client','Architecte','Inspecteur','Visiteur','Public'].map(n=>o(n,0,'Autres'))],
   evtdet:['Rapport d’accident rempli','Premiers soins donnés','Travail repris','Travaux arrêtés','Sous-traitant avisé','Bureau avisé','Suivi requis','Réglé sur place','Photo à prendre'].map(n=>o(n,0,'Détails'))
 };
-const LIST_LBL={proj:'Projets (actifs / inactifs)',phasemap:'Phases des sous-traitants',actmap:'Activités des sous-traitants',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
+const LIST_LBL={proj:'Projets (actifs / inactifs)',phasemap:'Phases des sous-traitants',actmap:'Activités des sous-traitants',emp:'Employés (feuille de temps)',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
 const SECS={
   st:{n:2,label:'Sous-traitants',sub:'Travaux réalisés par les sous-traitants',tables:[['st','Sous-traitant'],['trav','Travaux'],['zones','Zone']]},
   liv:{n:3,label:'Livraisons des fournisseurs',sub:'Matériel reçu au chantier',tables:[['four','Fournisseur'],['mat','Matériel livré'],['etat','Commande']]},
@@ -2592,6 +2592,12 @@ function openSig(){
 function renderPrm(){
   {const b=$('#dbxState');if(b){b.textContent=dbxOn()?'● connecté':'● non connecté';b.style.color=dbxOn()?'#1f7a4a':'#c3282b'}}
   const L=lists(),k=U.prmKey;$('#bkInfo').textContent=S.lastBackup?'Dernière sauvegarde : '+stamp(S.lastBackup):'Aucune sauvegarde';
+  $('.prm-add').style.display=k==='emp'?'none':'';
+  if(k==='emp'){
+    $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
+    $('#prmTitle').textContent='Employés';$('#prmStats').textContent='menuisiers et manœuvres de la feuille de temps · « + Employé » pour ajouter';
+    if(!$('#prmEmpFrame'))$('#prmItems').innerHTML=`<iframe id="prmEmpFrame" src="./p_feuille.html?mg=emp&v=${Date.now()}" style="width:100%;height:calc(100vh - 0px);min-height:640px;border:0;border-radius:12px;background:#fff" title="Employés"></iframe>`;
+    return}
   if(k==='actmap'){
     $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
     $('#prmTitle').textContent='Activités des sous-traitants';$('#prmStats').textContent='toucher un sous-traitant pour le lier à l’activité (un ou plusieurs)';

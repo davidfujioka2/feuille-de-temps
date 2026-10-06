@@ -1646,7 +1646,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=animTween;
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const FULL=isSplit()&&(k==='st'||k==='liv');pg.classList.toggle('full',FULL);$('#ipad').classList.toggle('efull',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
+    const FULL=isSplit()&&['st','liv','evt','reu'].includes(k);pg.classList.toggle('full',FULL);$('#ipad').classList.toggle('efull',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
     await tween(560,p=>{Object.assign(f.style,{left:L(x0,FULL?12:SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,FULL?1156:SPW(),p)+'px',height:L(h0,FH,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+FH+28)+'px';

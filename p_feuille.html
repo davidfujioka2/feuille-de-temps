@@ -1419,7 +1419,7 @@ function changeCount(p,t,d){const c=counts(p);c[t]=Math.max(0,c[t]+d);const arr=
 function pickName(p,t,name){
   const arr=links(p,t),at=arr.indexOf(name);
   if(at>=0)arr[at]=null;
-  else{if(!arr.length)return;let i=arr.indexOf(null);if(i<0)i=arr.length-1;arr[i]=name;just=`${p}|${t}|${name}`;const other=usedOn(name,t,p);if(other)toast(`Attention : ${name} est aussi sur ${other}`)}
+  else{if(!arr.length)return;let i=arr.indexOf(null);if(i<0){toast(`${tradePlural[t]||t} complets — toucher un nom choisi pour le retirer, ou + pour en ajouter`);return}arr[i]=name;just=`${p}|${t}|${name}`;const other=usedOn(name,t,p);if(other)toast(`Attention : ${name} est aussi sur ${other}`)}
   save();renderProjects();
   if(step()===3&&at<0&&focus&&focus.p===p&&trades.every(x=>links(p,x).every(Boolean))){const key=fk(focus);setTimeout(()=>{if(fk(focus)!==key)return;const q=queue(),i=q.findIndex(f=>fk(f)===key);focus=q[i+1]||null;renderProjects();if(!focus&&activeProjects().every(x=>trades.every(tt=>links(x,tt).every(Boolean)))){toast('Tous les employés sont sélectionnés');setTimeout(()=>{if(step()===3)setStep(5)},700)}},450)}
 }

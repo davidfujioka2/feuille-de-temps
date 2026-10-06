@@ -2936,7 +2936,7 @@ $('#phCamBtn').onclick=()=>{U.sess='s'+Date.now().toString(36);go('cam')};
 /* --- appareil photo v2 --- */
 if(!MTL.doc){MTYPES.push(['doc','Document']);MTL.doc='Document'}
 S.docTypes=S.docTypes&&S.docTypes.length?S.docTypes:['Facture','Bon de livraison','Feuille de temps'];
-U.c2=U.c2||{proj:null,sub:'',four:'',act:'',zone:'',note:'',avis:'',kind:'',doc:false,docType:'Facture',mode:'',hide:false,retake:[],ghostOf:null};
+U.c2=U.c2||{proj:S.pick||null,sub:'',four:'',act:'',zone:'',note:'',avis:'',kind:'',doc:false,docType:'Facture',mode:'',hide:false,retake:[],ghostOf:null};
 const MOISL=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const longWhen=d=>`${d.getDate()} ${MOISL[d.getMonth()]} ${d.getFullYear()} à ${d.getHours()} h ${pad(d.getMinutes())} min ${pad(d.getSeconds())} s`;
 function c2Tags(c){return [c.sub&&'Sous-traitant : '+c.sub,c.four&&'Fournisseur : '+c.four,c.zone&&'Zone du projet : '+c.zone,c.act&&'Activité : '+c.act,c.avis&&('À aviser : '+c.avis+(c.kind?' ('+c.kind+')':''))].filter(Boolean)}
@@ -2974,9 +2974,9 @@ const c2Meta=c=>({project:c.proj||'',sub:c.sub||c.four,four:c.four,act:c.act,zon
 function c2Chips(list,key,cur){return list.map(x=>`<button class="chip ${cur===x?'on':''}" data-c2="${key}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}
 function c2Lists(){const L=lists(),on=a=>a.filter(x=>!x.off).map(x=>x.label);return {st:on(L.st),four:on(L.four),act:on(L.trav),zone:on(L.zones)}}
 const C3T=[['proj','Projet','top'],['sub','Sous-traitant','bot'],['act','Action','bot'],['zone','Zone','bot'],['note','Commentaire','bot'],['avis','À aviser','bot']];
-function renderCam(){const c=U.c2,box=$('#c2');if(c.keep==null)c.keep=true;
+function renderCam(){const c=U.c2,box=$('#c2');if(c.keep==null)c.keep=true;if(S.pick)c.proj=S.pick;
   const val=k=>k==='proj'?(c.proj===null?'':(c.proj||'Aucun projet')):k==='avis'?[c.avis,c.kind].filter(Boolean).join(' · '):(c[k]||'');
-  $('#c3Tags').innerHTML=C3T.map(([k,l])=>{const v=val(k);return `<button class="${v?'set':k==='proj'?'need':''}" data-c3="${k}"><small>${l}</small><b>${esc(v||(k==='proj'?'à choisir':'—'))}</b></button>`}).join('')+(c.doc?`<button class="set" data-c3="docType"><small>Document</small><b>${esc(c.docType)}</b></button>`:'');
+  $('#c3Tags').innerHTML=C3T.filter(x=>!(S.pick&&x[0]==='proj')).map(([k,l])=>{const v=val(k);return `<button class="${v?'set':k==='proj'?'need':''}" data-c3="${k}"><small>${l}</small><b>${esc(v||(k==='proj'?'à choisir':'—'))}</b></button>`}).join('')+(c.doc?`<button class="set" data-c3="docType"><small>Document</small><b>${esc(c.docType)}</b></button>`:'');
   box.classList.toggle('ready',c.proj!==null);
   box.querySelector('.c3-doc').classList.toggle('on',!!c.doc);
   const bu=box.querySelector('.c3-burst');bu.classList.toggle('on',!!c.burstOn);bu.innerHTML=c.burstOn?'■<span>Arrêter</span>':'⧉<span>Rafale</span>';

@@ -39,6 +39,9 @@
 #pgEntry.split #rows .stag b{font-size:14px}
 #pgEntry.split #rows{padding-left:10px}
 #pgEntry.split[data-sec="fdt"] .fdtwrap{gap:0}
+
+.fdtreset{margin-top:auto;align-self:flex-start;height:42px;padding:0 18px;border:1.5px solid #c8372d;border-radius:999px;background:#fff;color:#c8372d;font-weight:850;font-size:14px;flex:none}
+#pgEntry.split #rows{padding-bottom:14px}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1593,6 +1596,8 @@ function renderFdt(){
           if(y.added().includes(p)&&ftHas(ftLoad(),U.date,p)&&!confirm('Retirer '+p+' de la feuille de temps ? Les travailleurs et heures de ce projet seront effacés.'))return;y.toggle(p);sync()}}
       const html='<div class="fa-h">Ajouter un projet</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${A.includes(p)?'✓ ':'＋ '}${esc(p)}</button>`).join('');
       if(box.innerHTML!==html)box.innerHTML=html}else if(box)box.remove();
+    let rb=$('#fdtReset');if(isSplit()&&x.added().length){if(!rb){rb=document.createElement('button');rb.id='fdtReset';rb.className='fdtreset';rb.textContent='↺ Réinitialiser';$('#rows').appendChild(rb);
+        rb.onclick=e=>{e.stopPropagation();try{fr.contentWindow.resetDay()}catch(err){}setTimeout(sync,200)}}}else if(rb)rb.remove();
     /* fermer seulement quand la journée vient d'être complétée ici (pas à l'ouverture d'une journée déjà remplie) */
     if(/^Calendrier/.test(lbl)&&prevL!==null&&!/^Calendrier/.test(prevL))finish();prevL=lbl}
   function finish(){if(done)return;done=true;clearInterval(U.fdtT);let A=[];try{A=fr.contentWindow.fdt.added()}catch(e){}

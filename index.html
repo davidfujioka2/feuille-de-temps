@@ -10,6 +10,7 @@
 #pgEntry.split .win{left:200px}
 #pgEntry.split .daylbl{width:200px}
 #ipad.esplit .lvchoice,#ipad.esplit .lvsp{left:212px}
+#ipad.esplit.efull .lvchoice,#ipad.esplit.efull .lvsp{left:12px}
 #pgEntry.split::after{content:'Choisir une étiquette à gauche';position:absolute;left:200px;right:0;top:50%;text-align:center;font:800 17px -apple-system,Segoe UI,sans-serif;color:#9aa3ab;pointer-events:none}
 #pgEntry.split.ov::after{display:none}
 #pgEntry.split[data-sec] .sgroup .stag:not(.sel),#pgEntry.split[data-sec] .sgroup .gstat{display:flex!important}
@@ -1487,7 +1488,7 @@ function tagsFromEntry(e){const who=e.sec==='evt'?e.b:e.a;return {who:who||'',ac
 
 /* ---------- navigation ---------- */
 const PAGES={cal:'#pgCal',entry:'#pgEntry',photos:'#pgPhotos',read:'#pgRead',prm:'#pgPrm',ph:'#pgPh',cam:'#pgCam',rev:'#pgRev',gal:'#pgGal'};
-function go(p){if(p!=='entry'){U.winGen=(U.winGen||0)+1;if(U.ftag||U.lvch||U.lvsp){[U.ftag,U.lvch,U.lvsp].forEach(x=>x&&x.remove());U.ftag=U.lvch=U.lvsp=null;U.closing=false}const pe=$('#pgEntry');if(pe){pe.classList.remove('ov','ovm','full');delete pe.dataset.sec}clearInterval(U.fdtT)}if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
+function go(p){if(p!=='entry'){U.winGen=(U.winGen||0)+1;if(U.ftag||U.lvch||U.lvsp){[U.ftag,U.lvch,U.lvsp].forEach(x=>x&&x.remove());U.ftag=U.lvch=U.lvsp=null;U.closing=false}const pe=$('#pgEntry');if(pe){pe.classList.remove('ov','ovm','full');$('#ipad').classList.remove('efull');delete pe.dataset.sec}clearInterval(U.fdtT)}if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
   if(p==='entry'&&locked())p='read';
   if(p==='prm'&&U.page!=='prm')U.prmFrom=U.page;
   U.page=p;Object.entries(PAGES).forEach(([k,s])=>$(s).hidden=k!==p);
@@ -1645,7 +1646,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=animTween;
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const FULL=isSplit()&&k==='st';pg.classList.toggle('full',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
+    const FULL=isSplit()&&(k==='st'||k==='liv');pg.classList.toggle('full',FULL);$('#ipad').classList.toggle('efull',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
     await tween(560,p=>{Object.assign(f.style,{left:L(x0,FULL?12:SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,FULL?1156:SPW(),p)+'px',height:L(h0,FH,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+FH+28)+'px';
@@ -1685,7 +1686,7 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){if(U.closing)return;const f=U.ftag,w=$('#win'),ex=[U.lvsp,U.lvch].filter(Boolean);
   if((f||(w&&!w.hidden))&&!RM()&&U.page==='entry'){U.closing=true;Promise.all([winDown(300),animTween(300,p=>{if(f){f.style.opacity=String(1-p);f.style.transform=`scale(${1-p*.04})`}ex.forEach(x=>x.style.opacity=String(1-p))},easeOut)]).then(()=>{U.closing=false;closeWinNow()});return}
   closeWinNow()}
-function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
+function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');$('#ipad').classList.remove('efull');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 $('#winCancel').onclick=e=>{e.stopPropagation();closeWin()};
 

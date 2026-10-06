@@ -2880,9 +2880,9 @@ function tprojHTML(){const p=S.pick;return `<a class="tproj ${p?'set':''} ${U.pc
 function relBox(el){const ip=$('#ipad');let x=0,y=0,n=el;while(n&&n!==ip){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return {x,y,w:el.offsetWidth,h:el.offsetHeight}}
 function activeTop(){const pg=[...document.querySelectorAll('#ipad .page')].find(x=>x.offsetParent!==null&&x.offsetHeight>0);return pg?pg.querySelector('.top'):null}
 function closeChooser(){const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
-function openChooser(){if($('#pChoose'))return;const ip=$('#ipad'),tp=activeTop(),top=tp?relBox(tp).y+tp.offsetHeight:64,P=ACTIVE();
+function openChooser(start){if($('#pChoose'))return;const ip=$('#ipad'),tp=activeTop(),top=tp?relBox(tp).y+tp.offsetHeight:64,P=ACTIVE();
   const o=document.createElement('div');o.id='pChoose';o.className='pchoose';o.style.top=top+'px';
-  o.innerHTML=`<div class="pc-h"><span>Choisir projet</span>${S.pick?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
+  o.innerHTML=`<div class="pc-h"><span>Choisir projet</span>${S.pick&&!start?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
   ip.appendChild(o);
   o.addEventListener('click',e=>{if(U.pcFly)return;if(e.target.closest('[data-pcx]')){closeChooser();return}const b=e.target.closest('[data-pcp]');if(b)pickProject(b.dataset.pcp,b)})}
 function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=relBox(bar),W=ip.offsetWidth;
@@ -2902,7 +2902,7 @@ function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=
   anim.onfinish=()=>{U.pcFly=false;o.remove();drawTnav();requestAnimationFrame(()=>f.remove())}}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tproj]');if(!a)return;e.preventDefault();e.stopPropagation();if(U.pcFly)return;$('#pChoose')?closeChooser():openChooser()},true);
 /* au démarrage : aucun projet choisi → ouvrir le choix */
-setTimeout(()=>{if(!S.pick&&U.page==='cal')openChooser()},400);
+setTimeout(()=>{if(U.page==='cal')openChooser(true)},400);
 window.PGCODE=function(){
   const CV={cal:'A1 · Calendrier',fdt:'A2 · Calendrier · Feuille de temps',jou:'A3 · Calendrier · Journal de chantier',liv:'A4 · Calendrier · Livraisons',evt:'A5 · Calendrier · Événements',reu:'A6 · Calendrier · Réunions'};
   const PC={read:'J7 · Rapport journalier',photos:'PH1 · Photos du journal',ph:'PH2 · Photos',cam:'PH3 · Appareil photo',rev:'PH4 · Tri des photos',gal:'PH5 · Galerie',prm:'R1 · Paramètres'};

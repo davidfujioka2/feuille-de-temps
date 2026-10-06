@@ -22,6 +22,10 @@
 /* Employés : autres projets à gauche */
 #pgEntry.split .fdtbar .gl,#pgEntry.split .fdtp{display:none}
 #pgEntry.split .fdtbar{justify-content:flex-end}
+#pgEntry.split[data-sec="fdt"] .fdtwrap{position:relative}
+#pgEntry.split[data-sec="fdt"] .fdtbar{position:absolute;right:18px;bottom:18px;z-index:5;background:none;border:0;padding:0}
+#pgEntry.split[data-sec="fdt"] .fdtnext{height:52px;padding:0 28px;font-size:17px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+#pgEntry.split[data-sec="fdt"] .fdtnext:disabled{box-shadow:none}
 .fdtadd{margin-top:12px;border:2px solid var(--line,#dfe4e1);border-radius:18px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:7px}
 .fdtadd .fa-h{font-size:14px;font-weight:850;color:#6b747d;padding:0 4px 2px}
 .fdtadd button{height:42px;border:2px solid var(--a);border-radius:999px;background:#fff;color:var(--a);font-weight:850;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}

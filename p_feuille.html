@@ -1202,11 +1202,12 @@ function tagsHTML(p,t){
     const other=usedOn(name,t,p);
     return `<span class="tag-wrap"><button class="pill filled ${other?'multi':''} ${just===`${p}|${t}|${name}`?'just':''}" data-act="clear" data-p="${esc(p)}" data-t="${t}" data-i="${i}" title="Retirer ${esc(name)}">${esc(name)}</button>${other?`<span class="warn-ico" title="Aussi assigné à ${esc(other)}" aria-label="Assigné à plus d’un projet">${WARN_SVG}</span>`:''}</span>`}).join('');
 }
+let POPT=null;/* bulle : seulement le métier touché */
 function popHTML(p){
   const c=counts(p);
   const box=t=>{const arr=links(p,t),got=arr.filter(Boolean).length;
     return `<div class="aw-box"><div class="wp-lbl">${tIco(t)}${tradePlural[t]} <b class="cnt-b ${got===arr.length?'ok':''}">${got} / ${arr.length}</b></div>${(()=>{const chip=e=>{const on=arr.includes(e.name);const other=usedOn(e.name,t,p);return `<button class="opt ${on?'pick':''}" data-act="name" data-p="${esc(p)}" data-t="${t}" data-v="${esc(e.name)}">${esc(e.name)}${other?`<span class="warn-ico sm" title="Aussi : ${esc(other)}">${WARN_SVG}</span>`:''}</button>`};const all=roster(t),favs=all.filter(e=>((state.empDb||[]).find(x=>x.name===e.name)||{}).fav);return favs.length?favChooser('emp|'+t,favs,`<div class="aw-opts">${all.filter(e=>!favs.includes(e)).map(chip).join('')}</div>`,chip):`<div class="aw-opts">${all.map(chip).join('')}</div>`})()}</div>`};
-  return `<div class="pop-title"><strong>Projet ${esc(p)}</strong><span>Sélection des travailleurs</span></div>${trades.filter(t=>c[t]>0).map(t=>`<div class="ps-sec"><div class="ps-slots">${tagsHTML(p,t)}</div>${box(t)}</div>`).join('')}<div class="pop-foot split"><button class="close-btn2" data-act="closepop">Fermer</button><button class="opt add-emp" data-act="addemp">+ Employé</button></div>`;
+  return `<div class="pop-title"><strong>Projet ${esc(p)}</strong><span>Sélection des travailleurs</span></div>${trades.filter(t=>c[t]>0&&(!POPT||t===POPT||!c[POPT])).map(t=>`<div class="ps-sec"><div class="ps-slots">${tagsHTML(p,t)}</div>${box(t)}</div>`).join('')}<div class="pop-foot split"><button class="close-btn2" data-act="closepop">Fermer</button><button class="opt add-emp" data-act="addemp">+ Employé</button></div>`;
 }
 function fitPop(pop,rows){
   const vis=rows.clientHeight-12;pop.style.maxHeight=vis+'px';pop.classList.add('scrolly');
@@ -1404,6 +1405,7 @@ function renderTable(){
   }).join('');
 }
 function renderProjects(){
+  if(!focus)POPT=null;
   $('#projectsDateLabel').textContent=dateLabel();
   if((step()===3||step()===5)&&focus&&!queue().some(f=>fk(f)===fk(focus)))focus=firstOpenSlot();
   setTimeout(_mountAfter,0);renderHead();renderPool();setTimeout(()=>{lastRenderStep=step()},0);$('.ip-body').classList.toggle('no-pool',step()>=3);renderTable();const mn=$('#multiNote');if(mn){mn.hidden=!(step()>=3&&anyMulti());mn.innerHTML=WARN_SVG+'<span>Attention : le travailleur est assigné à plus d’un projet</span>'}fitIpad();placePop();just=null;justAdded=null;
@@ -1431,9 +1433,9 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='add')addProject(p);
   else if(act==='remove')removeProject(p);
   else if(act==='cnt')changeCount(p,t,Number(b.dataset.d));
-  else if(act==='pickname'){e.stopPropagation();if(step()!==3)setStep(3);const f=queue().find(x=>x.p===p);if(f){focus=f;renderProjects()}}
+  else if(act==='pickname'){e.stopPropagation();POPT=t;if(step()!==3)setStep(3);const f=queue().find(x=>x.p===p);if(f){focus=f;renderProjects()}}
   else if(act==='rmemp'){e.stopPropagation();removeEmp(p,t,Number(b.dataset.i))}
-  else if(act==='cnt5'){const d=Number(b.dataset.d);changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
+  else if(act==='cnt5'){const d=Number(b.dataset.d);if(d>0)POPT=t;changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
   else if(act==='name')pickName(p,t,v);
   else if(act==='clear'){e.stopPropagation();links(p,t)[Number(b.dataset.i)]=null;save();renderProjects()}
   else if(act==='focus'){const nf=b.dataset.i!=null?{p,t,i:Number(b.dataset.i)}:step()===3?{p,t:'all'}:{p,t};if(fk(focus)!==fk(nf)){focus=nf;renderProjects()}}

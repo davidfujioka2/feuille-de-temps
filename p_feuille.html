@@ -1,4 +1,14 @@
-<style>.appnav{display:none!important}html,body{background:#f3f5f4!important}</style><!doctype html>
+<style>.appnav{display:none!important}html,body{background:#f3f5f4!important}
+/* ajout de travailleurs à toute étape */
+.wk-add{display:flex;gap:14px;align-items:center}
+.wa-t{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--muted)}
+.wa-t b{min-width:16px;text-align:center;color:var(--ink,#141b22)}
+.wa-t button{width:32px;height:30px;border:1px solid var(--line);background:var(--surface);border-radius:9px;font-weight:900;font-size:17px;line-height:1;padding:0}
+.wa-t button.plus{background:var(--green-soft);border-color:#b9ddc7;color:var(--green-dark)}
+.wa-t button:disabled{opacity:.3}
+.wk-ph{align-items:center!important}
+.tbl[data-step="2"] .c-ctl,.tbl[data-step="3"] .c-ctl{opacity:1!important;pointer-events:auto!important}
+</style><!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -1275,7 +1285,8 @@ function empBlock(p,t,i,ro){
 }
 function projCards(ro){let grand=0;const html=added().map(p=>{const c=counts(p);let projH=sup(p);
   const body=trades.filter(x=>c[x]>0).map(t=>links(p,t).map((_,i)=>{projH+=sumH(hoursFor(p,`${t}|${i}`));return empBlock(p,t,i,ro)}).join('')).join('');
-  grand+=projH;return `<section class="wk-proj ${justAdded===p?'enter':''}"><div class="wk-ph"><strong>${esc(p)}</strong></div><div class="eb-list">${supBlock(p,ro)}${body}</div></section>`}).join('');return {html,grand}}
+  grand+=projH;const addc=ro?'':`<span class="wk-add">${trades.map(t=>{const n=c[t]||0,lastH=n?sumH(hoursFor(p,`${t}|${n-1}`)):0;return `<span class="wa-t">${tIco(t)}${t}<button data-act="cnt5" data-p="${esc(p)}" data-t="${t}" data-d="-1" aria-label="Retirer ${t}" ${n&&!lastH?'':'disabled'}>−</button><b>${n}</b><button class="plus" data-act="cnt5" data-p="${esc(p)}" data-t="${t}" data-d="1" aria-label="Ajouter ${t}">+</button></span>`}).join('')}</span>`;
+  return `<section class="wk-proj ${justAdded===p?'enter':''}"><div class="wk-ph"><strong>${esc(p)}</strong>${addc}</div><div class="eb-list">${supBlock(p,ro)}${body}</div></section>`}).join('');return {html,grand}}
 const inReview=()=>!!((state.review&&state.review[state.selectedDate])||(state.approved&&state.approved[state.selectedDate]));
 function reviewTableHTML(){
   const {html:cards,grand}=projCards(true);
@@ -1380,6 +1391,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='add')addProject(p);
   else if(act==='remove')removeProject(p);
   else if(act==='cnt')changeCount(p,t,Number(b.dataset.d));
+  else if(act==='cnt5'){const d=Number(b.dataset.d);changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
   else if(act==='name')pickName(p,t,v);
   else if(act==='clear'){e.stopPropagation();links(p,t)[Number(b.dataset.i)]=null;save();renderProjects()}
   else if(act==='focus'){const nf=b.dataset.i!=null?{p,t,i:Number(b.dataset.i)}:step()===3?{p,t:'all'}:{p,t};if(fk(focus)!==fk(nf)){focus=nf;renderProjects()}}

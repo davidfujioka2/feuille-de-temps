@@ -1558,8 +1558,9 @@ function renderFdt(){
   const fr=$('#fdtFrame'),F=()=>{try{const x=fr.contentWindow.fdt;return x&&x.page()==='projects'?x:null}catch(e){return null}};
   $('#fdtP').onclick=e=>{const b=e.target.closest('[data-fdp]');const x=F();if(b&&x){x.toggle(b.dataset.fdp);sync()}};
   $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
-  let done=false;
+  let done=false,pre=false;
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
+    if(x&&!pre){pre=true;if(S.pick&&x.step()===1&&!x.added().includes(S.pick))x.toggle(S.pick)}
     if(!x){if(!done&&fr.contentWindow&&fr.contentWindow.fdt&&fr.contentWindow.fdt.page()==='calendar')finish();return}
     const A=x.added(),lbl=x.nextLbl();
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');

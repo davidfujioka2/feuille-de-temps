@@ -1422,7 +1422,7 @@ const BASE={
   evtwho:[...['Surintendant','Menuisiers','Manœuvres'].map(n=>o(n,0,'Équipe interne')),...ST_FAV.map(n=>o(n,0,'Sous-traitants')),...['Client','Architecte','Inspecteur','Visiteur','Public'].map(n=>o(n,0,'Autres'))],
   evtdet:['Rapport d’accident rempli','Premiers soins donnés','Travail repris','Travaux arrêtés','Sous-traitant avisé','Bureau avisé','Suivi requis','Réglé sur place','Photo à prendre'].map(n=>o(n,0,'Détails'))
 };
-const LIST_LBL={proj:'Projets (actifs / inactifs)',phasemap:'Phases des sous-traitants',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
+const LIST_LBL={proj:'Projets (actifs / inactifs)',phasemap:'Phases des sous-traitants',actmap:'Activités des sous-traitants',st:'Sous-traitants',trav:'Travaux',zones:'Zones',four:'Fournisseurs',mat:'Matériel livré',etat:'États de commande',inter:'Intervenants (réunions)',sujet:'Sujets de discussion',suite:'Suites à donner',evt:'Événements et incidents',evtwho:'Personnes (événements)',evtdet:'Détails d’événements'};
 const SECS={
   st:{n:2,label:'Sous-traitants',sub:'Travaux réalisés par les sous-traitants',tables:[['st','Sous-traitant'],['trav','Travaux'],['zones','Zone']]},
   liv:{n:3,label:'Livraisons des fournisseurs',sub:'Matériel reçu au chantier',tables:[['four','Fournisseur'],['mat','Matériel livré'],['etat','Commande']]},
@@ -1588,6 +1588,7 @@ const PHASE_SEED={'Les Habitations Leblanc':['demo'],'MultiGestion JP':['demo'],
   'Plomberie JG':['rough','fin'],'Desrosiers Électrique Inc.':['rough','fin'],'Les Drains Francis':['rough'],'Refratec':['rough'],'Isolation FP':['rough'],'Gypse DJS Inc.':['rough','fin'],
   'Planchers GSM':['fin'],'Les peintres Paragon':['fin'],'Serruriers Sirois Inc':['fin'],'Lcecolo - Nettoyage Inc':['fin'],'CleanConcept':['fin']};
 S.phaseMap=S.phaseMap||JSON.parse(JSON.stringify(PHASE_SEED));
+S.actMap=S.actMap||{};/* activité → sous-traitants liés */
 S.comments=S.comments||[];
 const phasesOf=c=>S.phaseMap[c]||[];
 const JROWS=[['fdt',1,'Employés','Temps des employés'],['st',2,'Sous-traitants','Par phase du projet'],['liv',3,'Livraisons','Commandes envoyées et reçues'],['evt',4,'Événements et incidents','Visites, conformité, incidents'],['reu',5,'Réunions et rencontres','Intervenants, sujets, horaire']];
@@ -1991,9 +1992,9 @@ function renderSt(){
   h+=`<div class="fcol cur fx" style="width:${SW}px"><div class="fh"><span class="num">2</span><b>Sous-traitant</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${whoBody}</div></div>`;
   let g=null,buf=[],zb='';const flush=()=>{if(buf.length)zb+=`<div class="zrow"><span>${esc(g)}</span><div class="chips">${buf.join('')}</div></div>`;buf=[]};
   zFav(L.zones).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${W.zone===x.label?'on':''}" data-fa="stzone" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
-  const acts=L.trav.filter(x=>!x.off),af=acts.filter(x=>x.fav),ar=acts.filter(x=>!x.fav);
+  const acts=L.trav.filter(x=>!x.off),lka=W.who?acts.filter(x=>(S.actMap[x.label]||[]).includes(W.who)):[],af=lka.length?lka:acts.filter(x=>x.fav),ar=acts.filter(x=>!af.includes(x));
   const achip=x=>`<button class="chip ${W.act===x.label?'on':''}" data-fa="stact" data-v="${esc(x.label)}">${esc(x.label)}</button>`;
-  h+=`<div class="fcol cur fx" style="width:${AW}px"><div class="fh"><span class="num">3</span><b>Action</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${af.length&&ar.length?'<div class="gl" style="margin:0 0 4px">Planifiées et favorites</div>':''}<div class="vlist1">${(af.length?af:acts).map(achip).join('')}</div>${af.length&&ar.length?`<button class="seelist" data-fa="stactall">${W.actAll?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.actAll?`<div class="vlist1">${ar.map(achip).join('')}</div>`:''}`:''}</div></div>`;
+  h+=`<div class="fcol cur fx" style="width:${AW}px"><div class="fh"><span class="num">3</span><b>Action</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${af.length&&ar.length?`<div class="gl" style="margin:0 0 4px">${lka.length?'Activités de '+esc(W.who):'Planifiées et favorites'}</div>`:''}<div class="vlist1">${(af.length?af:acts).map(achip).join('')}</div>${af.length&&ar.length?`<button class="seelist" data-fa="stactall">${W.actAll?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.actAll?`<div class="vlist1">${ar.map(achip).join('')}</div>`:''}`:''}</div></div>`;
   h+=`<div class="fcol cur fx" style="width:${ZW}px"><div class="fh"><span class="num">4</span><b>Zone</b></div><div class="fb scroll" style="gap:2px"><button class="chip zc ${!W.zone?'on':''}" data-fa="stzone" data-v="" style="align-self:flex-start;margin-bottom:4px">Sans zone</button>${zb}</div></div>`;
   const cms=S.comments.slice(0,60),ed=U.editIndex!=null&&W.text;
   const c5=`<div class="c5top"><div class="fh"><span class="num">5</span><b>Travailleurs</b></div><div class="wk sm row">
@@ -2310,7 +2311,7 @@ $('#flow').addEventListener('click',e=>{
   if(a==='hr'){W.hours=Math.max(0,W.hours+Number(b.dataset.d));W.hoursManual=W.hours!==W.workers*8;renderSt();return}
   if(a==='wkok'){W.step=U.editIndex!=null&&W.zone!=null?'comment':'zones';renderSt();return}
   if(a==='stzone'){W.zone=b.dataset.v;renderSt();return}
-  if(a==='stact'){W.act=W.act===b.dataset.v?'':b.dataset.v;renderSt();return}
+  if(a==='stact'){W.act=W.act===b.dataset.v?'':b.dataset.v;if(W.act&&W.who&&W.who!==BC){const l=S.actMap[W.act]||[];if(!l.includes(W.who)){S.actMap[W.act]=[...l,W.who];save()}}renderSt();return}
   if(a==='stactall'){W.actAll=!W.actAll;renderSt();return}
   if(a==='cmpick'){stDone(S.comments[Number(b.dataset.i)]);return}
   if(a==='cmadd'){const t=($('#cmNew').value||'').trim();if(!t){$('#cmNew').focus();return}stDone(t);return}
@@ -2591,8 +2592,14 @@ function openSig(){
 function renderPrm(){
   {const b=$('#dbxState');if(b){b.textContent=dbxOn()?'● connecté':'● non connecté';b.style.color=dbxOn()?'#1f7a4a':'#c3282b'}}
   const L=lists(),k=U.prmKey;$('#bkInfo').textContent=S.lastBackup?'Dernière sauvegarde : '+stamp(S.lastBackup):'Aucune sauvegarde';
+  if(k==='actmap'){
+    $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
+    $('#prmTitle').textContent='Activités des sous-traitants';$('#prmStats').textContent='toucher un sous-traitant pour le lier à l’activité (un ou plusieurs)';
+    const sts=L.st.filter(x=>!x.off);
+    $('#prmItems').innerHTML=L.trav.filter(x=>!x.off).map(a=>{const lk=S.actMap[a.label]||[];return `<div style="width:100%;display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft)"><b style="width:190px;flex:none;font-size:14px;padding-top:8px">${esc(a.label)}<small style="display:block;color:var(--muted);font-weight:700;font-size:11px">${lk.length?lk.length+' lié'+(lk.length>1?'s':''):'aucun'}</small></b><div style="display:flex;flex-wrap:wrap;gap:6px;flex:1">${sts.map(x=>`<button class="chip ${lk.includes(x.label)?'on':''}" data-am="${esc(a.label)}" data-ast="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div></div>`}).join('');
+    $('#prmNew').placeholder='Nouvelle activité';return}
   if(k==='phasemap'){
-    $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${x==='phasemap'?'':L[x].filter(i=>!i.off).length}</small></button>`).join('');
+    $('#prmNav').innerHTML='<span>Listes</span>'+Object.keys(LIST_LBL).map(x=>`<button class="${x===k?'on':''}" data-pk="${x}">${LIST_LBL[x]}<small>${L[x]?L[x].filter(i=>!i.off).length:''}</small></button>`).join('');
     $('#prmTitle').textContent='Phases des sous-traitants';$('#prmStats').textContent='toucher une phase pour placer ou retirer le sous-traitant';
     const cp=S.customPhases||[];
     $('#prmItems').innerHTML=`<div style="width:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0 10px;border-bottom:2px solid var(--line)"><b style="font-size:13px;color:var(--muted)">PHASES</b>${PHASES.filter(p=>p[0]!=='gen').map(([pk,pl])=>`<span class="chip" style="cursor:default">${esc(pl)}${pk.startsWith('c_')?` <button data-phdel="${esc(pl)}" title="Retirer la phase" style="border:0;background:none;font-weight:900;cursor:pointer">×</button>`:''}</span>`).join('')}<input class="inp dash" id="phNew" placeholder="Nouvelle phase" style="width:180px;height:38px"><button class="btn go" id="phAdd" style="height:38px">Ajouter une phase</button></div>`+L.st.filter(x=>!x.off).map(x=>`<div style="width:100%;display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft)"><b style="flex:1;font-size:14px">${esc(x.label)}</b>${PHASES.filter(p=>p[0]!=='gen').map(([pk,pl])=>`<button class="chip ${phasesOf(x.label).includes(pk)?'on':''}" data-pm="${esc(x.label)}" data-ph="${pk}">${pl}</button>`).join('')}</div>`).join('');
@@ -2651,10 +2658,12 @@ $('#prmItems').onclick=e=>{
   if(e.target.id==='phAdd'){const n=($('#phNew').value||'').trim();if(!n)return;if(PHASES.some(p=>p[1].toLowerCase()===n.toLowerCase())){toast('Cette phase existe déjà');return}
     (S.customPhases ||= []).push(n);PHASES.push(['c_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_'),n,'']);save();renderPrm();toast('Phase ajoutée');return}
   const pd=e.target.closest('[data-phdel]');if(pd){const n=pd.dataset.phdel,id='c_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_');S.customPhases=(S.customPhases||[]).filter(x=>x!==n);const i=PHASES.findIndex(p=>p[0]===id);if(i>=0)PHASES.splice(i,1);Object.keys(S.phaseMap||{}).forEach(c=>{S.phaseMap[c]=S.phaseMap[c].filter(x=>x!==id)});save();renderPrm();toast('Phase retirée');return}
+  const am=e.target.closest('[data-am]');if(am){const a=am.dataset.am,c=am.dataset.ast,l=S.actMap[a]||[];S.actMap[a]=l.includes(c)?l.filter(x=>x!==c):[...l,c];save();renderPrm();return}
+  if(U.prmKey==='actmap')return;
   const pm=e.target.closest('[data-pm]');if(pm){const c=pm.dataset.pm,p=pm.dataset.ph,a=phasesOf(c);S.phaseMap[c]=a.includes(p)?a.filter(x=>x!==p):[...a,p].sort((x,y)=>PHASES.findIndex(q=>q[0]===x)-PHASES.findIndex(q=>q[0]===y));save();renderPrm();return}if(U.prmKey==='phasemap')return;const L=lists()[U.prmKey];const f=e.target.closest('[data-pf]'),x=e.target.closest('[data-po]');
   if(f){const it=L.find(i=>i.label===f.dataset.pf);S.fav[U.prmKey+'|'+it.label]=!it.fav;save();renderPrm()}
   if(x){const it=L.find(i=>i.label===x.dataset.po);S.off[U.prmKey+'|'+it.label]=!it.off;save();renderPrm()}};
-$('#prmAdd').onclick=()=>{const t=$('#prmNew').value.trim();if(!t)return;if(U.prmKey==='proj'){if(!PROJECTS.includes(t)){PROJECTS.push(t);projSave()}$('#prmNew').value='';renderPrm();toast('Projet ajouté');return}(S.added[U.prmKey==='phasemap'?'st':U.prmKey] ||= []).push(t);$('#prmNew').value='';save();renderPrm();toast('Ajouté à '+LIST_LBL[U.prmKey])};
+$('#prmAdd').onclick=()=>{const t=$('#prmNew').value.trim();if(!t)return;if(U.prmKey==='proj'){if(!PROJECTS.includes(t)){PROJECTS.push(t);projSave()}$('#prmNew').value='';renderPrm();toast('Projet ajouté');return}(S.added[U.prmKey==='phasemap'?'st':U.prmKey==='actmap'?'trav':U.prmKey] ||= []).push(t);$('#prmNew').value='';save();renderPrm();toast('Ajouté à '+LIST_LBL[U.prmKey])};
 $('#prmNew').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#prmAdd').click()}};
 $('#bkBtn').onclick=saveBackup;$('#dbxBtn').onclick=()=>dbxPanel();
 $('#exAll').onclick=()=>prepareAll();

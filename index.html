@@ -1457,6 +1457,8 @@ const PH_MAP={'Démo':'demo','Démolition':'demo','Rough':'rough','Systèmes int
 function weekOf(ds){const d=parse(ds),w=(d.getDay()+6)%7,a=new Date(d);a.setDate(d.getDate()-w);const b=new Date(a);b.setDate(a.getDate()+6);return [fmt(a),fmt(b)]}
 function plannedToday(){const p=plan();if(!p||!p.planned)return [];const [a,b]=weekOf(U.date),D=day();
   return p.planned.filter(x=>x.from<=b&&x.to>=a&&!D.entries.some(e=>e.planId===x.id))}
+/* zones : favoris en haut */
+function zFav(Z){Z=Z.filter(x=>!x.off);return [...Z.filter(x=>x.fav).map(x=>({...x,group:'★ Favoris'})),...Z.filter(x=>!x.fav)]}
 function lists(){
   const L={},PF=planFav();
   Object.keys(BASE).forEach(k=>{
@@ -1981,7 +1983,7 @@ function renderSt(){
   const whoBody=(list.length?grid(list):'<span style="color:var(--muted);font-size:13px">Aucun sous-traitant dans cette phase.</span>')+(rest.length?`<button class="seelist" data-fa="stall">${W.all?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.all?grid(rest):''}`:'');
   h+=`<div class="fcol cur fx" style="width:${SW}px"><div class="fh"><span class="num">2</span><b>Sous-traitant</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${whoBody}</div></div>`;
   let g=null,buf=[],zb='';const flush=()=>{if(buf.length)zb+=`<div class="zrow"><span>${esc(g)}</span><div class="chips">${buf.join('')}</div></div>`;buf=[]};
-  L.zones.filter(x=>!x.off).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${W.zone===x.label?'on':''}" data-fa="stzone" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
+  zFav(L.zones).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${W.zone===x.label?'on':''}" data-fa="stzone" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
   const acts=L.trav.filter(x=>!x.off),af=acts.filter(x=>x.fav),ar=acts.filter(x=>!x.fav);
   const achip=x=>`<button class="chip ${W.act===x.label?'on':''}" data-fa="stact" data-v="${esc(x.label)}">${esc(x.label)}</button>`;
   h+=`<div class="fcol cur fx" style="width:${AW}px"><div class="fh"><span class="num">3</span><b>Action</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${af.length&&ar.length?'<div class="gl" style="margin:0 0 4px">Planifiées et favorites</div>':''}<div class="vlist1">${(af.length?af:acts).map(achip).join('')}</div>${af.length&&ar.length?`<button class="seelist" data-fa="stactall">${W.actAll?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.actAll?`<div class="vlist1">${ar.map(achip).join('')}</div>`:''}`:''}</div></div>`;
@@ -2016,7 +2018,7 @@ function fxList(items,act,sel){return `<div class="vlist1">${items.map(x=>`<butt
 function fxList2n(items,act,sel){return `<div class="vlist2" style="grid-template-rows:repeat(${Math.max(1,Math.ceil(items.length/2))},auto)">${items.map(x=>`<button class="chip ${x.bc?'bc':''} ${sel===x.label?'on':''}" data-fa="${act}" data-v="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div>`}
 function fxList2(items,act,sel){return `<div class="vlist2 sm" style="grid-template-rows:repeat(${Math.max(1,Math.ceil(items.length/2))},auto)">${items.map(x=>`<button class="chip ${sel===x.label?'on':''}" data-fa="${act}" data-v="${esc(x.label)}">${esc(x.label)}</button>`).join('')}</div>`}
 function fxZones(sel,act,noneLabel){const L=lists();let g=null,buf=[],zb='';const flush=()=>{if(buf.length)zb+=`<div class="zrow"><span>${esc(g)}</span><div class="chips">${buf.join('')}</div></div>`;buf=[]};
-  L.zones.filter(x=>!x.off).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${sel===x.label?'on':''}" data-fa="${act}" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
+  zFav(L.zones).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${sel===x.label?'on':''}" data-fa="${act}" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
   return `<div class="fb scroll" style="gap:2px"><button class="chip zc" data-fa="${act}" data-v="" style="align-self:flex-start;margin-bottom:4px">${noneLabel}</button>${zb}</div>`}
 function fxComments(list,p,ready,text,editing,msg){return `<div class="cm">
     ${ready?'':`<div style="font-size:12px;color:var(--amber);font-weight:700">${msg}</div>`}

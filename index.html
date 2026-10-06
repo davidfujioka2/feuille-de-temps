@@ -74,6 +74,8 @@
 .cfri.ok{background:var(--pacc);border-color:var(--pacc);color:#fff}
 .legend .lg-l{background:color-mix(in srgb,var(--pacc) 10%,#fff);border:1.5px solid color-mix(in srgb,var(--pacc) 25%,#fff)}
 .legend .lg-s{background:var(--pacc)}
+/* choix de projet ouvert : aucun onglet sélectionné */
+#ipad.choosing .tnav a.on:not(.tproj){background:transparent!important;color:var(--green-dark)!important}
 /* ===== Choisir projet (bouton large en haut à gauche + choix animé) ===== */
 .pbar{display:none!important}
 .tnav a.tproj{flex:0 0 auto!important;flex-direction:row!important;gap:8px!important;min-width:250px!important;max-width:320px;width:auto!important;height:48px!important;padding:0 16px!important;margin-right:6px;border:2px solid var(--pacc,#173d2d);border-radius:999px;background:#fff;color:var(--pacc,#173d2d)!important}
@@ -2908,11 +2910,11 @@ const PROJ_ICO='<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/>';
 function tprojHTML(){const p=S.pick;return `<a class="tproj ${p?'set':''} ${U.pcFly?'fly':''}" data-tproj="1" style="--pacc:${p?projAcc(p):'#173d2d'}"><svg viewBox="0 0 24 24" aria-hidden="true">${PROJ_ICO}</svg><span>${esc(p||'Choisir projet')}</span></a>`}
 function relBox(el){const ip=$('#ipad');let x=0,y=0,n=el;while(n&&n!==ip){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return {x,y,w:el.offsetWidth,h:el.offsetHeight}}
 function activeTop(){const pg=[...document.querySelectorAll('#ipad .page')].find(x=>x.offsetParent!==null&&x.offsetHeight>0);return pg?pg.querySelector('.top'):null}
-function closeChooser(){const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
+function closeChooser(){$('#ipad').classList.remove('choosing');const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
 function openChooser(start){if($('#pChoose'))return;const ip=$('#ipad'),tp=activeTop(),top=tp?relBox(tp).y+tp.offsetHeight:64,P=ACTIVE();
   const o=document.createElement('div');o.id='pChoose';o.className='pchoose';o.style.top=top+'px';
   o.innerHTML=`<div class="pc-h"><span>Choisir projet</span>${S.pick&&!start?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
-  ip.appendChild(o);
+  ip.appendChild(o);ip.classList.add('choosing');
   o.addEventListener('click',e=>{if(U.pcFly)return;if(e.target.closest('[data-pcx]')){closeChooser();return}const b=e.target.closest('[data-pcp]');if(b)pickProject(b.dataset.pcp,b)})}
 function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=relBox(bar),W=ip.offsetWidth;
   U.pcFly=true;o.querySelectorAll('.pc-bar').forEach(x=>{if(x!==bar)x.classList.add('gone')});bar.style.visibility='hidden';
@@ -2928,7 +2930,7 @@ function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=
     {...back,top:r0.y+'px',height:r0.h+'px',fontSize:'19px',offset:.52,easing:'cubic-bezier(.5,0,.2,1)'},
     {left:t.x+'px',top:t.y+'px',width:t.w+'px',height:t.h+'px',fontSize:'14px',offset:1}],{duration:1050,fill:'forwards'});
   setTimeout(()=>o.classList.add('out'),560);
-  anim.onfinish=()=>{U.pcFly=false;o.remove();drawTnav();requestAnimationFrame(()=>f.remove())}}
+  anim.onfinish=()=>{U.pcFly=false;o.remove();ip.classList.remove('choosing');drawTnav();requestAnimationFrame(()=>f.remove())}}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tproj]');if(!a)return;e.preventDefault();e.stopPropagation();if(U.pcFly)return;$('#pChoose')?closeChooser():openChooser()},true);
 /* au démarrage : aucun projet choisi → ouvrir le choix */
 setTimeout(()=>{if(U.page==='cal')openChooser(true)},400);

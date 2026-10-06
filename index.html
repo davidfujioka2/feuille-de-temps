@@ -44,6 +44,13 @@
 #pgEntry.split #rows{padding-bottom:14px}
 
 .ctag.wipt{background:#fff3e2!important;color:#7a4100!important;border-color:#e8a54b!important}
+
+/* Sous-traitants : fenêtre plein écran sous le menu, Annuler en bas à gauche */
+#pgEntry.split.full .win{left:0!important;z-index:62}
+#pgEntry.split.full.ov #rows{visibility:hidden!important}
+#pgEntry.split.full .win .flow{padding-bottom:58px}
+.wincancel{display:none}
+#pgEntry.full .wincancel{display:block;position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 24px;border:1.5px solid #141b22;border-radius:999px;background:#fff;color:#141b22;font-weight:850;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1236,6 +1243,7 @@ button{cursor:pointer}
     <div class="win" id="win" hidden>
       <div class="win-h"><b id="winTitle"></b><span id="winSent"></span><button class="btn" id="winClose">Fermer</button></div>
       <div class="flow" id="flow"></div>
+      <button class="wincancel" id="winCancel">Annuler</button>
     </div>
   </section>
 
@@ -1479,7 +1487,7 @@ function tagsFromEntry(e){const who=e.sec==='evt'?e.b:e.a;return {who:who||'',ac
 
 /* ---------- navigation ---------- */
 const PAGES={cal:'#pgCal',entry:'#pgEntry',photos:'#pgPhotos',read:'#pgRead',prm:'#pgPrm',ph:'#pgPh',cam:'#pgCam',rev:'#pgRev',gal:'#pgGal'};
-function go(p){if(p!=='entry'){U.winGen=(U.winGen||0)+1;if(U.ftag||U.lvch||U.lvsp){[U.ftag,U.lvch,U.lvsp].forEach(x=>x&&x.remove());U.ftag=U.lvch=U.lvsp=null;U.closing=false}const pe=$('#pgEntry');if(pe){pe.classList.remove('ov','ovm');delete pe.dataset.sec}clearInterval(U.fdtT)}if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
+function go(p){if(p!=='entry'){U.winGen=(U.winGen||0)+1;if(U.ftag||U.lvch||U.lvsp){[U.ftag,U.lvch,U.lvsp].forEach(x=>x&&x.remove());U.ftag=U.lvch=U.lvsp=null;U.closing=false}const pe=$('#pgEntry');if(pe){pe.classList.remove('ov','ovm','full');delete pe.dataset.sec}clearInterval(U.fdtT)}if(p!=='entry'&&$('#win'))$('#win').hidden=true;if(p!=='cam'&&typeof camStop==='function'){camStop();if(U.c2&&U.c2.burstOn){U.c2.burstOn=false;clearInterval(U.c3BT)}}
   if(p==='entry'&&locked())p='read';
   if(p==='prm'&&U.page!=='prm')U.prmFrom=U.page;
   U.page=p;Object.entries(PAGES).forEach(([k,s])=>$(s).hidden=k!==p);
@@ -1637,8 +1645,8 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const tween=animTween;
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
-    const sm={style:{}},TT=118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
-    await tween(560,p=>{Object.assign(f.style,{left:L(x0,SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,SPW(),p)+'px',height:L(h0,FH,p)+'px'});f.style.setProperty('--mo',p)});
+    const FULL=isSplit()&&k==='st';pg.classList.toggle('full',FULL);const sm={style:{}},TT=FULL?72:118,FH=isSplit()?60:168;if(FH<168)f.classList.add('compact');pg.classList.add('ovm');
+    await tween(560,p=>{Object.assign(f.style,{left:L(x0,FULL?12:SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,FULL?1156:SPW(),p)+'px',height:L(h0,FH,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+FH+28)+'px';
       ch.innerHTML='<button data-lvc="envoi"><b>Commande placée par surintendant</b><span>Choisir le matériel et la quantité</span></button><button data-lvc="recu"><b>Commande reçue au chantier</b><span>Valider une commande ou noter une livraison</span></button>';
@@ -1677,8 +1685,9 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){if(U.closing)return;const f=U.ftag,w=$('#win'),ex=[U.lvsp,U.lvch].filter(Boolean);
   if((f||(w&&!w.hidden))&&!RM()&&U.page==='entry'){U.closing=true;Promise.all([winDown(300),animTween(300,p=>{if(f){f.style.opacity=String(1-p);f.style.transform=`scale(${1-p*.04})`}ex.forEach(x=>x.style.opacity=String(1-p))},easeOut)]).then(()=>{U.closing=false;closeWinNow()});return}
   closeWinNow()}
-function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
+function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
+$('#winCancel').onclick=e=>{e.stopPropagation();closeWin()};
 
 document.addEventListener('click',e=>{const sg=e.target.closest('#rows [data-fsign]');if(sg){e.stopPropagation();e.preventDefault();fdtSign();return}const fsb=e.target.closest('#rows [data-fs]');if(fsb){e.stopPropagation();e.preventDefault();ftSup(fsb.dataset.fs,Number(fsb.dataset.d));return}const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
   const fg=e.target.closest('#rows [data-fgo]');if(fg){e.stopPropagation();e.preventDefault();U.fdtAll=null;fdtFlow([fg.dataset.fgo]);return}

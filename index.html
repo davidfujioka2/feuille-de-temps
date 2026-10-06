@@ -1602,7 +1602,9 @@ function renderFdt(){
   $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
   let done=false,pre=false,seen=false,prevL=null;
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
-    if(x&&!pre){pre=true;if(S.pick&&x.step()===1){const FT=ftLoad();x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}if(S.pick&&x.view)x.view([S.pick])}
+    if(x&&!pre){pre=true;if(S.pick){const FT=ftLoad();if(x.step()===1)x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}if(S.pick&&x.view)x.view([S.pick])}
+    /* le projet en cours doit toujours être présent (même si la journée avait déjà d'autres projets) */
+    if(x&&S.pick&&!x.added().includes(S.pick)&&!x.popOpen())x.toggle(S.pick);
     if(!x){if(!done&&seen&&fr.contentWindow&&fr.contentWindow.fdt&&fr.contentWindow.fdt.page()==='calendar')finish();return}
     seen=true;
     const A=x.added(),lbl=x.nextLbl();

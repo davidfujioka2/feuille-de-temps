@@ -18,6 +18,15 @@
 #pgEntry.split .win .flow{overflow-x:auto}
 #pgEntry.split #rows .stag.sel{background:var(--pacc,#173d2d)!important;color:#fff!important;border-color:var(--pacc,#173d2d)!important}
 #pgEntry.split #rows .stag.sel b,#pgEntry.split #rows .stag.sel *{color:#fff!important}
+
+/* Employés : autres projets à gauche */
+#pgEntry.split .fdtbar .gl,#pgEntry.split .fdtp{display:none}
+#pgEntry.split .fdtbar{justify-content:flex-end}
+.fdtadd{margin-top:12px;border:2px solid var(--line,#dfe4e1);border-radius:18px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:7px}
+.fdtadd .fa-h{font-size:14px;font-weight:850;color:#6b747d;padding:0 4px 2px}
+.fdtadd button{height:42px;border:2px solid var(--a);border-radius:999px;background:#fff;color:var(--a);font-weight:850;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
+.fdtadd button.on{background:var(--a);color:#fff}
+#pgEntry.split #rows:has(.fdtadd) .stag{min-height:52px}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1560,12 +1569,18 @@ function renderFdt(){
   $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
   let done=false,pre=false,seen=false,prevL=null;
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
-    if(x&&!pre){pre=true;if(S.pick&&x.step()===1&&!x.added().includes(S.pick))x.toggle(S.pick)}
+    if(x&&!pre){pre=true;if(S.pick&&x.step()===1){const FT=ftLoad();x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}}
     if(!x){if(!done&&seen&&fr.contentWindow&&fr.contentWindow.fdt&&fr.contentWindow.fdt.page()==='calendar')finish();return}
     seen=true;
     const A=x.added(),lbl=x.nextLbl();
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');
     const nb=$('#fdtNext');nb.textContent=lbl;nb.disabled=!x.nextOk();
+    /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
+    let box=$('#fdtAdd');if(isSplit()&&x.step()<5){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
+        box.onclick=e=>{e.stopPropagation();const b=e.target.closest('[data-fdp]'),y=F();if(!b||!y)return;const p=b.dataset.fdp;
+          if(y.added().includes(p)&&ftHas(ftLoad(),U.date,p)&&!confirm('Retirer '+p+' de la feuille de temps ? Les travailleurs et heures de ce projet seront effacés.'))return;y.toggle(p);sync()}}
+      const html='<div class="fa-h">Ajouter un projet</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${A.includes(p)?'✓ ':'＋ '}${esc(p)}</button>`).join('');
+      if(box.innerHTML!==html)box.innerHTML=html}else if(box)box.remove();
     /* fermer seulement quand la journée vient d'être complétée ici (pas à l'ouverture d'une journée déjà remplie) */
     if(/^Calendrier/.test(lbl)&&prevL!==null&&!/^Calendrier/.test(prevL))finish();prevL=lbl}
   function finish(){if(done)return;done=true;clearInterval(U.fdtT);let A=[];try{A=fr.contentWindow.fdt.added()}catch(e){}
@@ -2836,6 +2851,7 @@ function drawTnav(){drawPbar();const fdtDay=U.page==='entry'&&S.viewAll&&U.dayMo
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm);splitSync()}
 /* ===== Journal : étiquettes à gauche, fenêtre à droite (projet choisi) ===== */
 /* un projet a une feuille de temps ce jour-là seulement s'il y a des travailleurs ou des heures pour CE projet */
+function ftLoad(){try{return JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){return {}}}
 function ftHas(FT,ds,p){if(!((FT.added||{})[ds]||[]).includes(p))return false;const key=ds+'||'+p;
   const c=(FT.laborCounts||{})[key]||{};if(Object.values(c).some(n=>n>0))return true;
   if((((FT.supHours||{})[ds]||{})[p]||0)>0)return true;

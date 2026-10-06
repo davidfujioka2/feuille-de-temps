@@ -29,8 +29,10 @@
 #pgEntry.split[data-sec="fdt"] .fdtnext:disabled{box-shadow:none}
 .fdtadd{margin-top:12px;border:2px solid var(--line,#dfe4e1);border-radius:18px;background:#fff;padding:10px;display:flex;flex-direction:column;gap:7px}
 .fdtadd .fa-h{font-size:14px;font-weight:850;color:#6b747d;padding:0 4px 2px}
-.fdtadd button{height:42px;border:2px solid var(--a);border-radius:999px;background:#fff;color:var(--a);font-weight:850;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
+.fdtadd button{height:36px;border:2px solid var(--a);border-radius:999px;background:#fff;color:var(--a);font-weight:850;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
 .fdtadd button.on{background:var(--a);color:#fff}
+.fdtadd button.hid{border-style:dashed;background:color-mix(in srgb,var(--a) 10%,#fff)}
+.fdtadd .fa-n{font-size:11px;color:#8a949c;font-weight:700;padding:2px 4px 0;line-height:1.3}
 #pgEntry.split #rows:has(.fdtadd) .stag{min-height:52px}
 
 /* Employés : en-tête compact, plus de place pour le détail */
@@ -1599,20 +1601,21 @@ function renderFdt(){
   $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
   let done=false,pre=false,seen=false,prevL=null;
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
-    if(x&&!pre){pre=true;if(S.pick&&x.step()===1){const FT=ftLoad();x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}}
+    if(x&&!pre){pre=true;if(S.pick&&x.step()===1){const FT=ftLoad();x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}if(S.pick&&x.view)x.view([S.pick])}
     if(!x){if(!done&&seen&&fr.contentWindow&&fr.contentWindow.fdt&&fr.contentWindow.fdt.page()==='calendar')finish();return}
     seen=true;
     const A=x.added(),lbl=x.nextLbl();
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');
     const nb=$('#fdtNext');nb.textContent=lbl;nb.disabled=!x.nextOk();
     /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
-    let box=$('#fdtAdd');if(isSplit()&&x.step()<5){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
-        box.onclick=e=>{e.stopPropagation();const b=e.target.closest('[data-fdp]'),y=F();if(!b||!y)return;const p=b.dataset.fdp;
-          if(y.added().includes(p)&&ftHas(ftLoad(),U.date,p)&&!confirm('Retirer '+p+' de la feuille de temps ? Les travailleurs et heures de ce projet seront effacés.'))return;y.toggle(p);sync()}}
-      const html='<div class="fa-h">Ajouter un projet</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${A.includes(p)?'✓ ':'＋ '}${esc(p)}</button>`).join('');
+    let box=$('#fdtAdd');if(isSplit()){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
+        box.onclick=e=>{e.stopPropagation();const b=e.target.closest('[data-fdp]'),y=F();if(!b||!y)return;const p=b.dataset.fdp,Sh=y.shown?y.shown():y.added();
+          if(!y.added().includes(p))y.toggle(p);else if(!Sh.includes(p))y.show(p);else y.hide(p);sync()}}
+      const SH=x.shown?x.shown():A;
+      const html='<div class="fa-h">Autres projets</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>{const vis=SH.includes(p),has=A.includes(p);return `<button class="${vis?'on':has?'hid':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${vis?'✓ ':has?'👁 ':'＋ '}${esc(p)}</button>`}).join('')+'<div class="fa-n">＋ ajouter · 👁 déjà saisi, afficher · ✓ affiché, toucher pour masquer</div>';
       if(box.innerHTML!==html)box.innerHTML=html}else if(box)box.remove();
     let rb=$('#fdtReset');if(isSplit()&&x.added().length){if(!rb){rb=document.createElement('button');rb.id='fdtReset';rb.className='fdtreset';rb.textContent='↺ Réinitialiser';$('#rows').appendChild(rb);
-        rb.onclick=e=>{e.stopPropagation();try{fr.contentWindow.resetDay()}catch(err){}setTimeout(sync,200)}}}else if(rb)rb.remove();
+        rb.onclick=e=>{e.stopPropagation();try{fr.contentWindow.resetDay()}catch(err){}setTimeout(()=>{const y=F();if(y&&S.pick&&!y.added().includes(S.pick)){y.toggle(S.pick);y.view([S.pick])}sync()},250)}}}else if(rb)rb.remove();
     /* fermer seulement quand la journée vient d'être complétée ici (pas à l'ouverture d'une journée déjà remplie) */
     if(/^Calendrier/.test(lbl)&&prevL!==null&&!/^Calendrier/.test(prevL))finish();prevL=lbl}
   function finish(){if(done)return;done=true;clearInterval(U.fdtT);let A=[];try{A=fr.contentWindow.fdt.added()}catch(e){}

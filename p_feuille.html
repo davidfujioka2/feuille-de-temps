@@ -26,6 +26,8 @@
 #resetDay{position:fixed;left:12px;bottom:12px;z-index:50;height:42px;padding:0 18px;border:1.5px solid #c8372d;border-radius:999px;background:#fff;color:#c8372d;font-weight:850;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 
 .pill.pickname{border:1.5px dashed var(--green,#2f8a57)!important;color:var(--green-dark,#236b43)!important;background:#f5fbf7!important;cursor:pointer;font-weight:800}
+
+html.embed div.wk-add{display:none!important}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1115,7 +1117,9 @@ function renderCalendar(){
 state.added ||= {}; state.step ||= {};
 const IPAD_W=1180;
 function added(){return state.added[state.selectedDate] ||= []}
-const activeProjects=()=>added().filter(p=>total(p)>0);
+/* projets affichés : dans le journal, seulement le projet en cours (+ ceux ouverts dans cette session) ; les autres restent enregistrés */
+let VIEW=null;const shown=()=>VIEW?added().filter(p=>VIEW.includes(p)):added();
+const activeProjects=()=>shown().filter(p=>total(p)>0);
 const reduceMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const step=()=>{const v=state.step[state.selectedDate]||(state.phase?.[state.selectedDate]==='assign'?3:1);return v===2?1:v===4?5:v};
 const STEP_IDS=[1,3,5];
@@ -1130,8 +1134,8 @@ const TRADE_ICO={Menuisier:'<span class="t-ico emo" aria-hidden="true">🪚</spa
 const PLAN_SVG='<svg class="t-ico plan" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="17" rx="1" fill="#eaf2fb" stroke="#2f5d8a" stroke-width="1.4"/><path d="M2.5 11h7M9.5 3.5v4.5M9.5 11v9.5M14 11h7.5M14 11v3M14 17v3.5M9.5 15.5h2.5" fill="none" stroke="#2f5d8a" stroke-width="1.4" stroke-linecap="round"/><path d="M9.5 8a3 3 0 0 1 3 3" fill="none" stroke="#2f5d8a" stroke-width=".9" stroke-dasharray="1.4 1.2"/></svg>';
 const tIco=t=>TRADE_ICO[t]||'';
 const STEPS=['Projets','Travailleurs','Travaux'];
-function canGo(n){if(n<=1)return true;if(n===2)return added().length>0;return activeProjects().length>0}
-const queue=()=>step()===5?added().filter(p=>total(p)>0).flatMap(p=>trades.flatMap(t=>links(p,t).map((_,i)=>({p,t,i})))):added().filter(p=>total(p)>0).map(p=>({p,t:'all'}));
+function canGo(n){if(n<=1)return true;if(n===2)return shown().length>0;return activeProjects().length>0}
+const queue=()=>step()===5?shown().filter(p=>total(p)>0).flatMap(p=>trades.flatMap(t=>links(p,t).map((_,i)=>({p,t,i})))):shown().filter(p=>total(p)>0).map(p=>({p,t:'all'}));
 const fk=f=>f?`${f.p}|${f.t}${f.i!=null?'|'+f.i:''}`:'';
 const drafts={};
 const slotKey=f=>`${f.t}|${f.i}`;
@@ -1141,7 +1145,7 @@ function renderHead(){
   const st=step();
   $('#stepper').innerHTML=STEPS.map((l,i)=>{const n=STEP_IDS[i];return `<button class="step ${n===st?'on':''} ${n<st?'done':''}" data-act="goto" data-n="${n}" ${canGo(n)?'':'disabled'}><i>${n<st?'✓':i+1}</i>${l}</button>${i<STEPS.length-1?'<span class="step-line"></span>':''}`}).join('');
   const nb=$('#nextStep');nb.textContent=st===5?(inReview()?(state.approved&&state.approved[state.selectedDate]?'Calendrier':'Approuver'):'Terminer'):'Continuer ›';nb.disabled=st<5&&!canGo(STEP_IDS[STEP_IDS.indexOf(st)+1]);nb.style.visibility=st===5&&inReview()?'hidden':'';
-  const A=added(),grand=A.reduce((x,p)=>x+total(p),0);
+  const A=shown(),grand=A.reduce((x,p)=>x+total(p),0);
   $('#grandTotal').innerHTML=A.length?`${A.length} projet${A.length>1?'s':''} · <b>${grand}</b> ${grand===1?'travailleur':'travailleurs'}`:'Aucun projet';
 }
 function renderPool(){
@@ -1302,7 +1306,7 @@ function empBlock(p,t,i,ro){
   const edit=isF?edRowHTML({p,t,i}).replace(/^<tr class="ed-row"><td><\/td><td colspan="3">/,'<div class="eb-ed">').replace(/<\/td><\/tr>$/,'</div>'):'';
   return `<div class="eb emp ${isF?'on':''} ${ro?'ro':'sel'}" data-k="${esc(k)}" ${ro?'':`data-act="selemp" data-p="${esc(p)}" data-t="${t}" data-i="${i}" tabindex="0" aria-expanded="${isF}"`}>${left}<div class="eb-subs">${subs}</div></div>${edit}`;
 }
-function projCards(ro){let grand=0;const html=added().map(p=>{const c=counts(p);let projH=sup(p);
+function projCards(ro){let grand=0;const html=shown().map(p=>{const c=counts(p);let projH=sup(p);
   const body=trades.filter(x=>c[x]>0).map(t=>links(p,t).map((_,i)=>{projH+=sumH(hoursFor(p,`${t}|${i}`));return empBlock(p,t,i,ro)}).join('')).join('');
   grand+=projH;const addc=ro?'':`<span class="wk-add">${trades.map(t=>{const n=c[t]||0,lastH=n?sumH(hoursFor(p,`${t}|${n-1}`)):0;return `<span class="wa-t">${tIco(t)}${t}<button data-act="cnt5" data-p="${esc(p)}" data-t="${t}" data-d="-1" aria-label="Retirer ${t}" ${n&&!lastH?'':'disabled'}>−</button><b>${n}</b><button class="plus" data-act="cnt5" data-p="${esc(p)}" data-t="${t}" data-d="1" aria-label="Ajouter ${t}">+</button></span>`}).join('')}</span>`;
   return `<section class="wk-proj ${justAdded===p?'enter':''}"><div class="wk-ph"><strong>${esc(p)}</strong>${addc}</div><div class="eb-list">${supBlock(p,ro)}${body}</div></section>`}).join('');return {html,grand}}
@@ -1366,7 +1370,7 @@ function edRowHTML(f){
     <div class="ed-hint">${line?'Modification de la ligne — choisir l’activité pour terminer':'Choisir une ou plusieurs zones, puis une activité : la ligne est ajoutée.'}</div></div></td></tr>`;
 }
 function renderTable(){
-  const A=added(),st=step(),wrap=$('#tbl');wrap.dataset.step=st<=2?'2':st===3?'3':st===4?'pre':'4';wrap.classList.toggle('focusing',st===3&&!!focus);
+  const A=shown(),st=step(),wrap=$('#tbl');wrap.dataset.step=st<=2?'2':st===3?'3':st===4?'pre':'4';wrap.classList.toggle('focusing',st===3&&!!focus);
   $('#tblHead').innerHTML=`<div>Projet</div><div class="span2">Travailleurs</div><div></div><div></div><div></div>`;
   const rows=$('#tblRows');
   if(st===5&&(A.length)){wrap.classList.remove('focusing');rows.innerHTML=workTableHTML();placePop();return}
@@ -1402,7 +1406,7 @@ function pickName(p,t,name){
   save();renderProjects();
   if(step()===3&&at<0&&focus&&focus.p===p&&trades.every(x=>links(p,x).every(Boolean))){const key=fk(focus);setTimeout(()=>{if(fk(focus)!==key)return;const q=queue(),i=q.findIndex(f=>fk(f)===key);focus=q[i+1]||null;renderProjects();if(!focus&&activeProjects().every(x=>trades.every(tt=>links(x,tt).every(Boolean)))){toast('Tous les employés sont sélectionnés');setTimeout(()=>{if(step()===3)setStep(5)},700)}},450)}
 }
-function addProject(p){const A=added();if(!A.includes(p))A.push(p);justAdded=p;save();renderProjects()}
+function addProject(p){const A=added();if(!A.includes(p))A.push(p);if(VIEW&&!VIEW.includes(p))VIEW.push(p);justAdded=p;save();renderProjects()}
 function removeProject(p){const A=added();A.splice(A.indexOf(p),1);const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>delete state[x][key]);if(focus&&focus.p===p)focus=null;save();renderProjects();renderCalendar()}
 $('#projectsPage').addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const {act,p,t,v}=b.dataset;
@@ -1534,361 +1538,16 @@ $('#backToProjects').onclick=()=>go('projects');
 $('#nextStep').onclick=()=>{const i=STEP_IDS.indexOf(step());setStep(STEP_IDS[i+1]||6)};
 $('#prevStep').onclick=()=>{const st=step();if(st===1){go('calendar');return}setStep(STEP_IDS[STEP_IDS.indexOf(st)-1])};
 let resetArmed=null;
-function resetDay(){projects.forEach(p=>{const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>delete state[x][key])});['phase','supHours','added','step'].forEach(x=>{if(state[x])delete state[x][state.selectedDate]});Object.keys(uiSel).forEach(x=>delete uiSel[x]);save();renderAll();toast('Journée réinitialisée')}
-$('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(resetArmed){clearTimeout(resetArmed);resetArmed=null;b.classList.remove('armed');b.textContent='Réinitialiser';resetDay();return}b.classList.add('armed');b.textContent='Confirmer la réinitialisation ?';resetArmed=setTimeout(()=>{resetArmed=null;b.classList.remove('armed');b.textContent='Réinitialiser'},3000)};
-$('#finishBtn').onclick=()=>{go('calendar');toast('Feuille de temps enregistrée')};
-$('#sheetBack').onclick=closeSheet;$('#sheetBackdrop').onclick=closeSheet;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)closeSheet()});
-/* ===== gestion : employés, activités, zones par projet, favoris ===== */
-const LEVELS=['Apprenti','1re année','2e année','3e année','Compagnon'];
-const ALL_TRADES=['Menuisier','Manœuvre','Surintendant'];
-if(!state.empDb){state.empDb=[];for(const [co,list] of Object.entries(employees))list.forEach(e=>state.empDb.push({name:e.name,trade:e.trade,level:'Compagnon',company:co}));(state.customEmployees||[]).forEach(e=>state.empDb.push({name:e.name,trade:e.trade,level:'Compagnon',company:'Beaudoin Capital'}))}
-if(!state.actList){state.actList={};trades.forEach(t=>state.actList[t]=[...baseActivities[t],...((state.customActivities||{})[t]||[])])}
-state.actFav=[]; state.zoneGrid ||= {}; state.zoneFav={}; state.zoneDraft ||= {}; (state.empDb||[]).forEach(e=>{delete e.fav});
-const showFull={};
-/* data overrides used everywhere */
-function roster(t){return state.empDb.filter(e=>e.trade===t&&!e.inactive&&e.name.trim()).map(e=>({name:e.name,company:e.company||'—'}))}
-function companyOf(n){const e=state.empDb.find(x=>x.name===n);return e&&e.company?e.company:'Autres'}
-function planActs(){try{const J=JSON.parse(localStorage.getItem('journalChantier_v1'))||{},P=JSON.parse(localStorage.getItem('chantierPlan_v1'))||{},x=(P[J.project||'']||{}).export;return x&&x.fav?x.fav.ac||[]:[]}catch(e){return []}} function activities(t){return [...new Set([...planActs(),...(state.actList[t]||[]),...((state.customActivities||{})[t]||[])])]}
-const ZONE_COLS=8,ZONE_ROWS=6;
-const emptyGrid=()=>[...Array(ZONE_ROWS)].map(()=>({label:'',items:[]}));
-(function(){const oldDef=JSON.stringify(Object.entries(zoneGroups).map(([label,items])=>({label,items:[...items]})));Object.keys(state.zoneGrid).forEach(p=>{if(JSON.stringify(state.zoneGrid[p])===oldDef&&!(state.zoneFav[p]||[]).length)state.zoneGrid[p]=emptyGrid()})})();
-const AIRD_OLD=()=>{const fl=[['Sous-sol','S-S','00'],['Rez-de-chaussée','RDC','10'],['2e étage','2e','20'],['3e étage','3e','30']];
-  return [...fl.map(([label,short,pre])=>({group:'Logements',label,items:[`Toutes les unités ${short}`,...[1,2,3,4,5,6].map(n=>pre+n)]})),
-    {group:'Aires communes',label:'Corridors',items:['Corridor S-S','Corridor RDC','Corridor 2e','Corridor 3e']},
-    {group:'Aires communes',label:'Escaliers',items:['Escalier 1','Escalier 2','Escalier 3']},
-    {group:'Aires communes',label:'Salles',items:['Salle électrique','Salle buanderie',"Salle d’eau"]},
-    {group:'Extérieur',label:'Extérieur',items:['Toiture','Façade avant','Façade ruelle']}]};
-const AIRD_V2=()=>{const fl=[['S-S','00'],['RDC','10'],['2e','20'],['3e','30']];
-  return [...fl.map(([short,pre])=>({group:'Logements',label:'',items:[`Tout le ${short}`,...[1,2,3,4,5,6].map(n=>pre+n)]})),
-    {group:'Aires communes',label:'Corridors',items:['Corridor S-S','Corridor RDC','Corridor 2e','Corridor 3e']},
-    {group:'Aires communes',label:'Escaliers',items:['Escalier 1','Escalier 2','Escalier 3']},
-    {group:'Aires communes',label:'Salles',items:['Salle électrique','Salle buanderie',"Salle d’eau"]},
-    {group:'Extérieur',label:'Extérieur',items:['Toiture','Façade avant','Façade ruelle']}]};
-const range=(a,b,skip)=>{const o=[];for(let n=a;n<=b;n++)if(n!==skip)o.push(String(n));return o};
-const THEBERGE_OLD=()=>[{group:'Logements',label:'Rez-de-chaussée',items:['Toutes les unités RDC',...range(101,114,113)]},{group:'Logements',label:'2e étage',items:['Toutes les unités 2e',...range(201,219,213)]},{group:'Aires communes',label:'Aires communes',items:['Salle électrique','Salle mécanique','Escalier','Entrée principale']},{group:'Extérieur',label:'Extérieur',items:['Toiture','Façade commerce','Façade arrière','Stationnement']}];
-const chunk=(arr,n)=>{const o=[];for(let i=0;i<arr.length;i+=n)o.push(arr.slice(i,i+n));return o};
-const THEBERGE_SPLIT=()=>[{group:'Logements',label:'Rez-de-chaussée',items:['Toutes les unités RDC',...range(101,107)]},{group:'Logements',label:'Rez-de-chaussée (suite)',items:range(108,114,113)},{group:'Logements',label:'2e étage',items:['Toutes les unités 2e',...range(201,210)]},{group:'Logements',label:'2e étage (suite)',items:range(211,219,213)},{group:'Aires communes',label:'Aires communes',items:['Salle électrique','Salle mécanique','Escalier','Entrée principale']},{group:'Extérieur',label:'Extérieur',items:['Toiture','Façade commerce','Façade arrière','Stationnement']}];
-const THEBERGE_V2=()=>{const floor=(tag,units)=>chunk(units,5).map((c,i)=>({group:'Logements',label:'',offset:i?1:0,items:i?c:[tag,...c]}));
-  return [...floor('Tout le RDC',range(101,114,113)),...floor('Tout le 2e',range(201,219,213)),
-  {group:'Aires communes',label:'Aires communes',items:['Salle électrique','Salle mécanique','Escalier','Entrée principale']},
-  {group:'Extérieur',label:'Extérieur',items:['Toiture','Façade commerce','Façade arrière','Stationnement']}]};
-const floorRows=(tag,units,min)=>{const rows=chunk(units,5).map((c,i)=>({group:'Logements',label:'',offset:i?1:0,items:i?c:[tag,...c]}));return rows};
-const padRows=(rows,n)=>{while(rows.length<n)rows.push({group:'Logements',label:'',offset:1,items:[]});return rows};
-const AIRD_GRID=()=>[...[['S-S','00'],['RDC','10'],['2e','20'],['3e','30']].map(([s,pre])=>({group:'Logements',label:'',items:[`Tout le ${s}`,...[1,2,3,4,5,6].map(n=>pre+n)]})),
-  {group:'Aires communes',label:'',items:['Corridor S-S','Corridor RDC','Corridor 2e','Corridor 3e','Escalier 1','Escalier 2']},
-  {group:'Aires communes',label:'',offset:0,items:['Escalier 3','Salle électrique','Salle buanderie',"Salle d’eau"]},
-  {group:'Extérieur',label:'',items:['Toiture','Façade avant','Façade ruelle']}];
-const THEBERGE_V3=()=>[...padRows([...floorRows('Tout le RDC',range(101,114,113)),...floorRows('Tout le 2e',range(201,219,213))],8),
-  {group:'Aires communes',label:'',items:['Salle électrique','Salle mécanique','Escalier','Entrée principale']},
-  {group:'Extérieur',label:'',items:['Toiture','Façade commerce','Façade arrière','Stationnement']}];
-/* 625 Place Théberge : Tout le RDC, 101 à 112, 114 */
-const THEBERGE_V4=()=>{const u=[...range(101,112),'114'];return [{group:'Logements',label:'',items:['Tout le RDC',...u.slice(0,6)]},{group:'Logements',label:'',offset:1,items:u.slice(6,12)},{group:'Logements',label:'',offset:1,items:u.slice(12)}]};
-const THEBERGE_V5=()=>{const fl=(tag,u)=>chunk(u,6).map((c,i)=>({group:'Logements',label:'',...(i?{offset:1}:{}),items:i?c:[tag,...c]}));return [...fl('Tout le RDC',[...range(101,112),'114']),...fl('Tout le 2e',range(201,219))]};
-/* 625 Place Théberge : zones selon le tableau de David (7 par rangée) */
-const THEBERGE_GRID=()=>{const fl=(tag,u)=>chunk(u,7).map((c,i)=>({group:'Logements',label:'',...(i?{offset:1}:{}),items:i?c:[tag,...c]}));
-  return [...fl('Tout le RDC résidentiel',[...range(101,112),'114']),...fl('Tout le 2e résidentiel',range(201,219,213)),
-  {group:'Aires communes résidentiel',label:'',items:['Corridor RDC','Salle admin','Salle électrique','Vestibule','Autres sorties']},
-  {group:'Aires communes résidentiel',label:'',items:['Corridor 2e','Escalier 1','Escalier 2']},
-  {group:'Commercial RDC',label:'',items:['Commercial RDC','Commercial 2e','Toiture']}]};
-{const known=g=>[AIRD_OLD(),AIRD_V2(),THEBERGE_OLD(),THEBERGE_SPLIT(),THEBERGE_V2(),THEBERGE_V3(),THEBERGE_V4(),THEBERGE_V5()].some(x=>JSON.stringify(x)===JSON.stringify(g));
- ['2565 Aird','2575 Aird'].forEach(p=>{const g=state.zoneGrid[p];if(!g||g.every(r=>!r.items.length)||known(g))state.zoneGrid[p]=AIRD_GRID()});
- {const p='625 Place Théberge',g=state.zoneGrid[p];if(!g||g.every(r=>!r.items.length)||known(g))state.zoneGrid[p]=THEBERGE_GRID()}
- if(!state.zoneTemplate||known(state.zoneTemplate))state.zoneTemplate=AIRD_GRID();}
-/* Aird : une seule rangée par étage, sans rangées vides */
-['2565 Aird','2575 Aird'].forEach(p=>{const rows=state.zoneGrid[p];if(!rows)return;const out=[];rows.forEach(r=>{const prev=out[out.length-1];
-  if(r.group==='Logements'&&!r.items.length)return;
-  if(r.group==='Logements'&&r.offset&&prev&&prev.group==='Logements'&&prev.items.length+r.items.length<=ZONE_COLS){prev.items.push(...r.items);return}
-  out.push(r)});state.zoneGrid[p]=out});
-/* 2575 Aird = copie de la grille de 2565 Aird (une seule fois) */
-if(!state.migr2575copy&&state.zoneGrid['2565 Aird']){state.zoneGrid['2575 Aird']=JSON.parse(JSON.stringify(state.zoneGrid['2565 Aird']));const all=Object.values(state.zoneGrid['2575 Aird']).flatMap(r=>r.items),f=state.zoneFav['2575 Aird']||[];state.zoneFav['2575 Aird']=f.filter(z=>all.includes(z));state.migr2575copy=true}
-if(!state.zoneTemplate)state.zoneTemplate=AIRD_GRID();
-function zoneRowsFor(p){if(!p)return emptyGrid();return state.zoneGrid[p] ||= emptyGrid()}
-const zoneFavFor=p=>[];
-function favToggle(list,v,max=12){const i=list.indexOf(v);if(i>=0)list.splice(i,1);else{if(list.length>=max){toast('Favoris pleins (12)');return}list.push(v)}}
-/* choosers with favourites + « Voir la liste complète » */
-function favChooser(key,favs,fullHTML,chipFn){return fullHTML}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-seeall]');if(!b)return;const k=b.dataset.seeall;showFull[k]=!showFull[k];if(state.currentPage==='projects'){if(typeof placePop==='function'&&document.querySelector('.pre-panel'))placePop();else renderProjects()}});
-
-/* ---------- gérer : page ---------- */
-function renderManage(){
-  const el=$('#mgBody');if(!el)return;const mode=state.mgMode||'emp';
-  $('#mgTitle').textContent='Paramètres';
-  document.querySelectorAll('[data-mg]').forEach(b=>b.classList.toggle('on',b.dataset.mg===mode));
-  if(mode==='emp')el.innerHTML=empManageHTML();
-  else if(mode==='act')el.innerHTML=actManageHTML();
-  else if(mode==='cal')el.innerHTML=calManageHTML();
-  else el.innerHTML=projManageHTML();
-}
-const empEditing=new Set();
-function empManageHTML(){
-  const cos=[...new Set(state.empDb.map(e=>e.company).filter(Boolean))];
-  const all=state.empDb.map((e,i)=>({e,i})),act=all.filter(x=>!x.e.inactive),ina=all.filter(x=>x.e.inactive);
-  const head='<thead><tr><th>Nom</th><th>Métier</th><th>Niveau</th><th>Compagnie</th><th></th></tr></thead>';
-  const editFn=(e,i)=>`<tr class="emp-edit"><td><input class="mg-in" data-emp="${i}" data-f="name" value="${esc(e.name)}" placeholder="Nom de l’employé"></td><td><select class="mg-sel" data-emp="${i}" data-f="trade"><option value="" ${e.trade?'':'selected'}>—</option>${ALL_TRADES.map(t=>`<option ${e.trade===t?'selected':''}>${t}</option>`).join('')}</select></td><td><select class="mg-sel" data-emp="${i}" data-f="level"><option value="" ${e.level?'':'selected'}>—</option>${LEVELS.map(l=>`<option ${e.level===l?'selected':''}>${l}</option>`).join('')}</select></td><td><input class="mg-in" data-emp="${i}" data-f="company" value="${esc(e.company||'')}" list="coList" placeholder="Compagnie"></td><td class="mv-td"><button class="mg-ok" data-mga="empok" data-i="${i}">Accepter</button><button class="mv-btn ${e.inactive?'act':''}" data-mga="empmove" data-i="${i}">${e.inactive?'↑ Actif':'↓ Inactif'}</button><button class="lt-x" data-mga="delemp" data-i="${i}" aria-label="Retirer ${esc(e.name)}">×</button></td></tr>`;
-  const rowFn=(e,i)=>empEditing.has(e)?editFn(e,i):`<tr class="emp-ro"><td class="et-name">${e.name?esc(e.name):'<i>Sans nom</i>'}</td><td>${e.trade?esc(e.trade):'—'}</td><td>${e.level?esc(e.level):'—'}</td><td>${e.company?esc(e.company):'—'}</td><td class="mv-td"><button class="mg-mod" data-mga="empmod" data-i="${i}">Modifier</button><button class="mv-btn ${e.inactive?'act':''}" data-mga="empmove" data-i="${i}">${e.inactive?'↑ Actif':'↓ Inactif'}</button><button class="lt-x" data-mga="delemp" data-i="${i}" aria-label="Retirer ${esc(e.name)}">×</button></td></tr>`;
-  const tbl=(list,empty)=>`<table class="mg-t">${head}<tbody>${list.length?list.map(x=>rowFn(x.e,x.i)).join(''):`<tr><td colspan="5" class="mg-empty">${empty}</td></tr>`}</tbody></table>`;
-  return `<div class="mg-bar"><button class="mg-add" data-mga="addemp">+ Ajouter un employé</button><span class="mg-count">${act.length} actifs · ${ina.length} inactifs</span></div><div class="mg-wrap"><div class="g-group">Actifs <span class="grp-n">${act.length}</span></div>${tbl(act,'Aucun employé actif')}<div class="g-group inact">Inactifs <span class="grp-n">${ina.length}</span></div>${tbl(ina,'Aucun employé inactif')}<datalist id="coList">${cos.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>`;
-}
-function favGridHTML(items,kind){return `<div class="fav-box"><div class="fav-h">★ Favoris <span>${items.length} / 12 — toucher une case de la grille pour l’ajouter, toucher un favori pour le retirer</span></div><div class="fav-grid">${[...Array(12)].map((_,i)=>{const it=items[i];return it?`<button class="fav-cell on" data-mga="unfav" data-kind="${kind}" data-i="${i}">${it.html}</button>`:'<span class="fav-cell"></span>'}).join('')}</div></div>`}
-function actManageHTML(){
-  return trades.map(t=>`<section class="act-sec"><div class="g-box"><div class="g-h">${tIco(t)}Activités — ${tradePlural[t]}</div><div class="g-row"><div class="aw-opts wide">${activities(t).map(a=>`<span class="g-cell">${esc(a)}</span>`).join('')}<span class="g-cell blank"><input class="g-new" data-gnew="act" data-t="${t}" placeholder="+ activité" aria-label="Nouvelle activité ${t}"></span></div></div></div></section>`).join('');
-}
-let offDraft=null,mgMonth=null;
-function calManageHTML(){
-  const a=mgMonth||(mgMonth=new Date(state.viewAnchor.getFullYear(),state.viewAnchor.getMonth(),1));
-  const start=startOfWeek(a),pick=!!offDraft;
-  let cells=weekdays.map((w,i)=>`<div class="oc-wd ${i===0||i===6?'we':''}">${w}</div>`).join('');
-  for(let i=0;i<42;i++){const d=addDays(start,i),ds=fmt(d),st=dayStatus(ds),lock=st==='sign'||st==='done';
-    const off=pick?offDraft.has(ds):!!state.offDay[ds];
-    cells+=`<button class="oc-day ${d.getMonth()!==a.getMonth()?'other':''} ${[0,6].includes(d.getDay())?'we':''} ${off?'off':''} ${sameDay(d,today)?'today':''}" ${pick&&!lock?`data-mga="offday" data-d="${ds}"`:'tabindex="-1"'} ${pick&&lock?'disabled':''} aria-pressed="${off}"><b>${d.getDate()}</b>${off?'<small>Non travaillée</small>':''}</button>`}
-  const n=Object.keys(state.offDay).filter(k=>state.offDay[k]).length;
-  return `<div class="g-box oc"><div class="g-h g-h-row"><span class="oc-nav"><button class="mg-edit" data-mga="calprev" aria-label="Mois précédent">‹</button><span class="oc-m">${monthNames[a.getMonth()]} ${a.getFullYear()}</span><button class="mg-edit" data-mga="calnext" aria-label="Mois suivant">›</button></span><span class="g-actions">${pick?'<button class="mg-edit" data-mga="offcancel">Annuler</button><button class="mg-edit on" data-mga="offsave">Enregistrer</button>':'<button class="mg-edit on" data-mga="offpick">Choisir journées non travaillées</button>'}</span></div>
-  <div class="oc-grid ${pick?'pick':''}">${cells}</div><div class="g-hint">${pick?'Toucher les journées pour les marquer ou les retirer, puis Enregistrer. Les journées approuvées ne peuvent pas être changées.':`${n} journée${n>1?'s':''} non travaillée${n>1?'s':''} au total.`}</div></div>`;
-}
-let zoneEdit=false,tplArm=false,tplTimer=null;
-let zDraft=null;
-function projManageHTML(){
-  const p=state.mgProj&&projects.includes(state.mgProj)?state.mgProj:projects[0];state.mgProj=p;
-  const rows=zoneRowsFor(p),fav=zoneFavFor(p);
-  const head=`<div class="g-h g-h-row"><span>Zones de travail — ${esc(p)}</span><span class="g-actions">${zDraft?'<button class="mg-edit" data-mga="zcancel">Annuler</button><button class="mg-edit on" data-mga="zsave">Sauvegarder</button>':'<button class="mg-edit" data-mga="zedit">Modifier</button>'}</span></div>`;
-  const bar=(r,ri,src)=>r.group&&(ri===0||src[ri-1].group!==r.group);
-  let body;
-  if(zDraft){
-    body=zDraft.map((r,ri)=>`${bar(r,ri,zDraft)?`<div class="g-group"><input class="g-edit grp" data-eg="${ri}" value="${esc(r.group)}" aria-label="Nom du groupe"></div>`:''}<div class="g-row edit">${'<span class="g-cell spacer"></span>'.repeat(r.offset||0)}${r.cells.map((z,ci)=>`<span class="g-cell editc"><input class="g-edit" data-er="${ri}" data-ec="${ci}" value="${esc(z)}" placeholder="+" aria-label="Zone — rangée ${ri+1}, colonne ${ci+1}"></span>`).join('')}</div>`).join('')+'<div class="g-hint">Modifier les noms directement. Vider une case retire la zone. Tab passe à la case suivante puis à la rangée suivante.</div>';
-  }else{
-    body=rows.map((r,ri)=>`${bar(r,ri,rows)?`<div class="g-group">${esc(r.group)}</div>`:''}<div class="g-row">${'<span class="g-cell spacer"></span>'.repeat(r.offset||0)}${r.items.map(z=>`<span class="g-cell">${esc(z)}</span>`).join('')}${[...Array(Math.max(0,ZONE_COLS-r.items.length-(r.offset||0)))].map((_,si)=>`<span class="g-cell blank"><input class="g-new" data-gnew="zone" data-r="${ri}" data-slot="${si}" value="${esc(state.zoneDraft[`${p}|${ri}|${si}`]||'')}" placeholder="+" aria-label="Nouvelle zone — rangée ${ri+1}"></span>`).join('')}</div>`).join('')+`<div class="g-row"><span class="g-lbl blank"><input class="g-new" data-gnew="row" placeholder="+ nouvelle rangée" aria-label="Nouvelle rangée"></span></div>`;
-  }
-  return `<div class="mg-tabs">${projects.map(x=>`<button class="ptab ${x===p?'active':''}" data-mga="proj" data-p="${esc(x)}">${esc(x)}</button>`).join('')}</div>`+`<div class="g-box">${head}${body}</div>`;
-}
-function saveZoneDraft(){
-  const p=state.mgProj,rows=zoneRowsFor(p),fav=zoneFavFor(p);
-  zDraft.forEach((d,ri)=>{const r=rows[ri];if(!r)return;const old=r.items;
-    old.forEach((z,j)=>{const nv=(d.cells[j]||'').trim();if(!nv){const k=fav.indexOf(z);if(k>=0)fav.splice(k,1)}else if(nv!==z)renameZone(p,z,nv)});
-    r.items=d.cells.map(c=>c.trim()).filter(Boolean);
-  });
-  const ren={};zDraft.forEach((d,ri)=>{if(rows[ri]&&d.group!==rows[ri].group&&d.group.trim())ren[rows[ri].group]=d.group.trim()});
-  rows.forEach(r=>{if(ren[r.group])r.group=ren[r.group]});
-  zDraft=null;save();renderManage();toast('Zones sauvegardées');
-}
-function renameZone(p,oldV,newV){const f=zoneFavFor(p),i=f.indexOf(oldV);if(i>=0)f[i]=newV;Object.keys(state.work).forEach(k=>{if(k.endsWith('||'+p)){const z=state.work[k].zones||[];const j=z.indexOf(oldV);if(j>=0)z[j]=newV}})}
-$('#managePage').addEventListener('click',e=>{const b=e.target.closest('[data-mga]');if(!b)return;const a=b.dataset.mga;
-  if(a==='addemp'){const ne={name:'',trade:'',level:'',company:''};state.empDb.unshift(ne);empEditing.add(ne);save();renderManage();const f=document.querySelector('[data-emp="0"][data-f="name"]');if(f)f.focus()}
-  else if(a==='favemp'){const e=state.empDb[Number(b.dataset.i)];if(!e.fav){if(!e.trade||e.trade==='Surintendant'){toast('Choisir le métier Menuisier ou Manœuvre');return}if(state.empDb.filter(x=>x.fav&&x.trade===e.trade).length>=12){toast('Favoris pleins (12)');return}}e.fav=!e.fav;save();renderManage()}
-  else if(a==='empmod'){empEditing.add(state.empDb[Number(b.dataset.i)]);renderManage();const f=document.querySelector(`[data-emp="${b.dataset.i}"][data-f="name"]`);if(f)f.focus()}
-  else if(a==='empok'){const i=Number(b.dataset.i),e=state.empDb[i];e.name=e.name.trim();e.company=(e.company||'').trim();empEditing.delete(e);if(!e.name&&!e.trade&&!e.company)state.empDb.splice(i,1);save();renderManage()}
-  else if(a==='empmove'){const e=state.empDb[Number(b.dataset.i)];e.inactive=!e.inactive;save();renderManage();toast(`${e.name||'Employé'} → ${e.inactive?'Inactifs':'Actifs'}`)}
-  else if(a==='delemp'){state.empDb.splice(Number(b.dataset.i),1);save();renderManage()}
-  else if(a==='favact'){const t=b.dataset.t,v=b.dataset.v,i=state.actFav.findIndex(f=>f.t===t&&f.a===v);if(i>=0)state.actFav.splice(i,1);else if(state.actFav.filter(f=>f.t===t).length>=12)toast('Favoris pleins (12)');else state.actFav.push({t,a:v});save();renderManage()}
-  else if(a==='favzone'){favToggle(zoneFavFor(state.mgProj),b.dataset.v);save();renderManage()}
-  else if(a==='unfav'){const i=Number(b.dataset.i);if(b.dataset.kind==='act')state.actFav.splice(i,1);else zoneFavFor(state.mgProj).splice(i,1);save();renderManage()}
-  else if(a==='proj'){zDraft=null;state.mgProj=b.dataset.p;save();renderManage()}
-  else if(a==='zedit'){const rows=zoneRowsFor(state.mgProj);zDraft=rows.map(r=>{const n=Math.max(ZONE_COLS-(r.offset||0),r.items.length);return {group:r.group||'',offset:r.offset||0,cells:[...r.items,...Array(n-r.items.length).fill('')]}});renderManage();const f=document.querySelector('[data-er]');if(f)f.focus()}
-  else if(a==='zsave'){if(zDraft)saveZoneDraft()}
-  else if(a==='calprev'||a==='calnext'){mgMonth=new Date(mgMonth.getFullYear(),mgMonth.getMonth()+(a==='calprev'?-1:1),1);renderManage()}
-  else if(a==='offpick'){offDraft=new Set(Object.keys(state.offDay).filter(k=>state.offDay[k]));renderManage()}
-  else if(a==='offday'){const d=b.dataset.d;offDraft.has(d)?offDraft.delete(d):offDraft.add(d);renderManage()}
-  else if(a==='offcancel'){offDraft=null;renderManage()}
-  else if(a==='offsave'){state.offDay={};offDraft.forEach(d=>state.offDay[d]=true);offDraft=null;save();renderManage();toast('Journées non travaillées enregistrées')}
-  else if(a==='zcancel'){zDraft=null;renderManage()}
-  else if(a==='ztplsave'){state.zoneTemplate=JSON.parse(JSON.stringify(zoneRowsFor(state.mgProj)));save();renderManage();toast('Template enregistré')}
-  else if(a==='ztpluse'){if(!state.zoneTemplate)return;const rows=zoneRowsFor(state.mgProj);const hasData=rows.some(r=>r.items.length||r.label);if(hasData&&!tplArm){tplArm=true;clearTimeout(tplTimer);tplTimer=setTimeout(()=>{tplArm=false;renderManage()},3000);renderManage();return}tplArm=false;state.zoneGrid[state.mgProj]=JSON.parse(JSON.stringify(state.zoneTemplate));const all=zoneListAll(state.mgProj),f=zoneFavFor(state.mgProj);for(let i=f.length-1;i>=0;i--)if(!all.includes(f[i]))f.splice(i,1);save();renderManage();toast('Template appliqué à '+state.mgProj)}
-  else if(a==='zdel'){const r=zoneRowsFor(state.mgProj)[Number(b.dataset.r)],z=r.items[Number(b.dataset.i)];r.items.splice(Number(b.dataset.i),1);const f=zoneFavFor(state.mgProj),k=f.indexOf(z);if(k>=0)f.splice(k,1);save();renderManage()}
-  else if(a==='zdelrow'){const rows=zoneRowsFor(state.mgProj),r=rows[Number(b.dataset.r)];const f=zoneFavFor(state.mgProj);r.items.forEach(z=>{const k=f.indexOf(z);if(k>=0)f.splice(k,1)});rows.splice(Number(b.dataset.r),1);save();renderManage()}
-});
-$('#managePage').addEventListener('change',e=>{const x=e.target;if(zDraft&&x.classList.contains('g-edit'))return;if(x.classList.contains('g-edit')){const rows=zoneRowsFor(state.mgProj),r=rows[Number(x.dataset.zr)],v=x.value.trim();if(!v&&x.dataset.zi!=null){x.value=r.items[Number(x.dataset.zi)];return}if(x.dataset.zi!=null){const i=Number(x.dataset.zi),old=r.items[i];if(old!==v){r.items[i]=v;renameZone(state.mgProj,old,v)}}else r.label=v;save();return}if(x.dataset.emp==null)return;const emp=state.empDb[Number(x.dataset.emp)];if(!emp)return;emp[x.dataset.f]=x.value.trim();save()});
-function commitNew(x,refocus){const v=x.value.trim();if(!v||x.dataset.done)return;x.dataset.done='1';const k=x.dataset.gnew;Object.keys(state.zoneDraft).forEach(d=>{if(d.startsWith(state.mgProj+'|'))delete state.zoneDraft[d]});
-  if(k==='act'){const tr=x.dataset.t;if(!activities(tr).includes(v))state.actList[tr].push(v)}
-  else if(k==='zone'){const r=zoneRowsFor(state.mgProj)[Number(x.dataset.r)];if(r&&!r.items.includes(v))r.items.push(v)}
-  else if(k==='row'){const rs=zoneRowsFor(state.mgProj);rs.push({group:(rs[rs.length-1]||{}).group,label:v,items:[]})}
-  save();
-  /* keep what is being typed in the other empty slots */
-  const pending=[...document.querySelectorAll('#mgBody input.g-new')].filter(i=>i!==x&&i.value.trim()&&!i.dataset.done).map(i=>({k:i.dataset.gnew,r:i.dataset.r,t:i.dataset.t,v:i.value.trim()}));
-  pending.forEach(pp=>{pp.done=true;if(pp.k==='zone'){const r=zoneRowsFor(state.mgProj)[Number(pp.r)];if(r&&!r.items.includes(pp.v))r.items.push(pp.v)}else if(pp.k==='act'){if(!activities(pp.t).includes(pp.v))state.actList[pp.t].push(pp.v)}else if(pp.k==='row'){zoneRowsFor(state.mgProj).push({label:pp.v,items:[]})}});
-  save();renderManage();
-  if(refocus){const sel=k==='act'?`[data-gnew="act"][data-t="${x.dataset.t}"]`:k==='zone'?`[data-gnew="zone"][data-r="${x.dataset.r}"]`:'[data-gnew="row"]';const again=document.querySelector(sel);if(again)again.focus()}
-}
-$('#managePage').addEventListener('keydown',e=>{const x=e.target;if(e.key==='Enter'&&x.dataset&&x.dataset.gnew){e.preventDefault();commitNew(x,true)}});
-$('#managePage').addEventListener('change',e=>{const x=e.target;if(x.dataset&&x.dataset.gnew)commitNew(x,false)});
-$('#managePage').addEventListener('input',e=>{const x=e.target;if(zDraft&&x.dataset.er!=null){zDraft[Number(x.dataset.er)].cells[Number(x.dataset.ec)]=x.value;return}if(zDraft&&x.dataset.eg!=null){const gi=Number(x.dataset.eg),og=zDraft[gi].group;for(let k=gi;k<zDraft.length&&(k===gi||zDraft[k].group===og);k++)zDraft[k].group=x.value;return}if(x.dataset.gnew==='zone'){const key=`${state.mgProj}|${x.dataset.r}|${x.dataset.slot}`;if(x.value.trim())state.zoneDraft[key]=x.value;else delete state.zoneDraft[key];save()}else if(x.dataset.emp!=null){const emp=state.empDb[Number(x.dataset.emp)];if(emp){emp[x.dataset.f]=x.value;save()}}});
-document.querySelectorAll('[data-mg]').forEach(b=>b.onclick=()=>{state.mgMode=b.dataset.mg;go('manage')});
-$('#mgBack').onclick=()=>go('calendar');
-
-/* ===== statuts, approbation signée, calendrier et feuille de temps hebdomadaire ===== */
-['approved','review','approvedAt','signed','offDay','weekApproved','weekSigned'].forEach(x=>state[x] ||= {});
-const ST_LBL={vide:'Vide',cours:'En cours',appro:'En attente d’approbation',sign:'En attente de signature',done:'Complété',off:'Non travaillée'};
-function dayStatus(ds){if(state.offDay[ds])return 'off';if(state.signed[ds])return 'done';if(state.approved[ds])return 'sign';if(state.review[ds])return 'appro';return dayHasData(ds)?'cours':'vide'}
-function weekStatus(ws){if(state.weekSigned[ws])return 'done';if(state.weekApproved[ws])return 'sign';const [y,m,d]=ws.split('-').map(Number),s0=new Date(y,m-1,d);const st=[...Array(7)].map((_,i)=>dayStatus(fmt(addDays(s0,i)))).filter(x=>x!=='vide'&&x!=='off');if(!st.length)return 'vide';return st.every(x=>x==='done')?'appro':'cours'}
-const fmtStamp=t=>{const d=new Date(t);return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()} à ${String(d.getHours()).padStart(2,'0')} h ${String(d.getMinutes()).padStart(2,'0')}`};
-/* flash « photo » */
-function flash(){if(reduceMotion())return;const f=document.createElement('div');f.className='cam-flash';document.body.appendChild(f);setTimeout(()=>f.remove(),900)}
-/* signature à la main */
-function mountSigs(){document.querySelectorAll('canvas.sig:not([data-m])').forEach(cv=>{cv.dataset.m='1';const r=cv.getBoundingClientRect();const dpr=window.devicePixelRatio||1;cv.width=Math.max(300,Math.round(cv.offsetWidth*dpr));cv.height=Math.round(cv.offsetHeight*dpr);const ctx=cv.getContext('2d');ctx.lineWidth=2.2*dpr;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111';let down=false,last=null;
-  const pt=e=>{const b=cv.getBoundingClientRect();return [(e.clientX-b.left)*cv.width/b.width,(e.clientY-b.top)*cv.height/b.height]};
-  cv.onpointerdown=e=>{down=true;last=pt(e);cv.setPointerCapture(e.pointerId);cv.dataset.ink='1';cv.closest('.sig-wrap')?.classList.add('inked')};
-  cv.onpointermove=e=>{if(!down)return;const p=pt(e);ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
-  cv.onpointerup=cv.onpointercancel=()=>{down=false}})}
-function clearSig(id){const cv=document.getElementById(id);if(!cv)return;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);delete cv.dataset.ink;cv.closest('.sig-wrap')?.classList.remove('inked')}
-function readSig(id){const cv=document.getElementById(id);return cv&&cv.dataset.ink?cv.toDataURL('image/png'):null}
-function sigBlock(id,signed,label){return signed?`<div class="sig-done"><div class="sig-lbl">${label}</div><img src="${signed.sig}" alt="Signature"><div class="sig-at">Complété le ${fmtStamp(signed.at)}</div></div>`:`<div class="sig-wrap"><div class="sig-lbl">${label}</div><canvas id="${id}" class="sig" aria-label="Zone de signature"></canvas><div class="sig-hint">Signer ici avec le doigt ou le crayon</div><button class="sig-clear" data-sigclear="${id}">Effacer</button></div>`}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-sigclear]');if(b)clearSig(b.dataset.sigclear)});
-
-/* calendrier */
-function renderCalendar(){
-  const cal=$('#calendar');cal.innerHTML='';$('#monthTitle').textContent=`${monthNames[state.viewAnchor.getMonth()]} ${state.viewAnchor.getFullYear()}`;
-  weekdays.forEach((w,i)=>{const c=document.createElement('div');c.className='cell weekday'+((i===0||i===6)?' weekend':'');c.textContent=w;cal.appendChild(c)});
-  const start=calendarStart(state.viewAnchor),cw=startOfWeek(today);const wl=$('#weekList');if(wl)wl.innerHTML='';
-  for(let i=0;i<42;i++){
-    const d=addDays(start,i),ds=fmt(d),ws=fmt(startOfWeek(d)),wkDone=weekStatus(ws)==='done',st=dayStatus(ds),b=document.createElement('div'),weekend=[0,6].includes(d.getDay());
-    b.className='cell day'+(weekend?' weekend':'')+(d.getMonth()!==state.viewAnchor.getMonth()?' other-month':'')+(d>=cw&&d<=addDays(cw,6)?' current-week':'')+(wkDone?' wk-done':'');
-    b.setAttribute('role','button');b.tabIndex=0;b.setAttribute('aria-label',`${d.getDate()} ${monthNames[d.getMonth()]} — ${ST_LBL[st]}`);
-    b.innerHTML=`<span class="day-tag st-${st} ${sameDay(d,today)?'is-today':''} ${state.selectedDate===ds?'is-sel':''}"><b class="dn">${d.getDate()}</b>${st!=='vide'?`<small>${ST_LBL[st]}</small>`:''}</span>`;
-    const open=()=>{state.selectedDate=ds;state.viewAnchor=new Date(d);if(st==='sign'||st==='done'){state.step[ds]=5;state.review[ds]=true}go('projects')};
-    b.onclick=open;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}};
-    cal.appendChild(b);
-    if(i%7===6&&wl){const wsd=fmt(addDays(d,-6)),wst=weekStatus(wsd),s0=addDays(d,-6);const row=document.createElement('div');row.className='wk-row';row.innerHTML=`<button class="wk-tag st-${wst}" aria-label="Feuille de temps du ${s0.getDate()} au ${d.getDate()} ${monthNames[d.getMonth()]} — ${ST_LBL[wst]}"><b>${ST_LBL[wst]}</b></button>`;row.querySelector('button').onclick=()=>{state.sheetWeek=wsd;go('timesheet')};wl.appendChild(row)}
-  }
-}
-function dayMenu(d){
-  const ds=fmt(d),st=dayStatus(ds),lbl=`${fullDays[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
-  const openDay=()=>{closeSheet();state.selectedDate=ds;state.viewAnchor=new Date(d);go('projects')};
-  let h=`<div class="dm-st">Statut : <b>${ST_LBL[st]}</b></div><div class="dm-btns">`;
-  if(st==='off')h+=`<button class="dm-btn" data-dm="restore">Rétablir la journée</button>`;
-  else{h+=st==='sign'||st==='done'?`<button class="dm-btn main" data-dm="view">Visualiser</button>`:`<button class="dm-btn main" data-dm="open">${st==='vide'?'Saisir la journée':'Continuer la saisie'}</button>`;
-    if(st==='vide'||st==='cours')h+=`<button class="dm-btn off" data-dm="off">Journée non travaillée</button>`}
-  h+='</div>';
-  openSheet(`${lbl}<span>${ST_LBL[st]}</span>`,h,body=>{
-    body.querySelectorAll('[data-dm]').forEach(bt=>bt.onclick=()=>{const a=bt.dataset.dm;
-      if(a==='open')openDay();
-      else if(a==='view'){state.step[ds]=5;state.review[ds]=true;openDay()}
-      else if(a==='off'){state.offDay[ds]=true;save();closeSheet();renderCalendar();toast('Journée non travaillée')}
-      else if(a==='restore'){delete state.offDay[ds];save();closeSheet();renderCalendar();toast('Journée rétablie')}})});
-}
-
-/* feuille de temps hebdomadaire */
-function renderTimesheet(){
-  const el=$('#tsTable');if(!el)return;
-  const ws=state.sheetWeek||fmt(startOfWeek(today));const [y,m,d0]=ws.split('-').map(Number);const start=new Date(y,m-1,d0);
-  const days=[...Array(7)].map((_,i)=>addDays(start,i));const end=days[6];
-  $('#tsWeek').textContent=`Semaine du ${start.getDate()} ${monthNames[start.getMonth()]} au ${end.getDate()} ${monthNames[end.getMonth()]} ${end.getFullYear()}`;
-  const rows={};
-  days.forEach((d,di)=>{const ds=fmt(d);projects.forEach(p=>{const key=`${ds}||${p}`,L=state.links[key],H=state.hours[key],C=state.laborCounts[key];if(!L||!C)return;
-    trades.forEach(t=>{const n=C[t]||0,arr=L[t]||[];for(let i=0;i<n;i++){const name=arr[i];if(!name)continue;const r=(rows[name] ||= {name,trade:t,days:[0,0,0,0,0,0,0]});r.days[di]+=((H&&H[`${t}|${i}`])||[]).reduce((s,e)=>s+e.h,0)}})})});
-  days.forEach((d,di)=>{const sh=state.supHours[fmt(d)]||{};const h=Object.values(sh).reduce((a,b)=>a+b,0);if(h){const r=(rows['Steeve Pitre'] ||= {name:'Steeve Pitre',trade:'Surintendant',days:[0,0,0,0,0,0,0]});r.days[di]+=h}});
-  const list=Object.values(rows),wst=weekStatus(ws),approved=!!state.weekApproved[ws],signed=state.weekSigned[ws];
-  const ab=$('#tsApprove');ab.hidden=approved||!list.length;
-  $('#tsStatus').textContent=ST_LBL[wst];$('#tsStatus').className='ts-status wst-'+wst;
-  if(!list.length){el.innerHTML='<div class="ts-empty">Aucune heure inscrite pour cette semaine.</div>';return}
-  const groups={};list.forEach(r=>(groups[companyOf(r.name)] ||= []).push(r));
-  const order=[...new Set([...state.empDb.map(e=>e.company||'Autres'),'Autres'])].filter(g=>groups[g]);
-  const dayTot=[0,0,0,0,0,0,0];let grand=0;
-  const head=`<tr><th class="l">Employé</th><th class="l">Métier</th>${days.map((d,i)=>`<th class="${i===0||i===6?'we':''}">${weekdays[i]}<small>${d.getDate()}</small></th>`).join('')}<th>Total</th></tr>`;
-  const body=order.map(g=>`<tr class="ts-grp"><td colspan="10">${esc(g)}</td></tr>`+groups[g].sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(r=>{const tot=r.days.reduce((a,b)=>a+b,0);grand+=tot;r.days.forEach((h,i)=>dayTot[i]+=h);
-    return `<tr><td class="l nm">${esc(r.name)}</td><td class="l tr">${tIco(r.trade)}${r.trade}</td>${r.days.map((h,i)=>`<td class="${i===0||i===6?'we':''} ${h?'':'z'}">${h?fmtH(h):'—'}</td>`).join('')}<td class="tt">${fmtH(tot)}</td></tr>`}).join('')).join('');
-  const foot=`<tr class="ts-foot"><td class="l" colspan="2">Total</td>${dayTot.map((h,i)=>`<td class="${i===0||i===6?'we':''}">${h?fmtH(h):'—'}</td>`).join('')}<td class="tt">${fmtH(grand)}</td></tr>`;
-  const table=`<div class="ts-wrap ${approved?'bw':''}">${approved?`<div class="doc-stamp">Feuille de temps approuvée le ${fmtStamp(state.weekApproved[ws])}</div>`:''}<table class="ts-t"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>`;
-  el.innerHTML=table+(approved?`<div class="ts-sign">${sigBlock('sigWeek',signed,'Signature du surintendant')}${signed?'':`<div class="ts-sign-btns"><button class="rv-btn modify" id="tsUnapprove">Modifier</button><button class="rv-btn approve" id="tsComplete">Compléter</button></div>`}</div>`:'');
-  const cb=$('#tsComplete');if(cb)cb.onclick=()=>{const sig=readSig('sigWeek');if(!sig){toast('Signer avant de compléter');return}state.weekSigned[ws]={sig,at:Date.now()};save();renderTimesheet();renderCalendar();toast('Feuille de temps complétée')};
-  const ub=$('#tsUnapprove');if(ub)ub.onclick=()=>{delete state.weekApproved[ws];save();renderTimesheet();renderCalendar()};
-  mountSigs();
-}
-$('#tsApprove').onclick=()=>{const ws=state.sheetWeek;state.weekApproved[ws]=Date.now();save();flash();setTimeout(()=>{renderTimesheet();renderCalendar()},180);setTimeout(()=>tsExport(ws),400)};
-/* ---------- export de la feuille de temps : un PDF et un JSON (format Monday) par projet ---------- */
-const OUTBOX='chantierOutbox_v1',DBXK='chantierDropbox_v1',DBX_APP='ikahlgofasunxgg';
-setTimeout(async()=>{const ex=new URLSearchParams(location.search).get('export');if(!ex)return;try{await tsExport(ex)}catch(e){}try{parent.postMessage({fdtExported:ex},'*')}catch(e){}},600);
-const J0=()=>{try{return JSON.parse(localStorage.getItem('journalChantier_v1'))||{}}catch(e){return {}}};
-const supName=()=>J0().supName||'Steeve Pitre';
-const fsafe=t=>String(t||'').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim();
-const p2=n=>String(n).padStart(2,'0'),stampName=(d=new Date())=>`${fmt(d)} ${p2(d.getHours())}-${p2(d.getMinutes())}-${p2(d.getSeconds())}`;
-const DAYN=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-function tsData(ws){const [y,m,d0]=ws.split('-').map(Number),start=new Date(y,m-1,d0),days=[...Array(7)].map((_,i)=>addDays(start,i)),fri=fmt(days[5]);
-  const per={};const add=(p,name,trade,di,h)=>{if(!h)return;const P=(per[p] ||= {});const r=(P[name] ||= {name,trade,days:[0,0,0,0,0,0,0]});r.days[di]+=h};
-  days.forEach((d,di)=>{const ds=fmt(d);projects.forEach(p=>{const key=`${ds}||${p}`,L=state.links[key],H=state.hours[key],C=state.laborCounts[key];
-    if(L&&C)trades.forEach(t=>{const n=C[t]||0,arr=L[t]||[];for(let i=0;i<n;i++){const name=arr[i];if(name)add(p,name,t,di,((H&&H[`${t}|${i}`])||[]).reduce((s,e)=>s+e.h,0))}});
-    add(p,supName(),'Surintendant',di,(state.supHours[ds]||{})[p]||0)})});
-  return {start,days,fri,per}}
-function tsJson(ws,p,rows,fri){const r2=x=>Math.round(x*100)/100;
-  return {type:'feuille de temps',id:p+'|'+fri,version:1,statut:'approuvé',cree:new Date().toISOString(),projet:p,semaine_debut:ws,semaine_finissant_le:fri,surintendant:supName(),
-    elements:Object.values(rows).sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(r=>({nom:r.name,"Employé":r.name,"Métier":r.trade,Entreprise:companyOf(r.name),
-      sous_elements:[{nom:p,...Object.fromEntries(DAYN.map((n,i)=>[n,r2(r.days[i])])),"Total heures":r2(r.days.reduce((a,b)=>a+b,0))}]}))}}
-function loadPdfLib(){return window.jspdf?Promise.resolve():new Promise((res,rej)=>{const x=document.createElement('script');x.src='./lib/jspdf.umd.min.js';x.onload=res;x.onerror=()=>rej(new Error('PDF non chargé'));document.head.appendChild(x)})}
-async function tsPdf(ws,p,rows,start,days,fri){await loadPdfLib();const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'pt',format:'letter',orientation:'landscape'});
-  const W=pdf.internal.pageSize.getWidth(),M=40;let y=48;const dl=d=>`${d.getDate()} ${monthNames[d.getMonth()]}`;
-  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.setTextColor(47,138,87);pdf.text((J0().coName||'Beaudoin Capital').toUpperCase(),M,y);
-  pdf.setTextColor(23,32,42);pdf.setFontSize(20);pdf.text(p+' · Feuille de temps',M,y+=26);
-  pdf.setFont('helvetica','normal');pdf.setFontSize(11);pdf.text(`Semaine finissant le ${fri} · du ${dl(days[0])} au ${dl(days[6])} ${days[6].getFullYear()} · Surintendant : ${supName()}`,M,y+=18);
-  const cols=[160,90,...Array(7).fill(52),60],x0=[M];cols.forEach((c,i)=>x0.push(x0[i]+c));y+=26;
-  const row=(cells,bold,fill)=>{if(fill){pdf.setFillColor(...fill);pdf.rect(M,y-13,x0[x0.length-1]-M,20,'F')}pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(10);
-    cells.forEach((c,i)=>pdf.text(String(c),i<2?x0[i]+4:x0[i]+cols[i]-6,y,{align:i<2?'left':'right'}));pdf.setDrawColor(223,228,225);pdf.line(M,y+7,x0[x0.length-1],y+7);y+=20};
-  row(['Employé','Métier',...days.map((d,i)=>DAYN[i].slice(0,3)+' '+d.getDate()),'Total'],true,[232,243,236]);
-  const tot=[0,0,0,0,0,0,0];const fh=h=>h?(Math.round(h*100)/100).toString().replace('.',','):'—';
-  Object.values(rows).sort((a,b)=>a.name.localeCompare(b.name,'fr')).forEach(r=>{r.days.forEach((h,i)=>tot[i]+=h);row([r.name,r.trade,...r.days.map(fh),fh(r.days.reduce((a,b)=>a+b,0))])});
-  row(['Total','',...tot.map(fh),fh(tot.reduce((a,b)=>a+b,0))],true,[243,245,244]);
-  y+=24;pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(91,100,112);pdf.text(`Approuvée le ${new Date(state.weekApproved[ws]||Date.now()).toLocaleString('fr-CA')} · généré par Chantier`,M,y);
-  pdf.setProperties({title:p+' · Feuille de temps · semaine finissant le '+fri,subject:'Feuille de temps '+p+' '+fri,author:supName(),keywords:[p,'Feuille de temps',fri,supName(),...Object.keys(rows)].join(', '),creator:'Chantier · '+(J0().coName||'Beaudoin Capital')});
-  return pdf.output('datauristring').split(',')[1]}
-const obx=()=>{try{return JSON.parse(localStorage.getItem(OUTBOX)||'[]')}catch(e){return []}};
-const obxSet=a=>{try{localStorage.setItem(OUTBOX,JSON.stringify(a))}catch(e){}};
-async function tsExport(ws){try{const {start,days,fri,per}=tsData(ws),box=obx().filter(x=>x.week!==ws);
-    for(const [p,rows] of Object.entries(per)){const dir=fsafe(p)+'/Feuilles de temps';
-      box.push({id:'fdt|'+p+'|'+ws,week:ws,name:`${fsafe(p)} feuille de temps semaine finissant le ${fri}.pdf`,dir,mime:'application/pdf',b64:await tsPdf(ws,p,rows,start,days,fri),mode:'overwrite'});
-      box.push({id:'fdtj|'+p+'|'+ws,week:ws,name:`${stampName()} feuille de temps ${fsafe(p)}.json`,dir:'Monday',mime:'application/json',text:JSON.stringify(tsJson(ws,p,rows,fri),null,2),mode:'add'})}
-    obxSet(box);const r=await obxFlush();flashMsg(r)}catch(e){flashMsg({err:e.message})}}
-/* envoi direct si Dropbox est connecté (même connexion que le journal) */
-const dbx=()=>{try{return JSON.parse(localStorage.getItem(DBXK)||'{}')}catch(e){return {}}};
-async function dbxAccess(){const D=dbx();if(!D.refresh)return null;if(D.access&&D.exp>Date.now())return D.access;
-  const r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',body:new URLSearchParams({grant_type:'refresh_token',refresh_token:D.refresh,client_id:DBX_APP})});const j=await r.json();if(!r.ok)throw new Error(j.error_description||'Dropbox');
-  D.access=j.access_token;D.exp=Date.now()+(j.expires_in||14400)*1000-60000;localStorage.setItem(DBXK,JSON.stringify(D));return D.access}
-const dbxArg=o=>JSON.stringify(o).replace(/[\u007f-￿]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
-async function obxFlush(){const t=await dbxAccess().catch(()=>null);const box=obx();if(!t)return {wait:box.length};let ok=0;const left=[];
-  const root=((dbx().dir||'/JOURNAL DE CHANTIER').trim().replace(/\/+$/,''));
-  for(const x of box){try{const body=x.b64?Uint8Array.from(atob(x.b64),c=>c.charCodeAt(0)):new Blob([x.text],{type:x.mime});
-      const r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/octet-stream','Dropbox-API-Arg':dbxArg({path:root+'/'+x.dir+'/'+x.name,mode:x.mode==='overwrite'?'overwrite':'add',autorename:x.mode!=='overwrite',mute:true})},body});
-      if(!r.ok)throw 0;ok++}catch(e){left.push(x)}}
-  obxSet(left);return {ok,wait:left.length}}
-function flashMsg(r){const m=r.err?'Export impossible : '+r.err:r.ok&&!r.wait?`Feuille de temps envoyée dans Dropbox ✓`:r.ok?`${r.ok} envoyé(s) · ${r.wait} en attente`:`Feuille de temps prête · envoi au prochain « Tout enregistrer »`;
-  let t=document.getElementById('tsToast');if(!t){t=document.createElement('div');t.id='tsToast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#173d2d;color:#fff;font:800 14px -apple-system,Segoe UI,sans-serif;padding:12px 18px;border-radius:999px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2)';document.body.appendChild(t)}
-  t.textContent=m;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,4000)}
-function renderAll(){
-  if(!['calendar','projects','hours','timesheet','manage'].includes(state.currentPage))state.currentPage='calendar';
-  renderCalendar();renderProjects();renderHours();renderTimesheet();renderManage();
-  ['calendarPage','projectsPage','hoursPage','timesheetPage','managePage'].forEach(id=>$('#'+id).classList.remove('active'));
-  $('#'+state.currentPage+'Page').classList.add('active');
-  $('#app').classList.toggle('wide',state.currentPage==='projects');
-  $('#app').classList.toggle('mid',state.currentPage==='calendar'||state.currentPage==='timesheet'||state.currentPage==='manage');fitIpad();mountSigs();
-}
-$('#tsBack').onclick=()=>go('calendar');
-
-/* journée non travaillée : bouton à droite de Réinitialiser */
-function syncOffBtn(){const b=$('#offBtn');if(!b)return;const off=!!state.offDay[state.selectedDate],st=dayStatus(state.selectedDate);b.textContent=off?'Rétablir la journée':'Journée non travaillée';b.classList.toggle('on',off);b.hidden=st==='sign'||st==='done'}
-if($('#offBtn'))$('#offBtn').onclick=()=>{const ds=state.selectedDate;if(state.offDay[ds]){delete state.offDay[ds];save();syncOffBtn();renderCalendar();toast('Journée rétablie')}else{state.offDay[ds]=true;save();go('calendar');toast('Journée non travaillée')}};
-const _rp=renderProjects;renderProjects=function(){_rp();syncOffBtn()};
-
-$('#toCalBtn').onclick=()=>go('calendar');
-
-renderAll();
-</script>
-<style>#projectsPage .ip-head{display:none!important}#pool{display:none!important}#projectsPage .ip-foot{display:none!important}.ip-body,.ip-body.no-pool{grid-template-columns:1fr!important}</style>
-<script>
-/* pont avec le cadre : la rangée des projets ajoute ou retire un projet ; Continuer est dans le menu */
-
-/* retirer un employé (et ses heures) ; une journée approuvée revient en saisie */
-function removeEmp(p,t,i){const ds=state.selectedDate,c=counts(p),L=links(p,t),nm=L[i]||`${t} ${i+1}`,n=c[t]||0;if(i>=n)return;
-  const H=(state.hours[k(p)] ||= {}),has=sumH(H[`${t}|${i}`]||[])>0,apd=!!(state.approved&&state.approved[ds]);
-  if((has||apd)&&!confirm(`Retirer ${nm} de ${p} ?`+(has?' Ses heures seront effacées.':'')+(apd?' La journée devra être approuvée de nouveau.':'')))return;
-  for(let j=i;j<n-1;j++)H[`${t}|${j}`]=H[`${t}|${j+1}`]||[];delete H[`${t}|${n-1}`];
-  L.splice(i,1);c[t]=n-1;links(p,t);
-  if(apd){state.approved[ds]=false;if(state.approvedAt)delete state.approvedAt[ds]}if(state.review)state.review[ds]=false;
-  focus=null;save();renderProjects();renderCalendar();toast(nm+' retiré')}
-/* réinitialiser la journée : efface projets, travailleurs, heures, approbation et signature */
-function resetDay(){const ds=state.selectedDate;
-  if(!confirm('Réinitialiser la feuille de temps du '+dateLabel()+' ? Tous les projets, travailleurs, heures, approbation et signature de cette journée seront effacés.'))return;
-  added().slice().forEach(p=>{const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>{if(state[x])delete state[x][key]})});
-  state.added[ds]=[];['approved','approvedAt','review','signed','step'].forEach(x=>{if(state[x])delete state[x][ds]});if(state.supHours)delete state.supHours[ds];
-  focus=null;save();renderProjects();renderCalendar();toast('Journée réinitialisée')}
+function resetDay(){const ds=state.selectedDate,P=shown().slice();if(!P.length)return;
+  if(!confirm('Réinitialiser la feuille de temps de '+P.join(', ')+' du '+dateLabel()+' ? Les travailleurs et heures de '+(P.length>1?'ces projets':'ce projet')+' seront effacés.'))return;
+  P.forEach(p=>{const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>{if(state[x])delete state[x][key]});if(state.supHours&&state.supHours[ds])delete state.supHours[ds][p]});
+  state.added[ds]=added().filter(p=>!P.includes(p));
+  if(!state.added[ds].length)['approved','approvedAt','review','signed','step'].forEach(x=>{if(state[x])delete state[x][ds]});else{state.step[ds]=1;if(state.review)state.review[ds]=false}
+  focus=null;save();renderProjects();renderCalendar();toast('Feuille de temps réinitialisée')}
 (function(){const b=document.createElement('button');b.id='resetDay';b.textContent='↺ Réinitialiser';b.onclick=resetDay;document.body.appendChild(b);
   setInterval(()=>{b.style.display=window.parent===window&&state.currentPage==='projects'&&added().length?'':'none'},400)})();
-window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.selectedDate])||1,mg:()=>state.mgMode||'proj',week:()=>{try{state.sheetWeek=fmt(startOfWeek(new Date(state.selectedDate+'T12:00')))}catch(e){}go('timesheet')},added:()=>added().slice(),
+if(window.parent!==window)document.documentElement.classList.add('embed');
+window.fdt={page:()=>state.currentPage,step:()=>(state.step&&state.step[state.selectedDate])||1,mg:()=>state.mgMode||'proj',week:()=>{try{state.sheetWeek=fmt(startOfWeek(new Date(state.selectedDate+'T12:00')))}catch(e){}go('timesheet')},added:()=>added().slice(),shown:()=>shown().slice(),view:v=>{VIEW=v?v.slice():null;renderProjects()},show:p=>{if(VIEW&&!VIEW.includes(p)){VIEW.push(p);renderProjects()}},hide:p=>{if(VIEW){VIEW=VIEW.filter(x=>x!==p);renderProjects()}},
   toggle:p=>{if(added().includes(p))removeProject(p);else addProject(p);renderProjects()},
   next:()=>{const b=document.getElementById('nextStep');if(b)b.click()},
   nextLbl:()=>{const b=document.getElementById('nextStep');return b?b.textContent:''},

@@ -1610,9 +1610,9 @@ function renderFdt(){
     /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
     let box=$('#fdtAdd');if(isSplit()){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
         box.onclick=e=>{e.stopPropagation();const b=e.target.closest('[data-fdp]'),y=F();if(!b||!y)return;const p=b.dataset.fdp,Sh=y.shown?y.shown():y.added();
-          if(!y.added().includes(p))y.toggle(p);else if(!Sh.includes(p))y.show(p);else y.hide(p);sync()}}
+          if(!y.added().includes(p))y.toggle(p);else if(!Sh.includes(p))y.show(p);else y.toggle(p);sync()}}
       const SH=x.shown?x.shown():A;
-      const html='<div class="fa-h">Autres projets</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>{const vis=SH.includes(p),has=A.includes(p);return `<button class="${vis?'on':has?'hid':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${vis?'✓ ':has?'👁 ':'＋ '}${esc(p)}</button>`}).join('')+'<div class="fa-n">＋ ajouter · 👁 déjà saisi, afficher · ✓ affiché, toucher pour masquer</div>';
+      const html='<div class="fa-h">Autres projets</div>'+ACTIVE().filter(p=>p!==S.pick).map(p=>{const vis=SH.includes(p),has=A.includes(p);return `<button class="${vis?'on':has?'hid':''}" data-fdp="${esc(p)}" style="--a:${projAcc(p)}">${vis?'✓ ':has?'👁 ':'＋ '}${esc(p)}</button>`}).join('')+'<div class="fa-n">＋ ajouter · 👁 déjà saisi, afficher · ✓ toucher pour retirer</div>';
       if(box.innerHTML!==html)box.innerHTML=html}else if(box)box.remove();
     let rb=$('#fdtReset');if(isSplit()&&x.added().length){if(!rb){rb=document.createElement('button');rb.id='fdtReset';rb.className='fdtreset';rb.textContent='↺ Réinitialiser';$('#rows').appendChild(rb);
         rb.onclick=e=>{e.stopPropagation();try{fr.contentWindow.resetDay()}catch(err){}setTimeout(()=>{const y=F();if(y&&S.pick&&!y.added().includes(S.pick)){y.toggle(S.pick);y.view([S.pick])}sync()},250)}}}else if(rb)rb.remove();

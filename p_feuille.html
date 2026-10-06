@@ -8,6 +8,10 @@
 .wa-t button:disabled{opacity:.3}
 .wk-ph{align-items:center!important}
 .tbl[data-step="2"] .c-ctl,.tbl[data-step="3"] .c-ctl{opacity:1!important;pointer-events:auto!important}
+
+.addph{width:100%;height:40px;border:1.5px dashed #c9d2d8;border-radius:999px;background:#fafbfc;color:#9aa5ae;font-weight:800;font-size:14px;text-align:left;padding:0 18px;cursor:pointer}
+.addph:hover{border-color:var(--green);color:var(--green-dark)}
+.c-sel:has(.addph){align-items:center;padding:0 16px}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1357,7 +1361,7 @@ function renderTable(){
     const rowsTpl='1fr 1fr';
     let h=`<div class="prj ${justAdded===p?'enter':''} ${pf?'pfocus':''} ${st>=3&&pf?'pactive':''}" data-p="${esc(p)}"><div class="c-name"><strong>${esc(p)}</strong><button class="card-x" data-act="remove" data-p="${esc(p)}" aria-label="Retirer ${esc(p)}" title="Retirer">×</button></div>`;
     trades.forEach(t=>{const f=focus&&focus.p===p&&(focus.t===t||focus.t==='all')?'focus':'';
-      h+=`<div class="c-ctl ${f}"><button class="plus" data-act="cnt" data-p="${esc(p)}" data-t="${t}" data-d="1" aria-label="Ajouter ${t}">+</button><button data-act="cnt" data-p="${esc(p)}" data-t="${t}" data-d="-1" aria-label="Retirer ${t}" ${c[t]?'':'disabled'}>−</button></div><div class="c-tags ${f}" ${st===3&&c[t]?`data-act="focus" data-p="${esc(p)}" data-t="${t}"`:''}>${tagsHTML(p,t)}</div><div class="c-sel ${f}">${st===4&&t===trades.find(x=>c[x]>0)?preHTML(p):''}</div><div class="c-trav ${f}"></div>`});
+      h+=`<div class="c-ctl ${f}"><button class="plus" data-act="cnt" data-p="${esc(p)}" data-t="${t}" data-d="1" aria-label="Ajouter ${t}">+</button><button data-act="cnt" data-p="${esc(p)}" data-t="${t}" data-d="-1" aria-label="Retirer ${t}" ${c[t]?'':'disabled'}>−</button></div><div class="c-tags ${f}" ${st===3&&c[t]?`data-act="focus" data-p="${esc(p)}" data-t="${t}"`:''}>${tagsHTML(p,t)}</div><div class="c-sel ${f}">${st===4&&t===trades.find(x=>c[x]>0)?preHTML(p):''}${st<=3?`<button class="addph" data-act="cnt" data-p="${esc(p)}" data-t="${t}" data-d="1">＋ Ajouter un ${t==='Manœuvre'?'manœuvre':'menuisier'}</button>`:''}</div><div class="c-trav ${f}"></div>`});
     const zf=fk(focus)===`${p}|zones`?'focus':'';
     h+=`<div class="c-zone ${zf}"></div>`;
     return h+'</div>';

@@ -1,6 +1,28 @@
 <!doctype html>
 <html lang="fr">
-<head><script>window.CH_HIDE=['pla']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"]{display:none!important}</style>
+<head><script>window.CH_HIDE=['pla']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"]{display:none!important}
+/* ===== Choisir projet (bouton large en haut à gauche + choix animé) ===== */
+.pbar{display:none!important}
+.tnav a.tproj{flex:0 0 auto;flex-direction:row!important;gap:8px!important;min-width:236px!important;max-width:300px;height:48px!important;padding:0 16px!important;margin-right:6px;border:2px solid var(--pacc,#173d2d);border-radius:999px;background:#fff;color:var(--pacc,#173d2d)!important}
+.tnav a.tproj span{font-size:14px!important;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.tnav a.tproj svg{width:20px;height:20px;flex:none}
+.tnav a.tproj.set{background:var(--pacc);color:#fff!important}
+.tnav a.tproj.fly{visibility:hidden}
+.tnav a.on{background:var(--pacc,var(--green))!important}
+.top{box-shadow:inset 0 -4px 0 var(--pacc,transparent);transition:box-shadow .5s}
+.pchoose{position:absolute;left:0;right:0;bottom:0;z-index:9000;background:rgba(243,245,244,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:stretch;padding:14px 12px;gap:14px}
+.pchoose .pc-h{display:flex;align-items:center;justify-content:space-between;padding:0 6px;font:900 17px -apple-system,Segoe UI,sans-serif;color:#141b22}
+.pchoose .pc-h button{height:40px;padding:0 18px;border:1.5px solid #141b22;border-radius:999px;background:#fff;font-weight:850;font-size:14px;color:#141b22}
+.pchoose .pc-bars{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:10px}
+.pchoose .pc-bar{height:64px;border:2px solid var(--a);border-radius:999px;background:#fff;color:var(--a);font:900 16px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;justify-content:center;gap:9px;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;animation:pcIn .32s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*45ms);transition:opacity .2s}
+.pchoose .pc-bar i{width:12px;height:12px;border-radius:50%;background:var(--a);flex:none}
+.pchoose .pc-bar.cur{background:var(--a);color:#fff}.pchoose .pc-bar.cur i{background:#fff}
+.pchoose .pc-bar.gone{opacity:0}
+.pchoose.out{transition:opacity .25s;opacity:0}
+@keyframes pcIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.pfly{position:absolute;z-index:9500;border-radius:999px;background:var(--a);color:#fff;font:900 16px -apple-system,Segoe UI,sans-serif;display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.pfly i{width:12px;height:12px;border-radius:50%;background:#fff;flex:none}
+</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f8a57">
@@ -2490,7 +2512,7 @@ function fillLogos(root){(root||document).querySelectorAll('[data-lgp]').forEach
     if(S.logoTags&&el.matches('button[data-tp="st"]')&&!el.querySelector('img.lgt')){el.insertAdjacentHTML('afterbegin',`<img class="lgt" src="${u}" alt="">`);el.classList.add('withlogo')}})}
 const bgCache=new Map();
 async function bgUrl(p){if(bgCache.has(p))return bgCache.get(p);let u='';try{const b=await getBlob('bg|'+p);if(b)u=URL.createObjectURL(b);else if(window.PROJ_BG&&PROJ_BG[p])u=PROJ_BG[p]}catch(e){}bgCache.set(p,u);return u}
-async function applyBg(){const ip=$('#ipad');if(!ip)return;const p=S.viewAll?null:S.project;ip.style.setProperty('--pacc',p?projAcc(p):'#173d2d');document.documentElement.style.setProperty('--pacc',p?projAcc(p):'#173d2d');
+async function applyBg(){const ip=$('#ipad');if(!ip)return;const p=S.pick||(S.viewAll?null:S.project);ip.style.setProperty('--pacc',p?projAcc(p):'#173d2d');document.documentElement.style.setProperty('--pacc',p?projAcc(p):'#173d2d');
   try{const T={acc:{},bg:{}};ACTIVE().forEach(q=>{T.acc[q]=projAcc(q);if(PROJ_THEME[q])T.bg[q]=PROJ_THEME[q].bg});localStorage.setItem('chantierTheme_v1',JSON.stringify(T))}catch(e){}
   const u=p&&!['cam','rev'].includes(U.page)?await bgUrl(p):'';ip.style.setProperty('--pbg',u?`url("${u}")`:'none');ip.classList.toggle('nobg',!u)}
 function fillBgThumbs(){$$('[data-bgp]').forEach(async el=>{const u=await bgUrl(el.dataset.bgp);el.style.backgroundImage=u?`url("${u}")`:'';el.style.color=u?'transparent':''})}
@@ -2751,7 +2773,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!
   else if(pg==='entry'||pg==='read'){if(!$('#win').hidden&&!S.viewAll){renderWin();return}resetDraft();$('#win').hidden=true;if(S.viewAll)go('entry');else go(locked()?'read':'entry')}
   else render()});
 function drawTnav(){drawPbar();const fdtDay=U.page==='entry'&&S.viewAll&&U.dayMode==='fdt'&&$('#win').hidden;const act=fdtDay?'fdt':U.page==='cal'?(S.calView||'cal'):(U.page==='entry'&&!$('#win').hidden&&U.winSec==='liv')?'liv':(TNAV_ACTIVE[U.page]||'');const it=([k,l,href])=>`<a class="${k===act?'on':''}" ${href?`href="${href}"`:`data-tn="${k}"`}><svg viewBox="0 0 24 24" aria-hidden="true">${TNAV_ICO[k]}</svg><span>${l}</span></a>`;
-  const R=['pho','prm'],d=dayLbl(U.date),h=TNAV.filter(x=>!R.includes(x[0])).map(it).join('')+`<span class="tfill"></span>`+TNAV.filter(x=>R.includes(x[0])).map(it).join('');$$('.tnav').forEach(n=>n.innerHTML=h);
+  const R=['pho','prm'],d=dayLbl(U.date),h=tprojHTML()+TNAV.filter(x=>!R.includes(x[0])).map(it).join('')+`<span class="tfill"></span>`+TNAV.filter(x=>R.includes(x[0])).map(it).join('');$$('.tnav').forEach(n=>n.innerHTML=h);
   const SN={cal:'Calendrier',entry:'Journal de chantier',read:'Rapport journalier',photos:'Photos',ph:'Photos',cam:'Photos',rev:'Photos',gal:'Photos',prm:'Paramètres'};
   const CVN={reu:'Calendrier · Réunions',evt:'Calendrier · Événements',cal:'Calendrier',jou:'Calendrier · Journal de chantier',fdt:'Calendrier · Feuille de temps',liv:'Calendrier · Livraisons'};
   const nm=fdtDay?'Feuille de temps':U.page==='cal'?CVN[S.calView||'cal']:act==='liv'?'Livraison':(SN[U.page]||''),dt=U.page==='entry'||U.page==='read'?d:dayLbl(fmt(today));
@@ -2760,6 +2782,53 @@ function drawTnav(){drawPbar();const fdtDay=U.page==='entry'&&S.viewAll&&U.dayMo
   let pc=PC[U.page]||'';if(U.page==='entry')pc=!$('#win').hidden&&WC[U.winSec]?WC[U.winSec]:S.viewAll?'J1 · Journal · tous les projets':'J2 · Journal · '+S.project;
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
   $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
+/* ===== Choisir projet : bouton large en haut à gauche, choix animé (étirer, revenir un peu, glisser en haut à gauche) ===== */
+const PROJ_ICO='<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/>';
+function tprojHTML(){const p=S.pick;return `<a class="tproj ${p?'set':''} ${U.pcFly?'fly':''}" data-tproj="1" style="--pacc:${p?projAcc(p):'#173d2d'}"><svg viewBox="0 0 24 24" aria-hidden="true">${PROJ_ICO}</svg><span>${esc(p||'Choisir projet')}</span></a>`}
+function relBox(el){const ip=$('#ipad');let x=0,y=0,n=el;while(n&&n!==ip){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return {x,y,w:el.offsetWidth,h:el.offsetHeight}}
+function activeTop(){const pg=[...document.querySelectorAll('#ipad .page')].find(x=>x.offsetParent!==null&&x.offsetHeight>0);return pg?pg.querySelector('.top'):null}
+function closeChooser(){const o=$('#pChoose');if(!o)return;o.classList.add('out');setTimeout(()=>o.remove(),260)}
+function openChooser(){if($('#pChoose'))return;const ip=$('#ipad'),tp=activeTop(),top=tp?relBox(tp).y+tp.offsetHeight:64,P=ACTIVE();
+  const o=document.createElement('div');o.id='pChoose';o.className='pchoose';o.style.top=top+'px';
+  o.innerHTML=`<div class="pc-h"><span>Choisir projet</span>${S.pick?'<button data-pcx="1">Annuler</button>':''}</div><div class="pc-bars" style="--n:${P.length}">${P.map((p,i)=>`<button class="pc-bar ${p===S.pick?'cur':''}" data-pcp="${esc(p)}" style="--a:${projAcc(p)};--i:${i}"><i></i>${esc(p)}</button>`).join('')}</div>`;
+  ip.appendChild(o);
+  o.addEventListener('click',e=>{if(U.pcFly)return;if(e.target.closest('[data-pcx]')){closeChooser();return}const b=e.target.closest('[data-pcp]');if(b)pickProject(b.dataset.pcp,b)})}
+function pickProject(p,bar){const ip=$('#ipad'),o=$('#pChoose'),a=projAcc(p),r0=relBox(bar),W=ip.offsetWidth;
+  U.pcFly=true;o.querySelectorAll('.pc-bar').forEach(x=>{if(x!==bar)x.classList.add('gone')});bar.style.visibility='hidden';
+  const f=document.createElement('div');f.className='pfly';f.style.setProperty('--a',a);f.innerHTML=`<i></i>${esc(p)}`;
+  Object.assign(f.style,{left:r0.x+'px',top:r0.y+'px',width:r0.w+'px',height:r0.h+'px'});ip.appendChild(f);
+  /* projet choisi : thème et calendrier du projet, sous la bande */
+  S.pick=p;S.project=p;S.viewAll=false;S.calView='cal';save();applyBg();go('cal');render();
+  const tb=activeTop()&&activeTop().querySelector('.tproj'),t=tb?relBox(tb):{x:12,y:8,w:200,h:48};
+  const full={left:'12px',width:(W-24)+'px'},back={left:Math.round(12+W*.05)+'px',width:Math.round(W-24-W*.1)+'px'};
+  const anim=f.animate([
+    {left:r0.x+'px',top:r0.y+'px',width:r0.w+'px',height:r0.h+'px',fontSize:'16px',offset:0,easing:'cubic-bezier(.3,.7,.2,1)'},
+    {...full,top:r0.y+'px',height:r0.h+'px',fontSize:'20px',offset:.36,easing:'ease-in-out'},
+    {...back,top:r0.y+'px',height:r0.h+'px',fontSize:'19px',offset:.52,easing:'cubic-bezier(.5,0,.2,1)'},
+    {left:t.x+'px',top:t.y+'px',width:t.w+'px',height:t.h+'px',fontSize:'14px',offset:1}],{duration:1050,fill:'forwards'});
+  setTimeout(()=>o.classList.add('out'),560);
+  anim.onfinish=()=>{U.pcFly=false;o.remove();drawTnav();requestAnimationFrame(()=>f.remove())}}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-tproj]');if(!a)return;e.preventDefault();e.stopPropagation();if(U.pcFly)return;$('#pChoose')?closeChooser():openChooser()},true);
+/* au démarrage : aucun projet choisi → ouvrir le choix */
+setTimeout(()=>{if(!S.pick&&U.page==='cal')openChooser()},400);
+window.PGCODE=function(){
+  const CV={cal:'A1 · Calendrier',fdt:'A2 · Calendrier · Feuille de temps',jou:'A3 · Calendrier · Journal de chantier',liv:'A4 · Calendrier · Livraisons',evt:'A5 · Calendrier · Événements',reu:'A6 · Calendrier · Réunions'};
+  const PC={read:'J7 · Rapport journalier',photos:'PH1 · Photos du journal',ph:'PH2 · Photos',cam:'PH3 · Appareil photo',rev:'PH4 · Tri des photos',gal:'PH5 · Galerie',prm:'R1 · Paramètres'};
+  const WC={fdt:'J8 · Fenêtre Feuille de temps',st:'J3 · Fenêtre Sous-traitants',liv:'J4 · Fenêtre Livraison',reu:'J5 · Fenêtre Réunion',evt:'J6 · Fenêtre Événement'};
+  const win=$('#win');
+  if($('#pChoose'))return 'A0 · Choisir projet';
+  if(U.page==='cal')return CV[S.calView||'cal']||'A1 · Calendrier';
+  const SECN={fdt:'Feuille de temps',st:'Sous-traitants',liv:'Livraisons',reu:'Réunions',evt:'Événements'};
+  if(U.page==='entry'){if(win&&!win.hidden){let c=WC[U.winSec]||('J9 · Fenêtre '+(U.winSec||''));
+      if(U.winSec==='liv'&&U.V&&U.V.mode){const LM={envoi:'Commande placée',recu:'Réception commande',note:'Livraison sans commande',add:'Ajout'};c+=' · '+(LM[U.V.mode]||U.V.mode)}
+      return c}
+    if(U.ftag){const base=(WC[U.winSec]||'J9').split(' ·')[0],nm=SECN[U.winSec]||U.winSec||'Section';
+      if(U.winSec==='liv'&&U.V&&U.V.mode){const LB={envoi:['b','Commande placée par surintendant'],recu:['c','Commande reçue au chantier'],note:['d','Livraison sans commande']}[U.V.mode]||['x',U.V.mode];return base+LB[0]+' · '+nm+' · '+LB[1]}
+      return base+'a · '+nm+' · choix'}
+    if(S.viewAll&&U.dayMode==='fdt')return 'J0 · Feuille de temps du jour';
+    return S.viewAll?'J1 · Journal · tous les projets':'J2 · Journal · '+S.project}
+  return PC[U.page]||('?? · '+U.page);
+}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
   if(U.ftag||!$('#win').hidden)closeWinNow();
   if(k==='cal'||k==='jou'||k==='fdt'||k==='liv'||k==='evt'||k==='reu'){S.calView=k;save();go('cal');render()}else if(k==='prm')go('prm');else if(k==='pho'){U.sess=U.sess||'s'+Date.now().toString(36);go('cam')}});
@@ -3083,4 +3152,4 @@ addEventListener('load',window.__fit);window.__fit();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 </script>
-<script src="./ui.js"></script></html>
+<script src="./ui.js"></script><script src="./pgcode.js"></script></html>

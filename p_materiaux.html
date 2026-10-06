@@ -2008,4 +2008,4 @@ document.getElementById('rev').onclick=()=>{const lines=[...cart.values()].map(c
  path=[{nom:'Commande'}];crumb();V.innerHTML=lines.length?'<pre>'+esc(JSON.stringify(lines,null,1))+'</pre><div style="padding:0 18px 18px"><button id="cp" class="tile" style="min-height:0">Copier la commande</button></div>':'<p style="padding:0 18px">Aucun item sélectionné.</p>';
  const cp=document.getElementById('cp');if(cp)cp.onclick=()=>{navigator.clipboard?.writeText(JSON.stringify(lines,null,1));cp.textContent='Copié';};};
 render();
-</script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script><script src="./ui.js"></script></body></html>
+</script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})</script><script src="./ui.js"></script><script src="./pgcode.js"></script></body></html>

@@ -42,6 +42,8 @@
 
 .fdtreset{margin-top:auto;align-self:flex-start;height:42px;padding:0 18px;border:1.5px solid #c8372d;border-radius:999px;background:#fff;color:#c8372d;font-weight:850;font-size:14px;flex:none}
 #pgEntry.split #rows{padding-bottom:14px}
+
+.ctag.wipt{background:#fff3e2!important;color:#7a4100!important;border-color:#e8a54b!important}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1791,7 +1793,7 @@ function renderGrid(){
   let FTg={};try{FTg=JSON.parse(localStorage.getItem('feuilleTemps_v13')||'{}')}catch(e){}
   const groups=P.map(p=>{S.project=p;const D=day(),ok=D.status==='approved';
     const tags=JROWS.map(([k])=>{
-      const inner=k==='fdt'?(ftHas(FTg,U.date,p)?'<span class="ctag">✓ Remplie</span>':''):D.entries.map((e,i)=>e.sec===k?`<span class="ctag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`:'').join('');
+      const inner=k==='fdt'?(ftHas(FTg,U.date,p)?(((FTg.approved||{})[U.date]||(FTg.signed||{})[U.date])?'<span class="ctag">✓ Remplie</span>':'<span class="ctag wipt">En cours · à approuver</span>'):''):D.entries.map((e,i)=>e.sec===k?`<span class="ctag" data-ea="edit" data-i="${i}" title="${esc(sentence(e))}">${esc(tagText(e))}</span>`:'').join('');
       const pl=k==='st'&&!S.viewAll&&!ok?plannedToday().map(x=>`<span class="ctag plan" data-plan="${esc(x.id)}">＋ ${esc(x.ac)} · ${esc(x.st)}</span>`).join(''):'';
       const all=inner+pl;
       return `<div class="stag ${all?'has':''} ${sec===k||U.pendSel===k?'sel':''}" data-row="${k}"><b>${NAMES[k]}</b>${all?`<div class="cin">${all}</div>`:''}</div>`}).join('');

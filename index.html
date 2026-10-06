@@ -1618,6 +1618,8 @@ function renderFdt(){
     $('#fdtP').innerHTML=ACTIVE().map(p=>`<button class="${A.includes(p)?'on':''}" data-fdp="${esc(p)}">${esc(p)}</button>`).join('');
     /* pas d'étapes dans le journal : tableau du projet directement (les noms se choisissent par la bulle) */
     if(x.go5&&x.step()<5&&!(x.popOpen&&x.popOpen()))x.go5();
+    /* bulle ou ajout d'activité ouvert : la fenêtre prend tout l'écran sous le menu */
+    {const w=$('#win'),big=!!((x.popOpen&&x.popOpen())||(x.edOpen&&x.edOpen()));if(w&&!w.hidden){if(!w.dataset.top)w.dataset.top=w.style.top;w.style.top=big?'72px':w.dataset.top;if(U.ftag)U.ftag.style.visibility=big?'hidden':''}}
     const nb=$('#fdtNext');nb.textContent=lbl.replace(/^Terminer/,'Terminé');nb.disabled=!x.nextOk();nb.style.display=/^Continuer/.test(lbl)||(x.edOpen&&x.edOpen())?'none':'';
     /* autres projets : étiquettes « Ajouter un projet » dans la colonne de gauche */
     let box=$('#fdtAdd');if(isSplit()){if(!box){box=document.createElement('div');box.id='fdtAdd';box.className='fdtadd';$('#rows').appendChild(box);
@@ -1701,7 +1703,7 @@ function undoToast(msg,undo,done){const old=document.getElementById('undoT');if(
 function closeWin(){if(U.closing)return;const f=U.ftag,w=$('#win'),ex=[U.lvsp,U.lvch].filter(Boolean);
   if((f||(w&&!w.hidden))&&!RM()&&U.page==='entry'){U.closing=true;Promise.all([winDown(300),animTween(300,p=>{if(f){f.style.opacity=String(1-p);f.style.transform=`scale(${1-p*.04})`}ex.forEach(x=>x.style.opacity=String(1-p))},easeOut)]).then(()=>{U.closing=false;closeWinNow()});return}
   closeWinNow()}
-function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');$('#ipad').classList.remove('efull');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
+function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');$('#ipad').classList.remove('efull');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';delete $('#win').dataset.top;$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 $('#winCancel').onclick=e=>{e.stopPropagation();closeWin()};
 

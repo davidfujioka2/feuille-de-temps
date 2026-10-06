@@ -1501,6 +1501,7 @@ $('#pgCal').addEventListener('click',e=>{
   const fw=e.target.closest('[data-fweek]');if(fw){location.href='./feuille.html?w='+fw.dataset.fweek;return}
   const d=e.target.closest('[data-day]');
   if(d){U.date=d.dataset.day;U.dayMode=S.calView==='fdt'?'fdt':'jou';resetDraft();U.spread=0;
+    if(S.pick){S.project=S.pick;S.viewAll=false;U.dayMode='jou';save();go(locked()?'read':'entry');return}
     S.viewAll=true;save();go('entry');return;
     go(locked()?'read':'entry')}
 });
@@ -2860,6 +2861,7 @@ window.PGCODE=function(){
 }
 document.addEventListener('click',e=>{const a=e.target.closest('[data-tn]');if(!a)return;e.preventDefault();const k=a.dataset.tn;
   if(U.ftag||!$('#win').hidden)closeWinNow();
+  if(k==='jou'&&S.pick){U.date=U.date||fmt(today);U.dayMode='jou';resetDraft();U.spread=0;S.project=S.pick;S.viewAll=false;save();go(locked()?'read':'entry');render();return}
   if(k==='cal'||k==='jou'||k==='fdt'||k==='liv'||k==='evt'||k==='reu'){S.calView=k;save();go('cal');render()}else if(k==='prm')go('prm');else if(k==='pho'){U.sess=U.sess||'s'+Date.now().toString(36);go('cam')}});
 
 /* ===================== MODULE PHOTOS ===================== */

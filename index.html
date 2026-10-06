@@ -1606,7 +1606,7 @@ function renderFdt(){
     <iframe id="fdtFrame" class="fdtframe" src="./p_feuille.html?d=${U.date}&v=${Date.now()}" title="Feuille de temps"></iframe></div>`;
   const fr=$('#fdtFrame'),F=()=>{try{const x=fr.contentWindow.fdt;return x&&x.page()==='projects'?x:null}catch(e){return null}};
   $('#fdtP').onclick=e=>{const b=e.target.closest('[data-fdp]');const x=F();if(b&&x){x.toggle(b.dataset.fdp);sync()}};
-  $('#fdtNext').onclick=()=>{const x=F();if(x)x.next();setTimeout(sync,150)};
+  $('#fdtNext').onclick=()=>{const x=F();try{const w=fr.contentWindow;if(w.closeSheet&&!w.document.getElementById('sheet').hidden)w.closeSheet()}catch(e){}if(x)x.next();setTimeout(sync,150)};
   let done=false,pre=false,seen=false,prevL=null;
   function sync(){if(!$('#fdtFrame')){clearInterval(U.fdtT);return}const x=F();
     if(x&&!pre){pre=true;if(S.pick){const FT=ftLoad();if(x.step()===1)x.added().slice().forEach(p=>{if(p!==S.pick&&!ftHas(FT,U.date,p))x.toggle(p)});if(!x.added().includes(S.pick))x.toggle(S.pick)}if(S.pick&&x.view)x.view([S.pick])}

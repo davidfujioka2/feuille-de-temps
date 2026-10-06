@@ -28,6 +28,9 @@
 .pill.pickname{border:1.5px dashed var(--green,#2f8a57)!important;color:var(--green-dark,#236b43)!important;background:#f5fbf7!important;cursor:pointer;font-weight:800}
 
 html.embed div.wk-add{display:none!important}
+
+.pill.pickname2{cursor:pointer;font:inherit;font-weight:800}
+.pill.pickname2:hover{border-color:var(--green,#2f8a57)}
 </style><!doctype html>
 <html lang="fr">
 <head>
@@ -1181,14 +1184,14 @@ function anyMulti(){return added().some(p=>trades.some(t=>links(p,t).some(n=>n&&
 function tagsHTML(p,t){
   const arr=links(p,t),next=arr.indexOf(null),isF=focus&&focus.p===p&&(focus.t===t||focus.t==='all');
   if(!arr.length)return `<span class="ghost-trade">${tIco(t)}${t}</span>`;
-  return arr.map((name,i)=>{if(!name)return `<span class="pill empty ${isF&&i===next?'next':''} ${just===`${p}|${t}|#${i}`?'just':''}">${t} ${i+1}</span>`;
+  return arr.map((name,i)=>{if(!name)return `<button class="pill empty pickname2 ${isF&&i===next?'next':''} ${just===`${p}|${t}|#${i}`?'just':''}" data-act="pickname" data-p="${esc(p)}" data-t="${t}" title="Choisir le travailleur">${t} ${i+1}</button>`;
     const other=usedOn(name,t,p);
     return `<span class="tag-wrap"><button class="pill filled ${other?'multi':''} ${just===`${p}|${t}|${name}`?'just':''}" data-act="clear" data-p="${esc(p)}" data-t="${t}" data-i="${i}" title="Retirer ${esc(name)}">${esc(name)}</button>${other?`<span class="warn-ico" title="Aussi assigné à ${esc(other)}" aria-label="Assigné à plus d’un projet">${WARN_SVG}</span>`:''}</span>`}).join('');
 }
 function popHTML(p){
   const c=counts(p);
   const box=t=>{const arr=links(p,t),got=arr.filter(Boolean).length;
-    return `<div class="aw-box"><div class="wp-lbl">${tIco(t)}${tradePlural[t]} <b class="cnt-b ${got===arr.length?'ok':''}">${got} / ${arr.length}</b></div>${(()=>{const chip=e=>{const on=arr.includes(e.name);const other=usedOn(e.name,t,p);return `<button class="opt ${on?'pick':''}" data-act="name" data-p="${esc(p)}" data-t="${t}" data-v="${esc(e.name)}">${esc(e.name)}${other?`<span class="warn-ico sm" title="Aussi : ${esc(other)}">${WARN_SVG}</span>`:''}</button>`};const all=roster(t),favs=all.filter(e=>(state.empDb.find(x=>x.name===e.name)||{}).fav);return favs.length?favChooser('emp|'+t,favs,`<div class="aw-opts">${all.filter(e=>!favs.includes(e)).map(chip).join('')}</div>`,chip):`<div class="aw-opts">${all.map(chip).join('')}</div>`})()}</div>`};
+    return `<div class="aw-box"><div class="wp-lbl">${tIco(t)}${tradePlural[t]} <b class="cnt-b ${got===arr.length?'ok':''}">${got} / ${arr.length}</b></div>${(()=>{const chip=e=>{const on=arr.includes(e.name);const other=usedOn(e.name,t,p);return `<button class="opt ${on?'pick':''}" data-act="name" data-p="${esc(p)}" data-t="${t}" data-v="${esc(e.name)}">${esc(e.name)}${other?`<span class="warn-ico sm" title="Aussi : ${esc(other)}">${WARN_SVG}</span>`:''}</button>`};const all=roster(t),favs=all.filter(e=>((state.empDb||[]).find(x=>x.name===e.name)||{}).fav);return favs.length?favChooser('emp|'+t,favs,`<div class="aw-opts">${all.filter(e=>!favs.includes(e)).map(chip).join('')}</div>`,chip):`<div class="aw-opts">${all.map(chip).join('')}</div>`})()}</div>`};
   return `<div class="pop-title"><strong>Projet ${esc(p)}</strong><span>Sélection des travailleurs</span></div>${trades.filter(t=>c[t]>0).map(t=>`<div class="ps-sec"><div class="ps-slots">${tagsHTML(p,t)}</div>${box(t)}</div>`).join('')}<div class="pop-foot split"><button class="close-btn2" data-act="closepop">Fermer</button><button class="opt add-emp" data-act="addemp">+ Employé</button></div>`;
 }
 function fitPop(pop,rows){
@@ -1414,7 +1417,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='add')addProject(p);
   else if(act==='remove')removeProject(p);
   else if(act==='cnt')changeCount(p,t,Number(b.dataset.d));
-  else if(act==='pickname'){e.stopPropagation();setStep(3);const f=queue().find(x=>x.p===p);if(f){focus=f;renderProjects()}}
+  else if(act==='pickname'){e.stopPropagation();if(step()!==3)setStep(3);const f=queue().find(x=>x.p===p);if(f){focus=f;renderProjects()}}
   else if(act==='rmemp'){e.stopPropagation();removeEmp(p,t,Number(b.dataset.i))}
   else if(act==='cnt5'){const d=Number(b.dataset.d);changeCount(p,t,d);if(d>0){setStep(3);const f=queue().find(x=>x.p===p&&!links(p,x.t==='all'?t:x.t).every(Boolean));if(f){focus=f;renderProjects()}}}
   else if(act==='name')pickName(p,t,v);

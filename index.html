@@ -1445,6 +1445,9 @@ function lists(){
     const items=base.concat(pf.filter(n=>!base.some(x=>x.label===n)).map(n=>o(n,1,'Planification')));
     L[k]=items.map(x=>{const id=k+'|'+x.label;return {...x,fav:id in S.fav?S.fav[id]:(x.fav||pf.includes(x.label)),off:!!S.off[id]}});
   });
+  /* zones propres au projet : 625 Place Théberge = Tout le RDC, 101 à 112, 114 */
+  if((S.pick||S.project)==='625 Place Théberge'){const Z=['Tout le RDC',...[101,102,103,104,105,106,107,108,109,110,111,112,114].map(String)];
+    L.zones=Z.map(n=>{const id='zones|'+n;return {...o(n,0,'Rez-de-chaussée'),fav:!!S.fav[id],off:!!S.off[id]}})}
   return L;
 }
 const active=k=>lists()[k].filter(x=>!x.off);

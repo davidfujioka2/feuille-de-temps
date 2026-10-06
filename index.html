@@ -55,6 +55,9 @@
 .wincancel{display:none}
 #pgEntry.full[data-sec="fdt"] .wincancel{display:none!important}
 #pgEntry.full .wincancel{display:block;position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 24px;border:1.5px solid #141b22;border-radius:999px;background:#fff;color:#141b22;font-weight:850;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+/* Sous-traitants : colonne Travailleurs plus compacte */
+.fcol.c5 .c5top .wk.row{gap:6px 8px;padding:6px 4px}
+.fcol.c5 .c5top .lbl{font-size:11px;letter-spacing:0}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1968,7 +1971,7 @@ function renderWin(){
 function renderSt(){
   const W=U.W,L=lists(),el=$('#flow');
   $('#winSent').textContent=[PH_SHORT[W.phase],W.who,W.act,W.who?W.workers+' trav. · '+fmtH(W.hours)+' h':'',W.zone].filter(Boolean).join(' · ');
-  const PW=130,SW=260,AW=230,ZW=240,CW=1148-4*6-PW-SW-AW-ZW;
+  const PW=130,SW=230,AW=205,ZW=330,CW=1148-4*6-PW-SW-AW-ZW;
   const ready=!!(W.phase&&W.who);
   let h=`<div class="fcol cur fx" style="width:${PW}px"><div class="fh"><span class="num">1</span><b>Phases</b></div><div class="fb scroll"><div class="phase-row">${PHASES.map(([pk,pl])=>`<button class="phase-btn sm ${W.phase===pk?'on':''}" data-fa="stph" data-v="${pk}"><b>${pl}</b></button>`).join('')}</div></div></div>`;
   let inPh=W.phase&&W.phase!=='gen'?L.st.filter(x=>!x.off&&phasesOf(x.label).includes(W.phase)):null;if(inPh&&!inPh.length)inPh=null;

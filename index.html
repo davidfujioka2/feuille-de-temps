@@ -2,6 +2,22 @@
 <html lang="fr">
 <head><script>window.CH_HIDE=['pla','fdt','liv','evt','reu']</script><style>.tnav a[data-k="pla"],.tnav a[data-tn="pla"],.tnav a[data-k="fdt"],.tnav a[data-tn="fdt"],.tnav a[data-k="liv"],.tnav a[data-tn="liv"],.tnav a[data-k="evt"],.tnav a[data-tn="evt"],.tnav a[data-k="reu"],.tnav a[data-tn="reu"]{display:none!important}
 
+
+/* ===== Journal : étiquettes à gauche, fenêtre à droite ===== */
+#pgEntry.split #rows{align-self:flex-start;width:240px;padding-right:0}
+#pgEntry.split #rows .stag{min-height:64px}
+#pgEntry.split.ov #rows{visibility:visible!important}
+#pgEntry.split .win{left:240px}
+#pgEntry.split .daylbl{width:240px}
+#ipad.esplit .lvchoice,#ipad.esplit .lvsp{left:252px}
+#pgEntry.split::after{content:'Choisir une étiquette à gauche';position:absolute;left:240px;right:0;top:50%;text-align:center;font:800 17px -apple-system,Segoe UI,sans-serif;color:#9aa3ab;pointer-events:none}
+#pgEntry.split.ov::after{display:none}
+#pgEntry.split[data-sec] .sgroup .stag:not(.sel),#pgEntry.split[data-sec] .sgroup .gstat{display:flex!important}
+#pgEntry.split[data-sec] .sgroup .stag.sel{flex:1 1 0!important;height:auto!important}
+#pgEntry.split[data-sec] #rows{padding-top:14px}
+#pgEntry.split .win .flow{overflow-x:auto}
+#pgEntry.split #rows .stag.sel{background:var(--pacc,#173d2d)!important;color:#fff!important;border-color:var(--pacc,#173d2d)!important}
+#pgEntry.split #rows .stag.sel b,#pgEntry.split #rows .stag.sel *{color:#fff!important}
 /* ===== Calendrier du projet (étape 2) ===== */
 .cal-grid{min-height:0!important;grid-template-rows:auto repeat(var(--nw,6),minmax(0,1fr))!important}
 .cal-day{min-height:0;overflow:hidden}
@@ -1579,7 +1595,7 @@ function openWin(){const k=U.winSec,pg=$('#pgEntry'),win=$('#win'),g=$('#rows .s
     const L=(a,b,p)=>a+(b-a)*p,x0=x,y0=y,w0=t.offsetWidth,h0=t.offsetHeight;
     /* l'étiquette monte en haut en doublant de hauteur (1 s), puis le tableau glisse du bas (1 s) */
     const sm={style:{}},TT=118;pg.classList.add('ovm');
-    await tween(560,p=>{Object.assign(f.style,{left:L(x0,12,p)+'px',top:L(y0,TT,p)+'px',width:L(w0,1156,p)+'px',height:L(h0,168,p)+'px'});f.style.setProperty('--mo',p)});
+    await tween(560,p=>{Object.assign(f.style,{left:L(x0,SPX(),p)+'px',top:L(y0,TT,p)+'px',width:L(w0,SPW(),p)+'px',height:L(h0,168,p)+'px'});f.style.setProperty('--mo',p)});
     ftagChips();f.classList.add('ready');
     if(k==='liv'&&U.V){const ch=document.createElement('div');ch.className='lvchoice';ch.style.top=(TT+196)+'px';
       ch.innerHTML='<button data-lvc="envoi"><b>Commande placée par surintendant</b><span>Choisir le matériel et la quantité</span></button><button data-lvc="recu"><b>Commande reçue au chantier</b><span>Valider une commande ou noter une livraison</span></button>';
@@ -1818,6 +1834,7 @@ $('#rows').addEventListener('click',e=>{
   if(e.target.id==='demo'){loadDemo();return}
   const r=e.target.closest('[data-ea]')?null:e.target.closest('[data-row]');
   if(r&&$('#pgEntry').dataset.sec===r.dataset.row&&!$('#win').hidden){closeWin();return}
+  if(r&&isSplit()&&(U.ftag||!$('#win').hidden)){if(U.closing||$('#pgEntry').dataset.sec===r.dataset.row)return;closeWinNow()}
   if(r){const k=r.dataset.row;resetDraft();
     if(k==='fdt')U.labour=true;
     else if(k==='st')U.W={who:null,phase:null,workers:1,hours:8,hoursManual:false,zone:null,step:'pick',all:false};
@@ -2811,7 +2828,13 @@ function drawTnav(){drawPbar();const fdtDay=U.page==='entry'&&S.viewAll&&U.dayMo
   const WC={fdt:'F2 · Feuille de temps',st:'J3 · Sous-traitants',liv:'J4 · Livraisons',reu:'J5 · Réunions',evt:'J6 · Événements'};
   let pc=PC[U.page]||'';if(U.page==='entry')pc=!$('#win').hidden&&WC[U.winSec]?WC[U.winSec]:S.viewAll?'J1 · Journal · tous les projets':'J2 · Journal · '+S.project;
   const pcel=document.getElementById('pgCode');if(pcel)pcel.textContent=pc;
-  $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm)}
+  $$('.sdate').forEach(n=>n.textContent=dt.charAt(0).toUpperCase()+dt.slice(1));$$('.sname').forEach(n=>n.textContent=nm);splitSync()}
+/* ===== Journal : étiquettes à gauche, fenêtre à droite (projet choisi) ===== */
+const SPL=240;
+function isSplit(){return !!S.pick&&!S.viewAll}
+function SPX(){return isSplit()?SPL+12:12}
+function SPW(){return isSplit()?1180-SPL-24:1156}
+function splitSync(){const on=isSplit();const pe=$('#pgEntry');if(pe)pe.classList.toggle('split',on);const ip=$('#ipad');if(ip)ip.classList.toggle('esplit',on)}
 /* ===== Choisir projet : bouton large en haut à gauche, choix animé (étirer, revenir un peu, glisser en haut à gauche) ===== */
 const PROJ_ICO='<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/>';
 function tprojHTML(){const p=S.pick;return `<a class="tproj ${p?'set':''} ${U.pcFly?'fly':''}" data-tproj="1" style="--pacc:${p?projAcc(p):'#173d2d'}"><svg viewBox="0 0 24 24" aria-hidden="true">${PROJ_ICO}</svg><span>${esc(p||'Choisir projet')}</span></a>`}

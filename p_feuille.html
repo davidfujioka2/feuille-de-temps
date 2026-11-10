@@ -1213,7 +1213,7 @@ function popHTML(p){
   const c=counts(p);
   const box=t=>{const arr=links(p,t),got=arr.filter(Boolean).length;
     return `<div class="aw-box"><div class="wp-lbl">${tIco(t)}${tradePlural[t]} <b class="cnt-b ${got===arr.length?'ok':''}">${got} / ${arr.length}</b></div>${(()=>{const chip=e=>{const on=arr.includes(e.name);const other=usedOn(e.name,t,p);return `<button class="opt ${on?'pick':''}" data-act="name" data-p="${esc(p)}" data-t="${t}" data-v="${esc(e.name)}">${esc(e.name)}${other?`<span class="warn-ico sm" title="Aussi : ${esc(other)}">${WARN_SVG}</span>`:''}</button>`};const all=roster(t),favs=all.filter(e=>((state.empDb||[]).find(x=>x.name===e.name)||{}).fav);return favs.length?favChooser('emp|'+t,favs,`<div class="aw-opts">${all.filter(e=>!favs.includes(e)).map(chip).join('')}</div>`,chip):`<div class="aw-opts">${all.map(chip).join('')}</div>`})()}</div>`};
-  return `<div class="pop-title"><strong>Projet ${esc(p)}</strong><span>Sélection des travailleurs</span></div>${trades.filter(t=>c[t]>0&&(!POPT||t===POPT||!c[POPT])).map(t=>`<div class="ps-sec"><div class="ps-slots">${tagsHTML(p,t)}</div>${box(t)}</div>`).join('')}<div class="pop-foot split"><button class="close-btn2" data-act="closepop">Fermer</button><button class="opt add-emp" data-act="addemp">+ Employé</button></div>`;
+  return `<div class="pop-title"><strong>Projet ${esc(p)}</strong><span>Sélection des travailleurs</span></div>${trades.map(t=>`<div class="ps-sec"><div class="ps-slots">${tagsHTML(p,t)}</div>${box(t)}</div>`).join('')}<div class="pop-foot split"><button class="close-btn2" data-act="closepop">Fermer</button><span style="display:flex;gap:8px;align-items:center"><button class="opt add-emp" data-act="addemp">+ Employé</button><button class="done-btn" data-act="pickdone" data-p="${esc(p)}" ${trades.some(t=>links(p,t).some(Boolean))?'':'disabled'}>Assigner les travaux ›</button></span></div>`;
 }
 function fitPop(pop,rows){
   const vis=rows.clientHeight-12;pop.style.maxHeight=vis+'px';pop.classList.add('scrolly');
@@ -1425,12 +1425,14 @@ function setStep(n){
 function nextFocus(){if(step()===5&&focus){const list=hoursFor(focus.p,slotKey(focus));for(let j=list.length-1;j>=0;j--)if(!lineDesc(list[j]))list.splice(j,1);rebalance(list);save()}const q=queue(),i=q.findIndex(f=>fk(f)===fk(focus));focus=q[i+1]||null;renderProjects();if(!focus)toast(step()===5?'Heures complétées':step()===4?'Travaux et zones complétés':'Tous les employés sont sélectionnés');else{}}
 function changeCount(p,t,d){const c=counts(p);c[t]=Math.max(0,c[t]+d);const arr=links(p,t);if(d>0)just=`${p}|${t}|#${arr.length-1}`;save();renderProjects();renderCalendar()}
 function pickName(p,t,name){
-  const arr=links(p,t),at=arr.indexOf(name);
-  if(at>=0)arr[at]=null;
-  else{if(!arr.length)return;let i=arr.indexOf(null);if(i<0){toast(`${tradePlural[t]||t} complets — toucher un nom choisi pour le retirer, ou + pour en ajouter`);return}arr[i]=name;just=`${p}|${t}|${name}`;const other=usedOn(name,t,p);if(other)toast(`Attention : ${name} est aussi sur ${other}`)}
-  save();renderProjects();
-  if(step()===3&&at<0&&focus&&focus.p===p&&trades.every(x=>links(p,x).every(Boolean))){const key=fk(focus);setTimeout(()=>{if(fk(focus)!==key)return;const q=queue(),i=q.findIndex(f=>fk(f)===key);focus=q[i+1]||null;renderProjects();if(!focus&&activeProjects().every(x=>trades.every(tt=>links(x,tt).every(Boolean)))){toast('Tous les employés sont sélectionnés');setTimeout(()=>{if(step()===3)setStep(5)},700)}},450)}
+  const arr=links(p,t),at=arr.indexOf(name),c=counts(p);
+  if(at>=0){const H=(state.hours[k(p)] ||= {});if(sumH(H[`${t}|${at}`]||[])>0){removeEmp(p,t,at);return}
+    const n=c[t]||0;for(let j=at;j<n-1;j++)H[`${t}|${j}`]=H[`${t}|${j+1}`]||[];delete H[`${t}|${n-1}`];arr.splice(at,1);c[t]=n-1;links(p,t)}
+  else{let i=arr.indexOf(null);if(i<0){c[t]=(c[t]||0)+1;links(p,t);i=c[t]-1}const a2=links(p,t);a2[i]=name;just=`${p}|${t}|${name}`;const other=usedOn(name,t,p);if(other)toast(`Attention : ${name} est aussi sur ${other}`)}
+  save();renderProjects();renderCalendar();
 }
+function pickDone(p){const c=counts(p);trades.forEach(t=>{const arr=links(p,t);for(let i=arr.length-1;i>=0;i--)if(!arr[i]){const H=(state.hours[k(p)] ||= {}),n=c[t];for(let j=i;j<n-1;j++)H[`${t}|${j}`]=H[`${t}|${j+1}`]||[];delete H[`${t}|${n-1}`];arr.splice(i,1);c[t]=n-1}links(p,t)});
+  focus=null;POPT=null;save();if(total(p)>0)setStep(5);else renderProjects();renderCalendar()}
 function addProject(p){const A=added();if(!A.includes(p))A.push(p);if(VIEW&&!VIEW.includes(p))VIEW.push(p);justAdded=p;save();renderProjects()}
 function removeProject(p){const A=added();A.splice(A.indexOf(p),1);const key=k(p);['laborCounts','links','work','hours','open'].forEach(x=>delete state[x][key]);if(focus&&focus.p===p)focus=null;save();renderProjects();renderCalendar()}
 $('#projectsPage').addEventListener('click',e=>{
@@ -1451,6 +1453,7 @@ $('#projectsPage').addEventListener('click',e=>{
   else if(act==='newline'){e.stopPropagation();const list=linesFor(focus);list.push({trav:[],zones:[],h:0,auto:true});rebalance(list);activeLine[fk(focus)]=list.length-1;save();renderProjects()}
   else if(act==='rmline'){e.stopPropagation();const list=hoursFor(p,`${t}|${b.dataset.i}`);list.splice(Number(b.dataset.j),1);rebalance(list);const key=`${p}|${t}|${b.dataset.i}`;if(activeLine[key]>=list.length)activeLine[key]=list.length-1;save();renderProjects()}
   else if(act==='done')nextFocus();
+  else if(act==='pickdone'){e.stopPropagation();pickDone(p)}
   else if(act==='closepop'){e.stopPropagation();focus=null;renderProjects()}
   else if(act==='assign'){focus={p,t:'all'};renderProjects()}
   else if(act==='addline'){const nf={p,t,i:Number(b.dataset.i)};if(fk(focus)!==fk(nf)){focus=nf;resetEd()}else ed.editJ=null;renderProjects()}

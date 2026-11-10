@@ -1565,7 +1565,7 @@ function renderCal(){
 }
 $('#pgCal').addEventListener('click',e=>{
   const p=e.target.closest('[data-proj]');if(p){if(p.dataset.proj==='__all')S.viewAll=true;else{S.viewAll=false;S.project=p.dataset.proj}save();renderCal();return}
-  const ff=e.target.closest('[data-ffri]');if(ff){e.stopPropagation();U.date=ff.dataset.ffri;U.dayMode='fdt';resetDraft();U.spread=0;S.viewAll=true;save();go('entry');return}
+  const ff=e.target.closest('[data-ffri]');if(ff){e.stopPropagation();const w=parse(ff.dataset.ffri);w.setDate(w.getDate()-w.getDay());location.href='./feuille.html?w='+fmt(w);return}
   const fw=e.target.closest('[data-fweek]');if(fw){location.href='./feuille.html?w='+fw.dataset.fweek;return}
   const d=e.target.closest('[data-day]');
   if(d){U.date=d.dataset.day;U.dayMode=S.calView==='fdt'?'fdt':'jou';resetDraft();U.spread=0;

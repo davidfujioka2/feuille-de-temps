@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Restaurer une sauvegarde · Chantier</title>
+<style>
+body{margin:0;background:#f3f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#173d2d;display:flex;justify-content:center;padding:40px 16px}
+.box{background:#fff;border:1px solid #dfe4e1;border-radius:18px;padding:28px;max-width:520px;width:100%}
+h1{font-size:20px;margin:0 0 8px}p{font-size:14px;color:#5b6b63;margin:0 0 16px}
+label.pick{display:flex;align-items:center;justify-content:center;height:52px;border:2px dashed #2f8a57;border-radius:14px;font-weight:800;color:#236b43;cursor:pointer}
+label.pick input{display:none}
+#info{margin:16px 0;font-size:14px}#info b{color:#173d2d}
+.row{display:flex;gap:10px;justify-content:flex-end}
+button{height:44px;padding:0 20px;border-radius:12px;border:1.5px solid #2f8a57;background:#fff;color:#236b43;font:800 14px -apple-system,'Segoe UI',sans-serif;cursor:pointer}
+button.go{background:#2f8a57;color:#fff}button:disabled{opacity:.4}
+.err{color:#b42318}
+</style></head><body><div class="box">
+<h1>Restaurer une sauvegarde</h1>
+<p>Choisir un fichier « sauvegarde ….json ». Les données de cet appareil seront remplacées (une copie de sécurité est gardée).</p>
+<label class="pick">📂 Choisir le fichier<input type="file" id="f" accept=".json,application/json"></label>
+<div id="info"></div>
+<div class="row"><button onclick="location.href='./'">Annuler</button><button class="go" id="go" disabled>Restaurer</button></div>
+</div><script>
+const JK='journalChantier_v1',FK='feuilleTemps_v13';let D=null;
+const info=document.getElementById('info'),go=document.getElementById('go');
+document.getElementById('f').onchange=async e=>{D=null;go.disabled=true;const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(d.app!=='Chantier'||!d.journal)throw 0;D=d;
+    const n=Object.values(d.journal.days||{}).filter(x=>(x.entries||[]).length||(x.photos||[]).length).length;
+    info.innerHTML=`<b>${f.name}</b><br>Exportée le ${new Date(d.exported).toLocaleString('fr-CA')}<br>${n} journées avec contenu · feuille de temps : ${d.feuilleDeTemps?'oui':'non'}`;go.disabled=false}
+  catch(x){info.innerHTML='<span class="err">Ce fichier n’est pas une sauvegarde Chantier.</span>'}};
+go.onclick=()=>{if(!D||!confirm('Remplacer les données de cet appareil par cette sauvegarde ?'))return;
+  try{const t=Date.now();[JK,FK].forEach(k=>{const v=localStorage.getItem(k);if(v)localStorage.setItem(k+'_avantRestauration',v)});
+    localStorage.setItem(JK,JSON.stringify(D.journal));if(D.feuilleDeTemps)localStorage.setItem(FK,JSON.stringify(D.feuilleDeTemps));
+    alert('Sauvegarde restaurée.');location.href='./'}catch(x){info.innerHTML='<span class="err">Erreur : '+x.message+'</span>'}};
+</script></body></html>

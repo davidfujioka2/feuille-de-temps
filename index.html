@@ -52,7 +52,7 @@
 #pgEntry.split.full .win{left:0!important;z-index:62}
 #pgEntry.split.full.ov #rows{visibility:hidden!important}
 #pgEntry.split.full .win .flow{padding-bottom:58px}
-.wincancel{display:none}.windel{position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 22px;border:1.5px solid #b42318;border-radius:999px;background:#fff;color:#b42318;font-weight:850;font-size:15px}#pgEntry.full .windel{left:150px}.windel[hidden]{display:none!important}
+.wincancel{display:none}.zok{flex-shrink:0;padding:8px 10px 10px;border-top:1px solid var(--line,#dfe4e1);background:#fff}.zok .bigbtn{min-height:48px;font-size:15px;margin:0}.zok .bigbtn:disabled{opacity:.4}.windel{position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 22px;border:1.5px solid #b42318;border-radius:999px;background:#fff;color:#b42318;font-weight:850;font-size:15px}#pgEntry.full .windel{left:150px}.windel[hidden]{display:none!important}
 #pgEntry.full[data-sec="fdt"] .wincancel{display:none!important}
 #pgEntry.full .wincancel{display:block;position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 24px;border:1.5px solid #141b22;border-radius:999px;background:#fff;color:#141b22;font-weight:850;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
 /* Sous-traitants : colonne Travailleurs plus compacte */
@@ -1950,12 +1950,12 @@ function puzzleize(root){if(!root)return;const cols=[...root.querySelectorAll(':
   const prev=U.pzPrev||{};const now={};
   cols.forEach((c,i)=>{const fh=c.querySelector('.fh');if(!fh)return;const title=(fh.querySelector('b')||fh).textContent.trim();
     const on=[...c.querySelectorAll('button[data-tp].on')].filter(b=>b.dataset.v!=='');let txt='',tp='nt',src=null;
-    if(on.length){src=on[0];tp=on[0].dataset.tp;txt=on.map(b=>(b.querySelector('b')||b).textContent.trim()).join(' · ');on.forEach(b=>b.classList.add('picked'))}
+    if(on.length){src=on[0];tp=on[0].dataset.tp;txt=on.map(b=>(b.querySelector('b')||b).textContent.trim()).join(' · ');if(!(on[0].dataset.fa==='stzone'&&U.W&&U.W.zOpen))on.forEach(b=>b.classList.add('picked'))}
     else if(c.classList.contains('c5')&&U.W){txt=U.W.workers+' × '+fmtH(U.W.hours)+' h';tp='nt'}
     const shape=(i===0?'first':'tab')+(i===cols.length-1?' end':'');now[i]=txt;
     const el=document.createElement('button');el.type='button';el.className='pz '+shape+(txt?'':' ghost')+(txt&&prev[i]!==txt?' rise':'');if(txt)el.dataset.tp=tp;
     el.innerHTML=`<span class="tx">${esc(txt||title.toLowerCase()+' ?')}</span>${txt&&src?'<span class="ck">✓</span>':''}`;
-    if(src){c.classList.add('pzdone');el.title='Toucher pour changer';el.onclick=ev=>{ev.stopPropagation();c.classList.remove('pzdone');src.classList.remove('picked');src.scrollIntoView({block:'nearest'});src.animate([{transform:'scale(1.06)'},{transform:'none'}],{duration:350})}}
+    const zOpen=src&&src.dataset.fa==='stzone'&&U.W&&U.W.zOpen;if(src){if(!zOpen)c.classList.add('pzdone');el.title='Toucher pour changer';el.onclick=ev=>{ev.stopPropagation();if(src.dataset.fa==='stzone'&&U.W)U.W.zOpen=true;c.classList.remove('pzdone');src.classList.remove('picked');src.scrollIntoView({block:'nearest'});src.animate([{transform:'scale(1.06)'},{transform:'none'}],{duration:350})}}
     const slot=document.createElement('div');slot.className='pslot';slot.appendChild(el);fh.after(slot);
     /* champ en bas de colonne : ce qui est écrit devient une nouvelle option, choisie tout de suite */
     const any=c.querySelector('button[data-tp][data-fa]:not(.pz)')||c.querySelector('button[data-fa]:not(.pz)'),fa=any&&any.dataset.fa,lk=PZLIST[fa];
@@ -1979,6 +1979,7 @@ function renderWin(){{const wd=document.getElementById('winDel');if(wd)wd.hidden
 }
 
 /* --- sous-traitants --- */
+function stZones(W){return (W&&W.zone?W.zone.split(', '):[]).filter(Boolean)}
 function renderSt(){
   const W=U.W,L=lists(),el=$('#flow');
   $('#winSent').textContent=[PH_SHORT[W.phase],W.who,W.act,W.who?W.workers+' trav. · '+fmtH(W.hours)+' h':'',W.zone].filter(Boolean).join(' · ');
@@ -1992,11 +1993,11 @@ function renderSt(){
   const whoBody=(list.length?grid(list):'<span style="color:var(--muted);font-size:13px">Aucun sous-traitant dans cette phase.</span>')+(rest.length?`<button class="seelist" data-fa="stall">${W.all?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.all?grid(rest):''}`:'');
   h+=`<div class="fcol cur fx" style="width:${SW}px"><div class="fh"><span class="num">2</span><b>Sous-traitant</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${whoBody}</div></div>`;
   let g=null,buf=[],zb='';const flush=()=>{if(buf.length)zb+=`<div class="zrow"><span>${esc(g)}</span><div class="chips">${buf.join('')}</div></div>`;buf=[]};
-  zFav(L.zones).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${W.zone===x.label?'on':''}" data-fa="stzone" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
+  zFav(L.zones).forEach(x=>{if(x.group!==g){flush();g=x.group}buf.push(`<button class="chip zc ${stZones(W).includes(x.label)?'on':''}" data-fa="stzone" data-v="${esc(x.label)}">${esc(x.label)}</button>`)});flush();
   const acts=L.trav.filter(x=>!x.off),lka=W.who?acts.filter(x=>(S.actMap[x.label]||[]).includes(W.who)):[],af=lka.length?lka:acts.filter(x=>x.fav),ar=acts.filter(x=>!af.includes(x));
   const achip=x=>`<button class="chip ${W.act===x.label?'on':''}" data-fa="stact" data-v="${esc(x.label)}">${esc(x.label)}</button>`;
   h+=`<div class="fcol cur fx" style="width:${AW}px"><div class="fh"><span class="num">3</span><b>Action</b></div><div class="fb scroll" style="display:flex;flex-direction:column">${af.length&&ar.length?`<div class="gl" style="margin:0 0 4px">${lka.length?'Activités de '+esc(W.who):'Planifiées et favorites'}</div>`:''}<div class="vlist1">${(af.length?af:acts).map(achip).join('')}</div>${af.length&&ar.length?`<button class="seelist" data-fa="stactall">${W.actAll?'Masquer la liste ▴':'Voir la liste ▾'}</button>${W.actAll?`<div class="vlist1">${ar.map(achip).join('')}</div>`:''}`:''}</div></div>`;
-  h+=`<div class="fcol cur fx" style="width:${ZW}px"><div class="fh"><span class="num">4</span><b>Zone</b></div><div class="fb scroll" style="gap:2px"><button class="chip zc ${!W.zone?'on':''}" data-fa="stzone" data-v="" style="align-self:flex-start;margin-bottom:4px">Sans zone</button>${zb}</div></div>`;
+  h+=`<div class="fcol cur fx" style="width:${ZW}px"><div class="fh"><span class="num">4</span><b>Zone</b></div><div class="fb scroll" style="gap:2px"><button class="chip zc ${!W.zone?'on':''}" data-fa="stzone" data-v="" style="align-self:flex-start;margin-bottom:4px">Sans zone</button>${zb}</div><div class="zok"><button class="bigbtn" data-fa="stzok" ${stZones(W).length?'':'disabled'}>Valider ${stZones(W).length>1?'les '+stZones(W).length+' zones':'la zone'}</button></div></div>`;
   const cms=S.comments.slice(0,60),ed=U.editIndex!=null&&W.text;
   const c5=`<div class="c5top"><div class="fh"><span class="num">5</span><b>Travailleurs</b></div><div class="wk sm row">
     <span class="lbl">Travailleurs</span><div class="cnt"><button data-fa="wk" data-d="-1" aria-label="Retirer un travailleur" ${W.workers<=1?'disabled':''}>−</button><b>${W.workers}</b><button class="plus" data-fa="wk" data-d="1" aria-label="Ajouter un travailleur">+</button></div>
@@ -2311,7 +2312,8 @@ $('#flow').addEventListener('click',e=>{
   if(a==='wk'){W.workers=Math.max(1,W.workers+Number(b.dataset.d));if(!W.hoursManual)W.hours=W.workers*8;renderSt();return}
   if(a==='hr'){W.hours=Math.max(0,W.hours+Number(b.dataset.d));W.hoursManual=W.hours!==W.workers*8;renderSt();return}
   if(a==='wkok'){W.step=U.editIndex!=null&&W.zone!=null?'comment':'zones';renderSt();return}
-  if(a==='stzone'){W.zone=b.dataset.v;renderSt();return}
+  if(a==='stzone'){const v=b.dataset.v;if(!v){W.zone='';W.zOpen=false}else{const z=stZones(W);const i=z.indexOf(v);if(i>=0)z.splice(i,1);else z.push(v);W.zone=z.join(', ');W.zOpen=true}renderSt();return}
+  if(a==='stzok'){W.zOpen=false;renderSt();return}
   if(a==='stact'){W.act=W.act===b.dataset.v?'':b.dataset.v;if(W.act&&W.who&&W.who!==BC){const l=S.actMap[W.act]||[];if(!l.includes(W.who)){S.actMap[W.act]=[...l,W.who];save()}}renderSt();return}
   if(a==='stactall'){W.actAll=!W.actAll;renderSt();return}
   if(a==='cmpick'){stDone(S.comments[Number(b.dataset.i)]);return}

@@ -52,7 +52,7 @@
 #pgEntry.split.full .win{left:0!important;z-index:62}
 #pgEntry.split.full.ov #rows{visibility:hidden!important}
 #pgEntry.split.full .win .flow{padding-bottom:58px}
-.wincancel{display:none}
+.wincancel{display:none}.windel{position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 22px;border:1.5px solid #b42318;border-radius:999px;background:#fff;color:#b42318;font-weight:850;font-size:15px}#pgEntry.full .windel{left:150px}.windel[hidden]{display:none!important}
 #pgEntry.full[data-sec="fdt"] .wincancel{display:none!important}
 #pgEntry.full .wincancel{display:block;position:absolute;left:16px;bottom:14px;z-index:70;height:44px;padding:0 24px;border:1.5px solid #141b22;border-radius:999px;background:#fff;color:#141b22;font-weight:850;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
 /* Sous-traitants : colonne Travailleurs plus compacte */
@@ -1255,7 +1255,7 @@ button{cursor:pointer}
     <div class="win" id="win" hidden>
       <div class="win-h"><b id="winTitle"></b><span id="winSent"></span><button class="btn" id="winClose">Fermer</button></div>
       <div class="flow" id="flow"></div>
-      <button class="wincancel" id="winCancel">Annuler</button>
+      <button class="wincancel" id="winCancel">Annuler</button><button class="windel" id="winDel" hidden>Supprimer la ligne</button>
     </div>
   </section>
 
@@ -1712,6 +1712,7 @@ function closeWin(){if(U.closing)return;const f=U.ftag,w=$('#win'),ex=[U.lvsp,U.
 function closeWinNow(){U.pendSel=null;U.lvNoSup=false;if(U.lvsp){U.lvsp.remove();U.lvsp=null}if(U.lvch){U.lvch.remove();U.lvch=null}if(U.ftag){U.ftag.remove();U.ftag=null}$('#pgEntry').classList.remove('ov','ovm','full');$('#ipad').classList.remove('efull');resetDraft();delete $('#pgEntry').dataset.sec;$('#win').style.top='';delete $('#win').dataset.top;$('#win').hidden=true;$('#win').style.visibility='';$('#win').style.opacity='';$('#win').style.transform='';renderEntry();drawTnav()}
 $('#winClose').onclick=closeWin;
 $('#winCancel').onclick=e=>{e.stopPropagation();closeWin()};
+$('#winDel').onclick=e=>{e.stopPropagation();const i=U.editIndex;if(i==null)return;const D=day(),en=D.entries[i];if(!en)return;const ph=D.photos.filter(p=>p.entry===en.id);D.entries.splice(i,1);ph.forEach(p=>p.entry=null);U.editIndex=null;save();closeWin();renderEntry();undoToast('Ligne supprimée',()=>{D.entries.splice(i,0,en);ph.forEach(p=>p.entry=en.id);save();renderEntry()})};
 
 document.addEventListener('click',e=>{const sg=e.target.closest('#rows [data-fsign]');if(sg){e.stopPropagation();e.preventDefault();fdtSign();return}const fsb=e.target.closest('#rows [data-fs]');if(fsb){e.stopPropagation();e.preventDefault();ftSup(fsb.dataset.fs,Number(fsb.dataset.d));return}const fc=e.target.closest('#rows [data-fc]');if(fc){e.stopPropagation();e.preventDefault();ftCount(fc.dataset.fc,fc.dataset.t,Number(fc.dataset.d));return}
   const fg=e.target.closest('#rows [data-fgo]');if(fg){e.stopPropagation();e.preventDefault();U.fdtAll=null;fdtFlow([fg.dataset.fgo]);return}
@@ -1965,7 +1966,7 @@ function puzzleize(root){if(!root)return;const cols=[...root.querySelectorAll(':
       inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();add()}};w.querySelector('button').onclick=ev=>{ev.stopPropagation();add()};inp.onclick=ev=>ev.stopPropagation()}});
   U.pzPrev=now;fillLogos(root)}
 const PZLIST={stwho:'st',stact:'trav',stzone:'zones',ruwho:'inter',evwho:'evtwho',evt:'evt'};
-function renderWin(){
+function renderWin(){{const wd=document.getElementById('winDel');if(wd)wd.hidden=U.editIndex==null}
   const k=U.winSec,row=JROWS.find(r=>r[0]===k);
   $('#winTitle').textContent=(U.editIndex!=null?'Modifier · ':'')+row[2]+(S.viewAll?' — '+S.project:'');
   if(k==='fdt'){$('#winSent').textContent='';renderFdt();return}
